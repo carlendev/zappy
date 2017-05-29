@@ -1,0 +1,32 @@
+{
+  "name": "zappy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/carlendev/zappy.git",
+  "author": "ludovic gueth <ludovicgueth@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.4.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-register": "^6.24.1",
+    "uglify-es": "git://github.com/mishoo/UglifyJS2#harmony",
+    "uglifyjs-webpack-plugin": "^0.4.3",
+    "webpack": "^2.5.1",
+    "webpack-node-externals": "^1.6.0"
+  },
+  "dependencies": {
+    "babel-runtime": "^6.23.0",
+    "express": "^4.15.3",
+    "nodemon": "^1.11.0",
+    "uglify-js": "^3.0.13"
+  },
+  "scripts": {
+    "build": "webpack -p",
+    "dev": "webpack -w & NODE_ENV=development nodemon dist/index.bundle.js"
+  }
+}
