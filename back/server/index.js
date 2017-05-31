@@ -1,12 +1,13 @@
-import express from "express";
-const app = express();
+import express from 'express'
+require('dotenv').config()
 
-const PORT = process.env.PORT || 3001;
+const app = express()
 
-app.listen(PORT, err => {
-  if (err) {
-    throw err;
-  } else {
-    console.log("App listen to " + PORT);
-  }
-});
+const handleError = err => {
+    console.error(err)
+    process.exit(1)
+}
+
+const PORT = +process.env.PORT || 3001
+
+app.listen(PORT, err => err ? handleError(err) : console.log(`App listen to ${PORT}`))
