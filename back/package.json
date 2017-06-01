@@ -6,10 +6,12 @@
   "author": "ludovic gueth <ludovicgueth@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "bluebird": "^3.5.0",
     "dotenv": "^4.0.0",
     "express": "^4.15.3",
     "nodemon": "^1.11.0",
-    "ramda": "^0.24.0"
+    "ramda": "^0.24.0",
+    "redis": "^2.7.1"
   },
   "scripts": {
     "start": "nodemon --watch src --exec 'node src/index.js'"
