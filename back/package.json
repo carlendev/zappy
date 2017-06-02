@@ -13,9 +13,10 @@
     "express-jsonschema": "^1.1.6",
     "nodemon": "^1.11.0",
     "ramda": "^0.24.0",
-    "redis": "^2.7.1"
+    "redis": "^2.7.1",
+    "socket.io": "^2.0.2"
   },
   "scripts": {
-    "start": "nodemon --watch src --exec 'node src/index.js'"
+    "start": "nodemon --watch src --exec 'node src/app.js'"
   }
 }
