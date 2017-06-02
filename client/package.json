@@ -1,0 +1,12 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "scripts": {
+    "start": "nodemon --watch src --exec 'node src/index.js'"
+  }
+}

@@ -14,6 +14,6 @@ const PORT = +process.env.PORT || 3001
 
 app.use('/api', mapAPI)
 
-initializeRedis.then(() => {
-    app.listen(PORT, err => err ? handleError(err) : console.log(`App listen to ${PORT}`))
-}).catch(handleError)
+initializeRedis
+    .then(() => app.listen(PORT, err => err ? handleError(err) : console.log(`App listen to ${PORT}`)))
+    .catch(handleError)
