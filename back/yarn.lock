@@ -367,6 +367,12 @@ expand-range@^1.8.1:
   dependencies:
     fill-range "^2.1.0"
 
+express-jsonschema@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/express-jsonschema/-/express-jsonschema-1.1.6.tgz#fd9d0667ecbb51430e326e9f620372a23136faef"
+  dependencies:
+    jsonschema "^1.0.0"
+
 express@^4.15.3:
   version "4.15.3"
   resolved "https://registry.yarnpkg.com/express/-/express-4.15.3.tgz#bab65d0f03aa80c358408972fc700f916944b662"
@@ -767,6 +773,10 @@ json-stringify-safe@~5.0.1:
 jsonify@~0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
+
+jsonschema@^1.0.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/jsonschema/-/jsonschema-1.1.1.tgz#3cede8e3e411d377872eefbc9fdf26383cbc3ed9"
 
 jsprim@^1.2.2:
   version "1.4.0"
