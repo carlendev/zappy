@@ -5,9 +5,12 @@
   "author": "Yann Carlen",
   "license": "MIT",
   "dependencies": {
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "ramda": "^0.24.1"
   },
   "scripts": {
-    "start": "nodemon --watch src --exec 'node src/app.js'"
+    "start": "node src/app.js",
+    "dev": "nodemon --watch src --exec 'node src/app.js'",
+    "spawn": "node src/spawner/app.js"
   }
 }
