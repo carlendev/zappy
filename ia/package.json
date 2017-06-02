@@ -1,0 +1,13 @@
+{
+  "name": "ia",
+  "version": "1.0.0",
+  "main": "src/app.js",
+  "author": "Yann Carlen",
+  "license": "MIT",
+  "dependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "scripts": {
+    "start": "nodemon --watch src --exec 'node src/app.js'"
+  }
+}
