@@ -6,4 +6,6 @@ const logInfo = msg => winston.log('info', msg)
 
 const logError = msg => winston.log('error', msg)
 
-module.exports = { logInfo, logError }
+const logInfoSocket = msg => logInfo(`[SOCKET] ${msg}`)
+
+module.exports = { logInfo, logError, logInfoSocket }

@@ -1995,7 +1995,7 @@ socket.io-adapter@~1.1.0:
   dependencies:
     debug "2.3.3"
 
-socket.io-client@~2.0.2:
+socket.io-client@^2.0.2, socket.io-client@~2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-2.0.2.tgz#86f59db59ba1168724220f39be281ad49af742c1"
   dependencies:
