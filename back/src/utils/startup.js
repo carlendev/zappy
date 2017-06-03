@@ -1,10 +1,13 @@
 const redis = require('./redis')
-const { set } = require('./redisfn')
+const { set, send } = require('./redisfn')
 const { mapSize } = require('../config')
 
-const initMapSize = set('mapSize', +mapSize)
+const initMapSize = () => set('mapSize', +mapSize)
 
-const initializeRedis = new Promise((s, f) => initMapSize
+const flush = () => send('FLUSHALL')
+
+const initializeRedis = () => new Promise((s, f) => flush()
+    .then(initMapSize)
     .then(s)
     .catch(f))
 

@@ -4,4 +4,6 @@ const get = key => redis.getAsync(key)
 
 const set = (key, value) => redis.setAsync(key, value)
 
-module.exports = { get, set }
+const send = cmd => redis.send_commandAsync(cmd)
+
+module.exports = { get, set, send }

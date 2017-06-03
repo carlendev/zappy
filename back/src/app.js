@@ -30,6 +30,6 @@ app.use('/api', mapAPI)
 app.use(jsonSyntaxError)
 app.use(jsonSchemaError)
 
-initializeRedis
+initializeRedis()
     .then(() => app.listen(PORT, err => err ? handleError(err) : console.log(`App listen to ${PORT}`)))
     .catch(handleError)
