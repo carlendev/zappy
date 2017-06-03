@@ -1,3 +1,5 @@
+const { logInfo } = require('./logger')
+//app middleware
 const jsonSchemaError = (err, req, res, next) => {
     if (err.name === 'JsonSchemaValidation') {
         res.status(400)
@@ -20,4 +22,10 @@ const jsonSyntaxError = (err, req, res, next) => {
     else next(err)
 }
 
-module.exports = { jsonSchemaError, jsonSyntaxError }
+//router middleware
+const log = (req, res, next) => {
+    logInfo(`[${req.method}] ${req.originalUrl} ${req.ip}`)
+    next()
+}
+
+module.exports = { jsonSchemaError, jsonSyntaxError, log }

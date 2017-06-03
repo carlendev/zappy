@@ -1,6 +1,7 @@
 const express = require('express')
 const mapAPI = require('./api/map/index')
 const bodyParser = require('body-parser')
+const { logInfo, logError } = require('./utils/logger')
 const { initializeRedis } = require('./utils/startup')
 const { jsonSchemaError, jsonSyntaxError } = require('./utils/middleware')
 
@@ -12,7 +13,7 @@ const server = require('http').createServer(app)
 const io = require('socket.io')(server)
 
 const handleError = err => {
-    console.error(err)
+    logError(err)
     process.exit(1)
 }
 
@@ -31,5 +32,5 @@ app.use(jsonSyntaxError)
 app.use(jsonSchemaError)
 
 initializeRedis()
-    .then(() => app.listen(PORT, err => err ? handleError(err) : console.log(`App listen to ${PORT}`)))
+    .then(() => app.listen(PORT, err => err ? handleError(err) : logInfo(`App listen to ${PORT}`)))
     .catch(handleError)
