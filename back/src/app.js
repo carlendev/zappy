@@ -2,6 +2,7 @@ const express = require('express')
 const mapAPI = require('./api/map/index')
 const bodyParser = require('body-parser')
 const _io = require('socket.io')
+const kue = require('kue')
 const { logInfo, logError } = require('./utils/logger')
 const { initializeRedis } = require('./utils/startup')
 const { jsonSchemaError, jsonSyntaxError } = require('./utils/middleware')
@@ -13,8 +14,13 @@ const app = express()
 //socket
 const server = require('http').createServer(app)
 
+
 //middleware
 app.use(bodyParser.json())
+
+//kue
+require('./queue/index')
+app.use('/queue', kue.app)
 
 //route
 app.use('/api', mapAPI)

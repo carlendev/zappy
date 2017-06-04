@@ -8,4 +8,8 @@ const logError = msg => winston.log('error', msg)
 
 const logInfoSocket = msg => logInfo(`[SOCKET] ${msg}`)
 
-module.exports = { logInfo, logError, logInfoSocket }
+const logQInfo = msg => logInfo(`[Q] ${msg}`)
+
+const logQError = msg => logError(`[Q] ${msg}`)
+
+module.exports = { logInfo, logError, logInfoSocket, logQInfo, logQError  }
