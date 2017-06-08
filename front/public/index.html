@@ -23,25 +23,11 @@
     <title>React App</title>
   </head>
   <body>
-    <div id="game"></div>
-
-    <script>
-    Crafty.init(300,300, document.getElementById('game'));
-
-Crafty.e('Floor, 2D, Canvas, Color')
-  .attr({x: 0, y: 250, w: 250, h: 10})
-  .color('green');
-
-Crafty.e('2D, Canvas, Color, Twoway, Gravity')
-  .attr({x: 0, y: 0, w: 50, h: 50})
-  .color('#F00')
-  .twoway(200)
-    .gravity('Floor');
-    </script>
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
     <div id="root"></div>
+    <div id="game"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -52,5 +38,6 @@ Crafty.e('2D, Canvas, Color, Twoway, Gravity')
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script src="/Game.js"></script>
   </body>
 </html>
