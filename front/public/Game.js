@@ -51,15 +51,13 @@ window.onload = () => {
         }
     }
 
-    //the loading screen that will display while our assets load
     Crafty.scene('loading', () => {
-        Crafty.scene('main') //when everything is loaded, run the main scene        
+        Crafty.scene('main')
     })
 
     Crafty.scene('main', () => {
-        Crafty.background('#000')
-        generateWorld()
-        
+        generateWorld()        
+
         Crafty.e('2D, Canvas, player, Controls, Collision, SpriteAnimation')
             .attr({ x: 16, y: 16, w: tileMapSize, h: tileMapSize })
             .reel("walk_right", 100, [ [9, 3], [10, 3], [11, 3] ])
@@ -90,10 +88,11 @@ window.onload = () => {
             }).onHit('wall_right', function() {
                 this.x -= tileMapSize
             }).onHit('wall_bottom', function() {
-                this.y -= tileMapSizex
+                this.y -= tileMapSize
             }).onHit('wall_top', function() {
                 this.y += tileMapSize
             })
     })
+    
     Crafty.scene('loading')
 }
