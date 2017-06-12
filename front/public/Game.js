@@ -58,7 +58,7 @@ window.onload = () => {
     Crafty.scene('main', () => {
         generateWorld()        
 
-        Crafty.e('2D, Canvas, player, Controls, Collision, SpriteAnimation')
+        const player = Crafty.e('2D, Canvas, player, Controls, Collision, SpriteAnimation')
             .attr({ x: 16, y: 16, w: tileMapSize, h: tileMapSize })
             .reel("walk_right", 100, [ [9, 3], [10, 3], [11, 3] ])
             .reel("walk_left", 100, [ [6, 3], [7, 3], [8, 3] ])
@@ -85,14 +85,17 @@ window.onload = () => {
             .collision()
             .onHit('wall_left', function() {
                 this.x += tileMapSize
-            }).onHit('wall_right', function() {
+            })
+            .onHit('wall_right', function() {
                 this.x -= tileMapSize
-            }).onHit('wall_bottom', function() {
+            })
+            .onHit('wall_bottom', function() {
                 this.y -= tileMapSize
-            }).onHit('wall_top', function() {
+            })
+            .onHit('wall_top', function() {
                 this.y += tileMapSize
             })
-    })
+        })
     
     Crafty.scene('loading')
 }
