@@ -5,7 +5,11 @@ window.onload = () => {
     const windowSize = 50 * tileMapSize
     
     Crafty.init(windowSize, windowSize, document.getElementById('game'))
-    
+
+    //Add audio for evolution
+    Crafty.audio.add("PokemonEvolution", "/sounds/PokemonEvolution.mp3")
+    Crafty.audio.play("PokemonEvolution", 1, 1)
+
     //turn the sprite map into usable components
     Crafty.sprite(16, '/images/sprite.png', {
         grass1: [0,0],
