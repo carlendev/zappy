@@ -64,7 +64,7 @@ window.onload = () => {
         generateWorld()
         
         Crafty.e('2D, Canvas, player, Controls, Collision, SpriteAnimation')
-            .attr({ x: 16, y: 16, w: 30, h: 30 })
+            .attr({ x: 16, y: 16, w: tileMapSize, h: tileMapSize })
             .reel("walk_right", 100, [ [9, 3], [10, 3], [11, 3] ])
             .reel("walk_left", 100, [ [6, 3], [7, 3], [8, 3] ])
             .reel("walk_down", 100, [ [0, 3], [1, 3], [2, 3] ])
