@@ -22,26 +22,20 @@ window.onload = () => {
         player: [0,3]
     })
 
-    //method to randomy generate the map
+    //randomy generate map
     const generateWorld = () => {
-        //generate the grass along the x-axis
         for(let i = 0; i < size; ++i) {
-            //generate the grass along the y-axis
             for(let j = 0; j < size; ++j) {
                 grassType = Math.floor((Math.random() * 4) + 1)
                 Crafty.e(`2D, Canvas, grass${grassType}`).attr({ x: i * tileMapSize, y: j * tileMapSize })
             }
         }   
-        
-        //create the bushes along the x-axis which will form the boundaries
         for(let i = 0; i < size; ++i) {
             Crafty.e('2D, Canvas, wall_top, bush' + Math.floor((Math.random() * 2) + 1))
                 .attr({ x: i * tileMapSize, y: 0, z: 2 });
             Crafty.e('2D, DOM, wall_bottom, bush' + Math.floor((Math.random() * 2) + 1))
                 .attr({ x: i * tileMapSize, y: (size - 1) * tileMapSize, z: 2 });
         }
-        
-        //create the bushes along the y-axis
         //we need to start one more and one less to not overlap the previous bushes
         for(let i = 1; i < size; i++) {
             Crafty.e('2D, DOM, wall_left, bush' + Math.floor((Math.random() * 2) + 1))
