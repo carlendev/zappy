@@ -2,7 +2,7 @@ window.onload = () => {
 
     const tileMapSize = 16
     const size = 50
-    const windowSize = 50 * tileMapSize
+    const windowSize = size * tileMapSize
     
     Crafty.init(windowSize, windowSize, document.getElementById('game'))
 
@@ -53,14 +53,7 @@ window.onload = () => {
 
     //the loading screen that will display while our assets load
     Crafty.scene('loading', () => {
-        //load takes an array of assets and a callback when complete
-        Crafty.scene('main') //when everything is loaded, run the main scene
-        
-        //black background with some loading text
-        Crafty.background('#000')
-        Crafty.e('2D, DOM, Text').attr({ w: 100, h: 20, x: 150, y: 120 })
-            .text('Loading')
-            .css({ 'text-align': 'center' })
+        Crafty.scene('main') //when everything is loaded, run the main scene        
     })
 
     Crafty.scene('main', () => {
