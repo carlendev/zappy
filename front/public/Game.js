@@ -63,13 +63,29 @@ window.onload = () => {
         Crafty.background('#000')
         generateWorld()
         
-        Crafty.e('2D, Canvas, player, Controls, Collision')
-            .attr({ x: 10, y: 10, w: 30, h: 30 })
+        Crafty.e('2D, Canvas, player, Controls, Collision, SpriteAnimation')
+            .attr({ x: 16, y: 16, w: 30, h: 30 })
+            .reel("walk_right", 100, [ [9, 3], [10, 3], [11, 3] ])
+            .reel("walk_left", 100, [ [6, 3], [7, 3], [8, 3] ])
+            .reel("walk_down", 100, [ [0, 3], [1, 3], [2, 3] ])
+            .reel("walk_up", 100, [ [3, 3], [4, 3], [5, 3] ])
             .bind('KeyDown', function(e) {
-                if(e.key === Crafty.keys.LEFT_ARROW) this.x -= tileMapSize
-                else if (e.key === Crafty.keys.RIGHT_ARROW) this.x += tileMapSize
-                else if (e.key === Crafty.keys.UP_ARROW) this.y -= tileMapSize
-                else if (e.key === Crafty.keys.DOWN_ARROW) this.y += tileMapSize
+                if(e.key === Crafty.keys.LEFT_ARROW) {
+                    this.animate('walk_left')
+                    this.x -= tileMapSize
+                }
+                else if (e.key === Crafty.keys.RIGHT_ARROW) {
+                    this.animate('walk_right')
+                    this.x += tileMapSize
+                }
+                else if (e.key === Crafty.keys.UP_ARROW) {
+                    this.animate('walk_up')
+                    this.y -= tileMapSize
+                }
+                else if (e.key === Crafty.keys.DOWN_ARROW) {
+                    this.animate('walk_down')
+                    this.y += tileMapSize
+                }
             })
             .collision()
             .onHit('wall_left', function() {
@@ -81,6 +97,6 @@ window.onload = () => {
             }).onHit('wall_top', function() {
                 this.y += tileMapSize
             })
-})
+    })
     Crafty.scene('loading')
 }
