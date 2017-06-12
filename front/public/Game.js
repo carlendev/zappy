@@ -6,7 +6,7 @@ window.onload = () => {
     
     Crafty.init(windowSize, windowSize, document.getElementById('game'))
 
-    //Add audio for evolution
+    //Add audio for Gameplay
     Crafty.audio.add("PokemonSounds", "/sounds/PokemonSounds.mp3")
     Crafty.audio.play("PokemonSounds", 5, 1)
 
