@@ -3,9 +3,6 @@ window.onload = () => {
     var _this;
 
     Crafty.init(400,320, document.getElementById('game'));
-    //	Crafty.init(400, 320);
-    //	Crafty.canvas();
-
     //turn the sprite map into usable components
     Crafty.sprite(16, "/images/sprite.png", {
         grass1: [0,0],
@@ -13,8 +10,8 @@ window.onload = () => {
         grass3: [2,0],
         grass4: [3,0],
         flower: [0,1],
-        bush1: [0,2],
-        bush2: [1,2],
+        bush1:  [0,2],
+        bush2:  [1,2],
         player: [0,3]
     });
 
@@ -81,74 +78,31 @@ window.onload = () => {
     Crafty.scene("main", function() {
         generateWorld();
         
-        Crafty.c('CustomControls', {
-            __move: {left: false, right: false, up: false, down: false},	
-            _speed: 3,
-            
-            CustomControls: function(speed) {
-                if(speed) this._speed = speed;
-                var move = this.__move;
-                
-                this.bind('enterframe', function() {
-                    //move the player in a direction depending on the booleans
-                    //only move the player in one direction at a time (up/down/left/right)
-                    if(Crafty.keydown["ArrowRight"] || Crafty.keydown["Right"]) this.x += this._speed;
-                    else if(Crafty.keydown["ArrowLeft"] || Crafty.keydown["Left"]) this.x -= this._speed;
-                    else if(Crafty.keydown["ArrowUp"] || Crafty.keydown["Up"]) this.y -= this._speed;
-                    else if(Crafty.keydown["ArrowDown"] || Crafty.keydown["Down"]) this.y += this._speed;
-                });
-                
-                return this;
-            }
-        });
-
-
-        //create our player entity with some premade components
-        _this = player = Crafty.e("2D, Canvas, player, Controls, CustomControls, SpriteAnimation, Collision")
-            .attr({x: 160, y: 144, z: 1})
-            .CustomControls(1)
-            .reel("walk_left", 6, 3, 8)
-            .reel("walk_right", 9, 3, 11)
-            .reel("walk_up", 3, 3, 5)
-            .reel("walk_down", 0, 3, 2)
-            .bind("enterframe", function(e) {
-                if(Crafty.keydown["ArrowLeft"] || Crafty.keydown["Left"]) {
-                    if(!this.isPlaying("walk_left"))
-                        this.stop().animate("walk_left", 10);
-                } else if(Crafty.keydown["ArrowRight"] || Crafty.keydown["Right"]) {
-                    if(!this.isPlaying("walk_right"))
-                        this.stop().animate("walk_right", 10);
-                } else if(Crafty.keydown["ArrowUp"] || Crafty.keydown["Up"]) {
-                    if(!this.isPlaying("walk_up"))
-                        this.stop().animate("walk_up", 10);
-                } else if(Crafty.keydown["ArrowDown"] || Crafty.keydown["Down"]) {
-                    if(!this.isPlaying("walk_down"))
-                        this.stop().animate("walk_down", 10);
+        Crafty.e("2D, Canvas, player, Controls, Collision")
+            .attr({x: 10, y: 10, w: 30, h: 30})
+            .bind('KeyDown', function(e) {
+                if(e.key == Crafty.keys.LEFT_ARROW) {
+                this.x = this.x - 1;
+                } else if (e.key == Crafty.keys.RIGHT_ARROW) {
+                this.x = this.x + 1;
+                } else if (e.key == Crafty.keys.UP_ARROW) {
+                this.y = this.y - 1;
+                } else if (e.key == Crafty.keys.DOWN_ARROW) {
+                this.y = this.y + 1;
                 }
-            }).bind("keyup", function(e) {
-                this.stop();
             })
             .collision()
-            .onHit("wall_left", function() {
-                this.x += this._speed;
-                this.stop();
-            }).onHit("wall_right", function() {
-                this.x -= this._speed;
-                this.stop();
-            }).onHit("wall_bottom", function() {
-                this.y -= this._speed;
-                this.stop();
-            }).onHit("wall_top", function() {
-                this.y += this._speed;
-                this.stop();
-            });
-    });
+                .onHit("wall_left", function() {
+                    this.x += 1;
+                }).onHit("wall_right", function() {
+                    this.x -= 1;
+                }).onHit("wall_bottom", function() {
+                    this.y -= 1;
+                }).onHit("wall_top", function() {
+                    this.y += 1;
+                });
+});
 
     //automatically play the loading scene
     Crafty.scene("loading");
-
-
-    setTimeout(() => {
-        setInterval(() => { _this.x += _this._speed }, 10)
-    }, 2000)
 }
