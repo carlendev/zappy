@@ -25,7 +25,7 @@ window.onload = () => {
             //generate the grass along the y-axis
             for(let j = 0; j < size; ++j) {
                 grassType = Math.floor((Math.random() * 4) + 1)
-                Crafty.e('2D, Canvas, grass'+grassType).attr({ x: i * tileMapSize, y: j * tileMapSize })
+                Crafty.e(`2D, Canvas, grass${grassType}`).attr({ x: i * tileMapSize, y: j * tileMapSize })
             }
         }   
         
