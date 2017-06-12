@@ -82,24 +82,24 @@ window.onload = () => {
             .attr({x: 10, y: 10, w: 30, h: 30})
             .bind('KeyDown', function(e) {
                 if(e.key == Crafty.keys.LEFT_ARROW) {
-                this.x = this.x - 1;
+                this.x = this.x - 16;
                 } else if (e.key == Crafty.keys.RIGHT_ARROW) {
-                this.x = this.x + 1;
+                this.x = this.x + 16;
                 } else if (e.key == Crafty.keys.UP_ARROW) {
-                this.y = this.y - 1;
+                this.y = this.y - 16;
                 } else if (e.key == Crafty.keys.DOWN_ARROW) {
-                this.y = this.y + 1;
+                this.y = this.y + 16;
                 }
             })
             .collision()
                 .onHit("wall_left", function() {
-                    this.x += 1;
+                    this.x += 16;
                 }).onHit("wall_right", function() {
-                    this.x -= 1;
+                    this.x -= 16;
                 }).onHit("wall_bottom", function() {
-                    this.y -= 1;
+                    this.y -= 16;
                 }).onHit("wall_top", function() {
-                    this.y += 1;
+                    this.y += 16;
                 });
 });
 
