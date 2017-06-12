@@ -7,8 +7,8 @@ window.onload = () => {
     Crafty.init(windowSize, windowSize, document.getElementById('game'))
 
     //Add audio for evolution
-    Crafty.audio.add("PokemonEvolution", "/sounds/PokemonEvolution.mp3")
-    Crafty.audio.play("PokemonEvolution", 1, 1)
+    Crafty.audio.add("PokemonSounds", "/sounds/PokemonSounds.mp3")
+    Crafty.audio.play("PokemonSounds", 5, 1)
 
     //turn the sprite map into usable components
     Crafty.sprite(16, '/images/sprite.png', {
