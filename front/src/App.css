@@ -1,0 +1,22 @@
+.title {
+    text-align: center;
+    margin: 25;
+}
+
+/* NavBar Style */
+.navBarStyle {
+    background-color: #5C6BC0;
+    padding: 10px;
+}
+
+/*Footer Style */
+.footerPage {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background-color: #5C6BC0;
+    color: white;
+    margin-top: 10px;
+}
