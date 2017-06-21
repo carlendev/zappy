@@ -2,6 +2,13 @@
   display: none;
 }
 
+.container {
+  margin-top: 50px;
+  background-color: #E6E6E6;
+  padding: 20px;
+  border-radius: 10px;
+}
+
 .centered {
   display: flex;
   justify-content: center;
