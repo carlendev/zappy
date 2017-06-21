@@ -7,7 +7,7 @@ const sendJson = fn => R.compose(fn, mockResponse)
 
 const setRedis = (key, data) => new Promise((s, f) => set(key, data).then(() => s({ status: 'ok' })).catch(() => f({ status: 'ko' })))
 
-const getRedis = key => new Promise((s, f) => get(key).then(data => s({ [ key ]: +data })).catch(err => f({ err })))
+const getRedis = key => new Promise((s, f) => get(key).then(data => s({ [ key ]: data })).catch(err => f({ err })))
 
 const saveRedisThenRes = fn => R.composeP(fn, mockResponse, setRedis)
 
