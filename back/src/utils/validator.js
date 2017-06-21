@@ -1,5 +1,7 @@
 const _validate = require('express-jsonschema').validate
 const R = require('ramda')
+const Validator = require('jsonschema').Validator
+const v = new Validator()
 
 const type = 'object'
 
@@ -14,8 +16,17 @@ const mapSizeMapAPI = {
     }
 }
 
+const clientPnw = {
+    properties: {
+      hub: { type: 'integer' },
+      team: { type: 'integer' }
+    }
+}
+
 const toBody = obj => ({ body : obj })
 
 const validate = R.compose(_validate, toBody)
 
-module.exports = { mapSizeMapAPI, validate }
+const validateJson =  fn => p => v.validate(p, fn)
+
+module.exports = { mapSizeMapAPI, clientPnw, validate, validateJson }

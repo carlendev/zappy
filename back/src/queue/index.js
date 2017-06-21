@@ -34,13 +34,9 @@ queue.process('move', (job, done) => {
 })
 */
 
-
 //take a layer above for manager hub event and note team event for been able to run multiple hub
 const createHubJob = (id, data, done) => queue.create(id, data)
-    .priority('critical')
-    .attempts(8)
-    .backoff(true)
-    .removeOnComplete(false)
+    .priority('critical').attempts(2).backoff(true).removeOnComplete(false)
     .save((err) => {
       if (err) {
         logQError(err)
@@ -70,10 +66,10 @@ createHub('hub2', queue, (job, done) => {
   setTimeout(() => done(), 10000)
 })
 
-
 setTimeout(() => {
   createHubJob('hub1', { hub: 'hub1', id: 'move', title: 'move player', frame: 100 }, () => console.info('move saved'))
   createHubJob('hub2', { hub: 'hub2', id: 'move1', title: 'move player', frame: 100 }, () => console.info('move1 saved'))
+  createHubJob('hub1', { hub: 'hub1', id: 'move', title: 'move player', frame: 100 }, () => console.info('move saved'))
 }, 5000)
 
 module.exports = { createHubJob }
