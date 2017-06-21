@@ -17,6 +17,13 @@ export default class Data extends Component {
     return (
       <form>
 
+        <div className="content">
+          <ul>
+            <li>Partie 1</li>
+            <li>Partie 2</li>
+          </ul>
+        </div>
+
         <div className="field">
           <label className="label">Name</label>
           <p className="control">
