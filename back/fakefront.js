@@ -16,7 +16,6 @@ setTimeout(() => io.emit('createHub', {
     mapHeight: 8,
     teams: [
         'ISSOU',
-        'The Reich',
         'BITE'
     ],
     clientsPerTeam: 1

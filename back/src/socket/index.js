@@ -1,9 +1,26 @@
 const { logInfoSocket } = require('../utils/logger')
 const { io } = require('../app')
 const { clientPnw, validateJson } = require('../utils/validator')
-const { createHub, deleteHub } = require('./hub/index')
+const { createHub, deleteHub } = require('./hub/index') 
 const { connectFront } = require('./front/index')
 const { set, get } = require('../utils/redisfn')
+
+const registerClient = (clients, client, data, nbTeam, nbPlayerMax, io) => {
+    clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }
+    logInfoSocket('Client connected ' + client.id)
+    get('clients').then(e => {
+        const add = JSON.parse(e)
+        const id = client.id
+        add.push(Object.assign(data, { id }))
+        set('clients', JSON.stringify(add)).then(e => {
+            get('clients').then(e => {
+                const _clients = JSON.parse(e)
+                const playerInHub = _clients.filter(e => e.hubName === data.hubName).length
+                if (playerInHub === nbPlayerMax * nbTeam) io.emit('play')
+            })
+        })
+    })        
+}
 
 const socket = () => {
     const clients = {}
@@ -42,16 +59,7 @@ const socket = () => {
                 const nbPlayerMax = +currentHub.clientsPerTeam
                 const _clients = JSON.parse(await get('clients'))
                 const playerInHub = _clients.filter(e => e.hubName === data.hubName)
-                if (!playerInHub.length) {
-                    clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }
-                    logInfoSocket('Client connected ' + client.id)
-                    return get('clients').then(e => {
-                        const add = JSON.parse(e)
-                        const id = client.id
-                        add.push(Object.assign(data, { id }))
-                        set('clients', JSON.stringify(add))
-                    })  
-                }
+                if (!playerInHub.length) return registerClient(clients, client, data, nbTeam, nbPlayerMax, io)
                 const nbPlayer = playerInHub.length
                 if (nbPlayer === nbPlayerMax * nbTeam) {
                     logInfoSocket(`Connection rejected, ${data.hubName} to much player in this hub`)
@@ -59,19 +67,13 @@ const socket = () => {
                     return                    
                 }
                 const playerInTeam = playerInHub.find(e => e.team === data.team)
+                if (playerInTeam === undefined || playerInTeam === null) return registerClient(clients, client, data, nbTeam, nbPlayerMax, io)
                 if (playerInTeam.length === currentHub.nbPlayerMax) {
                     logInfoSocket(`Connection rejected, ${data.hubName} to much player in this team`)
                     client.emit('dead')
                     return                                        
                 }
-                clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }
-                logInfoSocket('Client connected ' + client.id)
-                get('clients').then(e => {
-                    const add = JSON.parse(e)
-                    const id = client.id
-                    add.push(Object.assign(data, { id }))
-                    set('clients', JSON.stringify(add))
-                })
+                return registerClient(clients, client, data, nbTeam, nbPlayerMax, io)
             })
         })
 
