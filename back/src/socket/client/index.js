@@ -3,6 +3,7 @@ const { clientPnw, validateJson } = require('../../utils/validator')
 const { createHub, deleteHub } = require('../hub/index') 
 const { connectFront } = require('../front/index')
 const { set, get } = require('../../utils/redisfn')
+const { createHubQ, createHubJob } = require('../../queue/index')
 
 const registerClient = (clients, client, data, nbTeam, nbPlayerMax, io) => {
     clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }

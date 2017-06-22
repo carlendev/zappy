@@ -12,7 +12,7 @@ const socket = () => {
 
     io.on('connection', client => {  
 
-        client.on('connect', data => connect(data, clients, client, io))
+        client.on('join', data => connect(data, clients, client, io))
 
         client.on('disconnect', () => {
             if (clients[ client.id ].front) {
