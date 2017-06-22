@@ -21,7 +21,7 @@ queue.on('job complete', (id, result) => {
   })
 })
 
-const createHub = (id, queue, fn) => queue.process(id, fn)
+const createHubQ = (id, fn) => queue.process(id, fn)
 
 /*
 queue.process('move', (job, done) => {  
@@ -48,6 +48,7 @@ const createHubJob = (id, data, done) => queue.create(id, data)
 
 
 //TEST
+/*
 createHub('hub1', queue, (job, done) => {
   const data = job.data
   //do other stuff with the data.
@@ -65,11 +66,13 @@ createHub('hub2', queue, (job, done) => {
   setTimeout(() => job.progress(75, data.frame), 7500)
   setTimeout(() => done(), 10000)
 })
-
+*/
+/*
 setTimeout(() => {
   createHubJob('hub1', { hub: 'hub1', id: 'move', title: 'move player', frame: 100 }, () => console.info('move saved'))
   createHubJob('hub2', { hub: 'hub2', id: 'move1', title: 'move player', frame: 100 }, () => console.info('move1 saved'))
   createHubJob('hub1', { hub: 'hub1', id: 'move', title: 'move player', frame: 100 }, () => console.info('move saved'))
 }, 5000)
+*/
 
-module.exports = { createHubJob }
+module.exports = { createHubJob, createHubQ }
