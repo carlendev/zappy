@@ -13,15 +13,35 @@ const socket = () => {
         logInfoSocket('Client connected')
 
         client.on('pnw', data => {
-            if (validateJson(clientPnw)(data).errors.length) return
-            //TODO: (carlendev) check if team and hub exist
-            clients[ client.id ] = { socket: client, id: client.id, front: false }
-            logInfoSocket('Client connected ' + client.id)
-            get('clients').then(e => {
-                const add = JSON.parse(e)
-                const id = client.id
-                add.push(Object.assign(data, { id }))
-                set('clients', JSON.stringify(add))
+            if (validateJson(clientPnw)(data).errors.length) {
+                client.emit('dead')
+                return
+            }
+            get('hubs').then(e => {
+                const _hubs = JSON.parse(e)
+                if (!_hubs.length) {
+                    logInfoSocket('Connection rejected, no hubs found')
+                    return
+                }
+                if (!_hubs.find(e => e.hubName === data.hubName)) {
+                    logInfoSocket(`Connection rejected, ${data.hubName} hub not found`)
+                    client.emit('dead')
+                    return                    
+                }
+                const currentHub = _hubs.find(e => e.hubName === data.hubName)
+                if (!currentHub.teams.find(e => e === data.team)) {
+                    logInfoSocket(`Connection rejected, ${data.team} team not found`)
+                    client.emit('dead')
+                    return                                        
+                }
+                clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }
+                logInfoSocket('Client connected ' + client.id)
+                get('clients').then(e => {
+                    const add = JSON.parse(e)
+                    const id = client.id
+                    add.push(Object.assign(data, { id }))
+                    set('clients', JSON.stringify(add))
+                })
             })
         })
 

@@ -4,14 +4,14 @@ const { generateMap } = require('../../utils/map')
 const { set, get } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 
-const createHub = (data, clients) => {
+const createHub = (data, clients, client, hubs) => {
     if (validateJson(createHubP)(data).errors.length) return
     get('hubs').then(async e => {
-        const hubs = JSON.parse(e)
-        if (hubs.find(hub => hub.hubName === data.hubName)) return
+        const _hubs = JSON.parse(e)
+        if (_hubs.find(_hub => _hub.hubName === data.hubName)) return
         logInfoSocket('Hub created ' + data.name)
-        hubs.push(Object.assign(data, { id: hubs.length + 1, map: await generateMap(data.mapWidth, data.mapHeight) }))
-        set('hubs', JSON.stringify(hubs)).then(() => {
+        _hubs.push(Object.assign(data, { id: _hubs.length + 1, map: await generateMap(data.mapWidth, data.mapHeight) }))
+        set('hubs', JSON.stringify(_hubs)).then(() => {
             logInfoSocket('Job queue created ' + data.name)
             hubs[ _hubs.length + 1 ] = { hub: createHubQ(data.name, hubEvents), name: data.name }
         })
