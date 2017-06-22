@@ -23,7 +23,7 @@ const clientPnw = {
     }
 }
 
-const deleteHub = {
+const deleteHubP = {
     properties: {
       id: { type: 'integer' }
     }
@@ -35,4 +35,4 @@ const validate = R.compose(_validate, toBody)
 
 const validateJson =  fn => p => v.validate(p, fn)
 
-module.exports = { mapSizeMapAPI, clientPnw, deleteHub, validate, validateJson }
+module.exports = { mapSizeMapAPI, clientPnw, deleteHubP, validate, validateJson }

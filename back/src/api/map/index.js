@@ -10,8 +10,9 @@ router.get('/map/size', log, (_, res) => getRedisThenRes(res.json.bind(res))('ma
 
 router.post('/map/size', log, validate(mapSizeMapAPI), (req, res) => saveRedisThenRes(res.json.bind(res))('mapSize', +req.body.mapSize))
 
-router.get('/map', log, (_, res) => getRedisThenRes(res.json.bind(res))('map'))
+//TODO: add id as param for handle multiple hub
+//router.get('/map', log, (_, res) => getRedisThenRes(res.json.bind(res))('map'))
 
-router.post('/map', log, async (_, res) => saveRedisThenRes(res.json.bind(res))('map', (await generateMap())))
+//router.post('/map', log, async (_, res) => saveRedisThenRes(res.json.bind(res))('map', (await generateMap())))
 
 module.exports = router

@@ -1,6 +1,7 @@
 const { logInfoSocket } = require('../utils/logger')
 const { io } = require('../app')
-const { clientPnw, deleteHub, validateJson } = require('../utils/validator')
+const { clientPnw, validateJson } = require('../utils/validator')
+const { createHub, deleteHub } = require('./hub/index')
 const { set, get } = require('../utils/redisfn')
 
 const socket = () => {
@@ -41,28 +42,10 @@ const socket = () => {
             logInfoSocket('Front connected')
         })
 
-        client.on('createHub', data => {
-            if (data.name === undefined || data.name === null) return
-            logInfoSocket('Hub created ' + data.name)
-            get('hubs').then(e => {
-                const hubs = JSON.parse(e)
-                hubs.push(Object.assign(data, { id: hubs.length + 1 }))
-                set('hubs', JSON.stringify(hubs))
-            })            
-        })
+        client.on('createHub', data => createHub(data, clients))
 
         //TODO: (carlendev) delete all the client in this hub
-        client.on('deleteHub', data => {
-            if (validateJson(deleteHub)(data).errors.length) return
-            get('hubs').then(e => {
-                const hubs = JSON.parse(e)
-                const id = data.id
-                const _new = hubs.filter(e => e.id !== id)
-                set('hubs', JSON.stringify(_new))
-            })
-            logInfoSocket('Hub deleted ' + data.name)
-        })
-
+        client.on('deleteHub', data => deleteHub(data, clients))
     })
 }
 
