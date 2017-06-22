@@ -19,8 +19,8 @@ setTimeout(() => io.emit('createHub', {
         'The Reich',
         'BITE'
     ],
-    clientsPerTeam: 6
-}), 1000)
+    clientsPerTeam: 1
+}), 500)
 
 //setTimeout(() => io.emit('deleteHub', { id: 1 }), 2000)
 
