@@ -4,7 +4,6 @@ const { generateMap } = require('../../utils/map')
 const { set, get } = require('../../utils/redisfn')
 
 const createHub = (data, clients) => {
-    console.log(clients)
     if (data.name === undefined || data.name === null) return
     logInfoSocket('Hub created ' + data.name)
     get('hubs').then(async e => {

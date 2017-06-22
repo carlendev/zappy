@@ -2,6 +2,7 @@ const { logInfoSocket } = require('../utils/logger')
 const { io } = require('../app')
 const { clientPnw, validateJson } = require('../utils/validator')
 const { createHub, deleteHub } = require('./hub/index')
+const { connectFront } = require('./front/index')
 const { set, get } = require('../utils/redisfn')
 
 const socket = () => {
@@ -37,15 +38,13 @@ const socket = () => {
             })
         })
 
-        client.on('connectFront', () => {
-            clients[ client.id ] = { socket: client, id: client.id, front: true }
-            logInfoSocket('Front connected')
-        })
+        //INFO: FRONT events
+        client.on('connectFront', data => connectFront(data, clients, client))
 
-        client.on('createHub', data => createHub(data, clients))
-
+        //INFO: HUB events
+        client.on('createHub', data => createHub(data, clients, client))
         //TODO: (carlendev) delete all the client in this hub
-        client.on('deleteHub', data => deleteHub(data, clients))
+        client.on('deleteHub', data => deleteHub(data, clients, client))
     })
 }
 

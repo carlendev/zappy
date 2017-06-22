@@ -12,7 +12,7 @@ io.on('connect', () => {
 
 setTimeout(() => io.emit('createHub', { name: 'hub1' }), 1000)
 
-setTimeout(() => io.emit('deleteHub', { id: 1 }), 2000)
+//setTimeout(() => io.emit('deleteHub', { id: 1 }), 2000)
 
 io.on('dead', () => {
     wesh('I\' dead')
