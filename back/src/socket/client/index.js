@@ -1,4 +1,4 @@
-const { logInfoSocket } = require('../../utils/logger')
+const { logInfoSocket, logQInfo } = require('../../utils/logger')
 const { clientPnw, validateJson } = require('../../utils/validator')
 const { createHub, deleteHub } = require('../hub/index') 
 const { connectFront } = require('../front/index')
@@ -16,8 +16,11 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, io) => {
             createHubQ(id, userEvents)
             get('clients').then(e => {
                 const _clients = JSON.parse(e)
-                const playerInHub = _clients.filter(e => e.hubName === data.hubName).length
-                if (playerInHub === nbPlayerMax * nbTeam) io.emit('play')
+                const playerInHub = _clients.filter(e => e.hubName === data.hubName)
+                if (playerInHub.length !== nbPlayerMax * nbTeam) return 
+                io.emit('play')
+                playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', frame: 100 },
+                                () => logQInfo('move saved')))
             })
         })
     })        
