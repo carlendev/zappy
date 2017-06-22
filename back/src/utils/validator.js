@@ -18,8 +18,18 @@ const mapSizeMapAPI = {
 
 const clientPnw = {
     properties: {
-      hub: { type: 'integer' },
-      team: { type: 'integer' }
+      hubName: { type: 'string' },
+      team: { type: 'string' }
+    }
+}
+
+const createHubP = {
+    properties: {
+        hubName: { type: 'string' },
+        mapWidth: { type: 'number' },
+        mapHeight: { type: 'number' },
+        teams: { type: 'array', items: { type: 'string' }, minItems: 1, uniqueItems: true },
+        clientsPerTeam: { type: 'number' }
     }
 }
 
@@ -35,4 +45,4 @@ const validate = R.compose(_validate, toBody)
 
 const validateJson =  fn => p => v.validate(p, fn)
 
-module.exports = { mapSizeMapAPI, clientPnw, deleteHubP, validate, validateJson }
+module.exports = { mapSizeMapAPI, clientPnw, createHubP, deleteHubP, validate, validateJson }

@@ -6,7 +6,7 @@ const wesh = console.log
 const exit = (code=0) => process.exit(code)
 
 io.on('connect', () => {
-    io.emit('pnw', { hub: 1, team: 10 })
+    io.emit('pnw', { hubName: 'hub1', team: 'ISSOU' })
     wesh('I\' am connected')
 })
 

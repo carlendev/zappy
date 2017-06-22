@@ -1,8 +1,6 @@
 const redis = require('./redis')
 const { set, send } = require('./redisfn')
-const { mapSize, ressourceRatio } = require('../config')
-
-const initMapSize = () => set('mapSize', mapSize)
+const { ressourceRatio } = require('../config')
 
 const initRessourceRatio = () => set('ressourceRatio', ressourceRatio)
 
@@ -13,7 +11,6 @@ const initClients = () => set('clients', JSON.stringify([]))
 const initHubs = () => set('hubs', JSON.stringify([]))
  
 const initializeRedis = () => new Promise((s, f) => flush()
-    .then(initMapSize)
     .then(initClients)
     .then(initHubs)
     .then(initRessourceRatio)

@@ -1,14 +1,15 @@
 const { logInfoSocket } = require('../../utils/logger')
-const { clientPnw, deleteHubP, validateJson } = require('../../utils/validator')
+const { createHubP, deleteHubP, validateJson } = require('../../utils/validator')
 const { generateMap } = require('../../utils/map')
 const { set, get } = require('../../utils/redisfn')
 
 const createHub = (data, clients) => {
-    if (data.name === undefined || data.name === null) return
-    logInfoSocket('Hub created ' + data.name)
+    if (validateJson(createHubP)(data).errors.length) return
     get('hubs').then(async e => {
         const hubs = JSON.parse(e)
-        hubs.push(Object.assign(data, { id: hubs.length + 1, map: await generateMap() }))
+        if (hubs.find(hub => hub.hubName === data.hubName)) return
+        logInfoSocket('Hub created ' + data.name)
+        hubs.push(Object.assign(data, { id: hubs.length + 1, map: await generateMap(data.mapWidth, data.mapHeight) }))
         set('hubs', JSON.stringify(hubs))
     })     
 }

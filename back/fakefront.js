@@ -10,7 +10,17 @@ io.on('connect', () => {
     wesh('I\' am connected')
 })
 
-setTimeout(() => io.emit('createHub', { name: 'hub1' }), 1000)
+setTimeout(() => io.emit('createHub', {
+    hubName: 'hub1',
+    mapWidth: 8,
+    mapHeight: 8,
+    teams: [
+        'ISSOU',
+        'The Reich',
+        'BITE'
+    ],
+    clientsPerTeam: 6
+}), 1000)
 
 //setTimeout(() => io.emit('deleteHub', { id: 1 }), 2000)
 
