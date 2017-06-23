@@ -9,19 +9,18 @@ function gup(name, url) {
 
 window.onload = () => {
   const WelcomeDiv = document.getElementById("welcome");
-
   const id = gup("id", window.location.href);
   WelcomeDiv.innerHTML = "Vous êtes sur la partie numéro " + id;
 
   const tileMapSize = 16;
-  const size = 50;
+  const size = 40;
   const windowSize = size * tileMapSize;
 
   Crafty.init(windowSize, windowSize, document.getElementById("game"));
 
   //Add audio for Gameplay
-  Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
-  Crafty.audio.play("PokemonSounds", 5, 1);
+  //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
+  //Crafty.audio.play("PokemonSounds", 5, 1);
 
   //turn the sprite map into usable components
   Crafty.sprite(16, "/images/sprite.png", {
