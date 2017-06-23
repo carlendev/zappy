@@ -39,12 +39,19 @@ export default class Data extends Component {
     e.preventDefault();
   }
 
+  joinGame(id) {
+    window.location.replace("game.html" + id);
+  }
+
   render() {
     switch (this.state.step) {
       case 1: {
         return (
           <div>
-            <h2 className="title is-2">Liste des parties en cours</h2>
+            <div className="has-text-centered">
+              <h2 className="title is-2">Bienvenue {this.state.pseudo}</h2>
+            </div>
+            <h2 className="title is-4">Liste des parties en cours</h2>
             <div className="box">
               <article className="media">
                 <div className="media-content">
@@ -58,7 +65,9 @@ export default class Data extends Component {
                         <small>3 minutes</small>
                       </div>
                       <div className="column">
-                        <a className="button is-primary">Rejoindre</a>
+                        <a className="button is-primary" href="game.html?id=1">
+                          Rejoindre
+                        </a>
                       </div>
                       <div className="column">
                         <a className="button is-info">Regarder</a>
@@ -80,7 +89,9 @@ export default class Data extends Component {
                         <small>5 minutes</small>
                       </div>
                       <div className="column">
-                        <a className="button is-primary">Rejoindre</a>
+                        <a className="button is-primary" href="game.html?id=2">
+                          Rejoindre
+                        </a>
                       </div>
                       <div className="column">
                         <a className="button is-info">Regarder</a>
