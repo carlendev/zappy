@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Game from "./Game";
 import Data from "./Data";
 
 class App extends Component {
@@ -9,7 +8,6 @@ class App extends Component {
         <div id="data" className="container">
           <Data />
         </div>
-        <Game />
       </div>
     );
   }

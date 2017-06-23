@@ -6,31 +6,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="theme-color" content="#000000">
   <link rel="stylesheet" href="./bulma.css">
-  <!--
-      manifest.json provides metadata used when your web app is added to the
-      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
-    -->
-  <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-      -->
   <title>Zappy</title>
 </head>
 
 <body>
-  <div class="centered">
-    <h2 id="welcome" class="title is-2">salut</h2>
-    <div id="game"></div>
+  <div class="columns">
+    <div class="column">
+      <div class="centered">
+        <div id="welcome"></div>
+        <div id="game"></div>
+      </div>
+    </div>
+    <div class="column">
+      <div class="box">
+        <article class="media">
+          <div class="media-content">
+            <div class="content">
+              <p><strong>Muller</strong> <small>level 4</small></p>
+              <div class="block">
+                <a class="button is-primary">Action</a>
+                <a class="button is-info">Action</a>
+                <a class="button is-success">Action</a>
+              </div>
+              <p>Temps restant <strong>31 secondes</strong></p>
+              <progress class="progress is-danger" value="90" max="100">90%</progress>
+              </p>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="box is-dark">
+        <article class="media">
+          <div class="media-content">
+            <div class="content">
+              <p><strong>Carlen</strong> <small>level 4</small></p>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="box is-dark";>
+        <article class="media">
+          <div class="media-content">
+            <div class="content">
+              <p><strong>Tran</strong> <small>level 4</small></p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
 
   </div>
-
-  <script type="text/javascript" src="https://rawgithub.com/craftyjs/Crafty/release/dist/crafty-min.js"></script>
-  <script src="/Game.js"></script>
 </body>
-
+<script type="text/javascript" src="https://rawgithub.com/craftyjs/Crafty/release/dist/crafty-min.js"></script>
+<script src="./Game.js"></script>
 </html>

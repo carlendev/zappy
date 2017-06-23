@@ -673,6 +673,11 @@ a.has-text-danger:hover, a.has-text-danger:focus {
   padding: 1.25rem;
 }
 
+.box.is-dark {
+  background-color: #95a5a6;
+  border-color: transparent;
+}
+
 .box:not(:last-child) {
   margin-bottom: 1.5rem;
 }

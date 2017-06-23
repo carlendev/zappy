@@ -21,7 +21,7 @@ export default class Data extends Component {
   firstStep(e) {
     e.preventDefault();
     if (this.state.step === 1) {
-      document.getElementById("game").style.display = "block";
+      document.getElementById("gamee").style.display = "block";
       document.getElementById("data").style.display = "none";
     } else {
       if (this.state.pseudo === "") {
