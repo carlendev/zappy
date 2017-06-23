@@ -9,9 +9,7 @@ class App extends Component {
         <div id="data" className="container">
           <Data />
         </div>
-
         <Game />
-
       </div>
     );
   }

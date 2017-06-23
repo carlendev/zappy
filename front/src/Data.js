@@ -15,27 +15,66 @@ export default class Data extends Component {
 
   render() {
     return (
-      <form>
+    <div>
+        <div className="box">
+            <article className="media">
+                <div className="media-content">
+                    <div className="content">
+                        <div className="columns">
+                            <div className="column is-half">
+                            <p><strong>Partie 1</strong></p>
 
-        <div className="content">
-          <ul>
-            <li>Partie 1</li>
-            <li>Partie 2</li>
-          </ul>
+                            </div>
+                            <div className="column is-one-quarter">
+                                <small>3 minutes</small>
+                            </div>
+                            <div className="column">
+                                    <a className="button is-primary">Rejoindre</a>
+                            </div>
+                            <div className="column">
+                                <a className="button is-info">Regarder</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
         </div>
+        <div className="box">
+            <article className="media">
+                <div className="media-content">
+                    <div className="content">
+                        <div className="columns">
+                            <div className="column is-half">
+                                <p><strong>Partie 2</strong></p>
 
-        <div className="field">
+                            </div>
+                            <div className="column is-one-quarter">
+                                <small>5 minutes</small>
+                            </div>
+                            <div className="column">
+                                <a className="button is-primary">Rejoindre</a>
+                            </div>
+                            <div className="column">
+                                <a className="button is-info">Regarder</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+      <form>
+          <div className="field">
           <label className="label">Name</label>
           <p className="control">
             <input className="input" type="text" placeholder="Text input" />
           </p>
         </div>
-
         <button className="button is-info" onClick={this.firstStep}>
           Jouer
         </button>
 
       </form>
+    </div>
     );
   }
 }
