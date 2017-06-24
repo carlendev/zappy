@@ -8,6 +8,18 @@ const { randTile } = require('../../utils/map')
 
 let _clients = {}
 
+const findClients = id => new Promise(s => get('clients').then(e => {
+    const _clients = JSON.parse(e)
+    s([ _clients, _clients.find(c => c.id === id) ])
+}))
+
+const findHubs = hubName => new Promise(s => get('hubs').then(e => {
+    _hubs = JSON.parse(e)
+    s([ _hubs, _hubs.find(h => h.hubName === hubName) ])
+}))
+
+const setClients = (clients, fn, ...args) => set('clients', JSON.stringify(clients)).then(() => fn(...args))
+
 const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, io) => {
     clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }
     _clients = clients
@@ -96,52 +108,33 @@ const disconnect = (data, clients, client) => {
     })
 }
 
-
-const forward = (data, clients, client) => {
-    get('clients').then(e => {
-        const _clients = JSON.parse(e)
-        const _client = _clients.find(c => c.id === client.id)
-        get('hubs').then(e => {
-            _hubs = JSON.parse(e)
-            _hub = _hubs.find(h => h.hubName === _client.hubName)
-            switch (_client.orientation) {
-                case 1:
-                    if (--_client.pos.y < 0)
-                        _client.pos.y = _hub.mapHeight - 1
-                    break
-                case 2:
-                    if (--_client.pos.x)
-                        _client.pos.x = _hub.mapWidth - 1
-                    break
-                case 3:
-                    _client.pos.y = (_client.pos.y + 1) % _hub.mapHeight
-                    break
-                case 4:
-                    _client.pos.x = (_client.pos.x + 1) % _hub.mapWidth
-                    break
-            }
-            set('clients', JSON.stringify(_clients)).then(() => {
-                console.log('New pos is: ', _client .pos)
-            })
-        })
-    })
-}
-
-const findClients = id => new Promise(s => get('clients').then(e => {
-    const _clients = JSON.parse(e)
-    s([ _clients, _clients.find(c => c.id === id) ])
+const forward = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) =>
+    findHubs(_clients.hubName).then(([ _hubs, _hub ]) => {
+    switch (_client.orientation) {
+        case 1:
+            if (--_client.pos.y < 0) _client.pos.y = _hub.mapHeight - 1
+            break
+        case 2:
+            if (--_client.pos.x) _client.pos.x = _hub.mapWidth - 1
+            break
+        case 3:
+            _client.pos.y = (_client.pos.y + 1) % _hub.mapHeight
+            break
+        case 4:
+            _client.pos.x = (_client.pos.x + 1) % _hub.mapWidth
+            break
+    }
+    setClients(_clients, _client => logInfoSocket('New pos is: ' + JSON.stringify(_client.pos)), _client)
 }))
-
-const setClients = (clients, fn, ...args) => set('clients', JSON.stringify(clients)).then(() => fn(...args))
 
 const left = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     if (--_client.orientation < 1) _client.orientation = 4
-    setClients(_clients, _client => logInfoSocket('New orientation is: ', _client.orientation), _client)
+    setClients(_clients, _client => logInfoSocket('New orientation is: ' + _client.orientation), _client)
 })
 
 const right = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     if (_client.orientation > 4) _client.orientation = 1
-    setClients(_clients, _client => logInfoSocket('New orientation is: ', _client.orientation), _client)
+    setClients(_clients, _client => logInfoSocket('New orientation is: ' + _client.orientation), _client)
 })
 
 const userEvents = async (job, done) => {
