@@ -8,7 +8,7 @@ const moveForward = (data, clients, client, hubs) => {
     const _client = _clients.find(c => c.id === client.id)
     const front_id = Object.keys(clients).find(e => clients[e].front === true)
     createHubJob(_client.id, {
-      client_id: client.id,
+      client_id: _client.id,
       front_id: front_id,
       hub: _client.hub,
       id: 'Forward',
@@ -25,7 +25,7 @@ const moveRight = (data, clients, client, hubs) => {
     const _client = _clients.find(c => c.id === client.id)
     const front_id = Object.keys(clients).find(e => clients[e].front === true)
     createHubJob(_client.id, {
-      client_id: client.id,
+      client_id: _client.id,
       front_id: front_id,
       hub: _client.hub,
       id: 'Right',
@@ -42,7 +42,7 @@ const moveLeft = (data, clients, client, hubs) => {
     const _client = _clients.find(c => c.id === client.id)
     const front_id = Object.keys(clients).find(e => clients[e].front === true)
     createHubJob(_client.id, {
-      client_id: client.id,
+      client_id: _client.id,
       front_id: front_id,
       hub: _client.hub,
       id: 'Left',

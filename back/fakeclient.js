@@ -29,9 +29,6 @@ if (args.options.hub === undefined || args.options.team === undefined) {
 io.on('connect', () => {
     io.emit('join', { hubName: args.options.hub, team: args.options.team })
     wesh('I\' am connected')
-    io.emit('Forward')
-    io.emit('Right')
-    io.emit('Left')
 })
 
 io.on('dead', () => {
@@ -41,6 +38,9 @@ io.on('dead', () => {
 
 io.on('start', () => {
     wesh('Start play ' + 'issou')
+    io.emit('Forward')
+    io.emit('Right')
+    io.emit('Left')
 })
 
 io.on('disconnect', () => {
