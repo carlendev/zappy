@@ -101,58 +101,48 @@ const forward = (data, clients, client) => {
     get('clients').then(e => {
         const _clients = JSON.parse(e)
         const _client = _clients.find(c => c.id === client.id)
-        const _index = _clients.findIndex(c => c.id === client.id)
         get('hubs').then(e => {
             _hubs = JSON.parse(e)
             _hub = _hubs.find(h => h.hubName === _client.hubName)
-            switch (_clients[_index].orientation) {
+            switch (_client.orientation) {
                 case 1:
-                    if (--_clients[_index].pos.y < 0)
-                        _clients[_index].pos.y = _hub.mapHeight - 1
+                    if (--_client.pos.y < 0)
+                        _client.pos.y = _hub.mapHeight - 1
                     break
                 case 2:
-                    if (--_clients[_index].pos.x)
-                        _clients[_index].pos.x = _hub.mapWidth - 1
+                    if (--_client.pos.x)
+                        _client.pos.x = _hub.mapWidth - 1
                     break
                 case 3:
-                    _clients[_index].pos.y = (_clients[_index].pos.y + 1) % _hub.mapHeight
+                    _client.pos.y = (_client.pos.y + 1) % _hub.mapHeight
                     break
                 case 4:
-                    _clients[_index].pos.x = (_clients[_index].pos.x + 1) % _hub.mapWidth
+                    _client.pos.x = (_client.pos.x + 1) % _hub.mapWidth
                     break
             }
             set('clients', JSON.stringify(_clients)).then(() => {
-                console.log('New pos is: ', _clients[_index].pos)
+                console.log('New pos is: ', _client .pos)
             })
         })
     })
 }
 
-const left = (data, clients, client) => {
-    get('clients').then(e => {
-        const _clients = JSON.parse(e)
-        const _client = _clients.find(c => c.id === client.id)
-        const _index = _clients.findIndex(c => c.id === client.id)
-        if (--_clients[_index].orientation < 1)
-            _clients[_index].orientation = 4
-        set('clients', JSON.stringify(_clients)).then(() => {
-            console.log('New orientation is: ', _clients[_index].orientation)
-        })
-    })
-}
+const findClients = id => new Promise(s => get('clients').then(e => {
+    const _clients = JSON.parse(e)
+    s([ _clients, _clients.find(c => c.id === id) ])
+}))
 
-const right = (data, clients, client) => {
-    get('clients').then(e => {
-        const _clients = JSON.parse(e)
-        const _client = _clients.find(c => c.id === client.id)
-        const _index = _clients.findIndex(c => c.id === client.id)
-        if (++_clients[_index].orientation > 4)
-            _clients[_index].orientation = 1
-        set('clients', JSON.stringify(_clients)).then(() => {
-            console.log('New orientation is: ', _clients[_index].orientation)
-        })
-    })
-}
+const setClients = (clients, fn, ...args) => set('clients', JSON.stringify(clients)).then(() => fn(...args))
+
+const left = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
+    if (--_client.orientation < 1) _client.orientation = 4
+    setClients(_clients, _client => logInfoSocket('New orientation is: ', _client.orientation), _client)
+})
+
+const right = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
+    if (_client.orientation > 4) _client.orientation = 1
+    setClients(_clients, _client => logInfoSocket('New orientation is: ', _client.orientation), _client)
+})
 
 const userEvents = async (job, done) => {
     const data = job.data
