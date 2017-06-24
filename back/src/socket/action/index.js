@@ -2,11 +2,13 @@ const { logInfoSocket, logQInfo } = require('../../utils/logger')
 const { set, get } = require('../../utils/redisfn')
 const { createHubJob } = require('../../queue/index')
 
+const getFrontId = clients => Object.keys(clients).find(e => clients[e].front === true)
+
 const moveForward = (data, clients, client, hubs) => {
   get('clients').then(e => {
     const _clients = JSON.parse(e)
     const _client = _clients.find(c => c.id === client.id)
-    const front_id = Object.keys(clients).find(e => clients[e].front === true)
+    const front_id = getFrontId(clients)
     createHubJob(_client.id, {
       client_id: _client.id,
       front_id: front_id,
@@ -23,7 +25,7 @@ const moveRight = (data, clients, client, hubs) => {
   get('clients').then(e => {
     const _clients = JSON.parse(e)
     const _client = _clients.find(c => c.id === client.id)
-    const front_id = Object.keys(clients).find(e => clients[e].front === true)
+    const front_id = getFrontId(clients)
     createHubJob(_client.id, {
       client_id: _client.id,
       front_id: front_id,
@@ -40,7 +42,7 @@ const moveLeft = (data, clients, client, hubs) => {
   get('clients').then(e => {
     const _clients = JSON.parse(e)
     const _client = _clients.find(c => c.id === client.id)
-    const front_id = Object.keys(clients).find(e => clients[e].front === true)
+    const front_id = getFrontId(clients)
     createHubJob(_client.id, {
       client_id: _client.id,
       front_id: front_id,
