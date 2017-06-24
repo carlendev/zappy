@@ -1,4 +1,4 @@
-const { logInfoSocket, logQInfo } = require('../../utils/logger')
+const { logInfoSocket, logQInfo, logQError } = require('../../utils/logger')
 const { clientPnw, validateJson } = require('../../utils/validator')
 const { createHub, deleteHub } = require('../hub/index')
 const { connectFront } = require('../front/index')
@@ -24,7 +24,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
                 if (playerInHub.length !== nbPlayerMax * nbTeam) return 
                 io.emit('play')
                 const front_id = Object.keys(clients).find(e => clients[e].front === true)
-                playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id, frame: 100 },
+                playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id },
                                 () => logQInfo('Start game')))
             })
         })
@@ -154,14 +154,17 @@ const right = (data, clients, client) => {
     })
 }
 
-const userEvents = (job, done) => {
+const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
     const front = _clients[ data.front_id ]
+    const hubs = JSON.parse(await get('hubs'))
+    const hubInfo = hubs.find(e => e.name === client.hubName)
+    const clients = JSON.parse(await get('clients'))
     setTimeout(() => {
         data.fn && eval(data.fn + '(data, _clients, client)')
         client.socket.emit(data.id)
-        front.socket.emit('update')
+        front.socket.emit('update', { hubInfo, clients })
         done()
     }, data.time * 1000)
 }
