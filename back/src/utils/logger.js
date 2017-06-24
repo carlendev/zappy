@@ -12,4 +12,4 @@ const logQInfo = msg => logInfo(`[Q] ${msg}`)
 
 const logQError = msg => logError(`[Q] ${msg}`)
 
-module.exports = { logInfo, logError, logInfoSocket, logQInfo, logQError  }
+module.exports = { logInfo, logError, logInfoSocket, logQInfo, logQError }

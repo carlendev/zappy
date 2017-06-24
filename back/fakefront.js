@@ -1,6 +1,7 @@
 const socket = require('socket.io-client')
+const prettyjson = require('prettyjson')
 const io = socket.connect('http://127.0.0.1:3001')
-
+   
 const wesh = console.log
 
 const exit = (code=0) => process.exit(code)
@@ -25,8 +26,9 @@ io.on('dead', () => {
     exit()
 })
 
-io.on('update', () => {
+io.on('update', data => {
     wesh('I\' m updated')
+    wesh(prettyjson.render(data))
 })
 
 
