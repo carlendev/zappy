@@ -28,4 +28,4 @@ const generateMap = async (width, height) => {
   return map
 }
 
-module.exports = { generateMap }
+module.exports = { generateMap, randTile }
