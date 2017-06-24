@@ -3,7 +3,7 @@ const { io } = require('../app')
 const { clientPnw, validateJson } = require('../utils/validator')
 const { createHub, deleteHub } = require('./hub/index') 
 const { connectFront } = require('./front/index')
-const { connect } = require('./client/index')
+const { connect, disconnect } = require('./client/index')
 const { set, get } = require('../utils/redisfn')
 
 const socket = () => {
@@ -12,21 +12,9 @@ const socket = () => {
 
     io.on('connection', client => {  
 
+        //INFO: CLIENT events
         client.on('join', data => connect(data, clients, client, io))
-
-        client.on('disconnect', () => {
-            if (clients[ client.id ].front) {
-                delete clients[ client.id ]
-                return
-            }
-            get('clients').then(e => {
-                const rm = JSON.parse(e)
-                const id = client.id
-                const _new = rm.filter(e => e.id !== id)
-                set('clients', JSON.stringify(_new)).then(() => delete clients[ client.id ])
-                logInfoSocket('Client disconnected ' + client.id)
-            })
-        })
+        client.on('disconnect', data => disconnect(data, clients, client))
 
         //INFO: FRONT events
         client.on('connectFront', data => connectFront(data, clients, client, hubs))

@@ -6,30 +6,17 @@ const wesh = console.log
 const exit = (code=0) => process.exit(code)
 
 io.on('connect', () => {
-    io.emit('connectFront')
+    io.emit('join', { hubName: 'hub1', team: 'BITE' })
     wesh('I\' am connected')
 })
-
-setTimeout(() => io.emit('createHub', {
-    hubName: 'hub1',
-    mapWidth: 8,
-    mapHeight: 8,
-    teams: [
-        'ISSOU',
-        'BITE'
-    ],
-    clientsPerTeam: 1
-}), 500)
-
-//setTimeout(() => io.emit('deleteHub', { id: 1 }), 2000)
 
 io.on('dead', () => {
     wesh('I\' dead')
     exit()
 })
 
-io.on('update', () => {
-    wesh('I\' m updated')
+io.on('start', () => {
+    wesh('Start play')
 })
 
 

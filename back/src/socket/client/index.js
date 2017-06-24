@@ -5,8 +5,11 @@ const { connectFront } = require('../front/index')
 const { set, get } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 
+let _clients = {}
+
 const registerClient = (clients, client, data, nbTeam, nbPlayerMax, io) => {
     clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }
+    _clients = clients
     logInfoSocket('Client connected ' + client.id)
     get('clients').then(e => {
         const add = JSON.parse(e)
@@ -19,8 +22,9 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, io) => {
                 const playerInHub = _clients.filter(e => e.hubName === data.hubName)
                 if (playerInHub.length !== nbPlayerMax * nbTeam) return 
                 io.emit('play')
-                playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', frame: 100 },
-                                () => logQInfo('move saved')))
+                const front_id = Object.keys(clients).find(e => clients[e].front === true)
+                playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: id, front_id, frame: 100 },
+                                () => logQInfo('Start game')))
             })
         })
     })        
@@ -72,13 +76,36 @@ const connect = (data, clients, client, io) => {
     })
 }
 
+const disconnect = (data, clients, client) => {
+    if (clients[ client.id ].front) {
+        delete clients[ client.id ]
+        _clients = clients
+        return
+    }
+    get('clients').then(e => {
+        const rm = JSON.parse(e)
+        const id = client.id
+        const _new = rm.filter(e => e.id !== id)
+        set('clients', JSON.stringify(_new)).then(() => {
+            delete clients[ client.id ]
+            _clients = clients
+        })
+        logInfoSocket('Client disconnected ' + client.id)
+    })
+}
+
+
 const forward = (data, clients, client) => {
 }
 
 const userEvents = (job, done) => {
     const data = job.data
-    console.log(data)
+    const client = _clients[ data.client_id ]
+    const front = _clients[ data.front_id ]
+    if (data.id === 'start') Object.keys(_clients).map(e => _clients[e].socket.emit(data.id))
+    else client.socket.emit(data.id)
+    front.socket.emit('update')
     done()
 }
 
-module.exports = { connect }
+module.exports = { connect, disconnect }
