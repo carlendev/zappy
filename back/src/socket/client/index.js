@@ -23,7 +23,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, io) => {
                 if (playerInHub.length !== nbPlayerMax * nbTeam) return 
                 io.emit('play')
                 const front_id = Object.keys(clients).find(e => clients[e].front === true)
-                playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: id, front_id, frame: 100 },
+                playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id, frame: 100 },
                                 () => logQInfo('Start game')))
             })
         })
@@ -102,8 +102,7 @@ const userEvents = (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
     const front = _clients[ data.front_id ]
-    if (data.id === 'start') Object.keys(_clients).map(e => _clients[e].socket.emit(data.id))
-    else client.socket.emit(data.id)
+    client.socket.emit(data.id)
     front.socket.emit('update')
     done()
 }

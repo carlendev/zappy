@@ -16,7 +16,7 @@ io.on('dead', () => {
 })
 
 io.on('start', () => {
-    wesh('Start play')
+    wesh('Start play ' + 'bite')
 })
 
 
