@@ -94,9 +94,6 @@ const disconnect = (data, clients, client) => {
     })
 }
 
-const forward = (data, clients, client) => {
-}
-
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
