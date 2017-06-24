@@ -96,34 +96,32 @@ const disconnect = (data, clients, client) => {
         _clients = clients
         return
     }
-    get('clients').then(e => {
-        const rm = JSON.parse(e)
-        const id = client.id
-        const _new = rm.filter(e => e.id !== id)
-        set('clients', JSON.stringify(_new)).then(() => {
+    findClients(client.id).then(([ __clients, _client ]) => {
+        const _new = __clients.filter(e => e.id !== client.id)
+        setClients(_new, (clients, client) => {
             delete clients[ client.id ]
             _clients = clients
-        })
-        logInfoSocket('Client disconnected ' + client.id)
+            logInfoSocket('Client disconnected ' + client.id)
+        }, clients, client)
     })
 }
 
 const forward = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) =>
-    findHubs(_clients.hubName).then(([ _hubs, _hub ]) => {
-    switch (_client.orientation) {
-        case 1:
-            if (--_client.pos.y < 0) _client.pos.y = _hub.mapHeight - 1
-            break
-        case 2:
-            if (--_client.pos.x) _client.pos.x = _hub.mapWidth - 1
-            break
-        case 3:
-            _client.pos.y = (_client.pos.y + 1) % _hub.mapHeight
-            break
-        case 4:
-            _client.pos.x = (_client.pos.x + 1) % _hub.mapWidth
-            break
-    }
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        switch (_client.orientation) {
+            case 1:
+                if (--_client.pos.y < 0) _client.pos.y = _hub.mapHeight - 1
+                break
+            case 2:
+                if (--_client.pos.x) _client.pos.x = _hub.mapWidth - 1
+                break
+            case 3:
+                _client.pos.y = (_client.pos.y + 1) % _hub.mapHeight
+                break
+            case 4:
+                _client.pos.x = (_client.pos.x + 1) % _hub.mapWidth
+                break
+        }
     setClients(_clients, _client => logInfoSocket('New pos is: ' + JSON.stringify(_client.pos)), _client)
 }))
 
