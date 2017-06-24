@@ -26,7 +26,6 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, io) => {
     })        
 }
 
-//TODO: create queue for each player
 const connect = (data, clients, client, io) => {
     if (validateJson(clientPnw)(data).errors.length) {
         client.emit('dead')
@@ -71,6 +70,9 @@ const connect = (data, clients, client, io) => {
         }
         return registerClient(clients, client, data, nbTeam, nbPlayerMax, io)
     })
+}
+
+const forward = (data, clients, client) => {
 }
 
 const userEvents = (job, done) => {

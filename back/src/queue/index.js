@@ -36,7 +36,7 @@ queue.process('move', (job, done) => {
 
 //take a layer above for manager hub event and note team event for been able to run multiple hub
 const createHubJob = (id, data, done) => queue.create(id, data)
-    .priority('critical').attempts(2).backoff(true).removeOnComplete(false)
+    .priority('critical').attempts(1).backoff(true).removeOnComplete(false)
     .save((err) => {
       if (err) {
         logQError(err)
