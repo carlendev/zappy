@@ -18,15 +18,15 @@ const forge = (e, clientsLocal, id) => {
 }
 
 const Forward = (data, clientsLocal, client, hubs) => 
-  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Forward', 1), () => console.log('Forward queued')))
+  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Forward', 1), () => logQInfo('Forward queued')))
 
 const Right = (data, clientsLocal, client, hubs) =>
-  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Right', 1), () => console.log('Right queued')))
+  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Right', 1), () => logQInfo('Right queued')))
 
 const Left = (data, clientsLocal, client, hubs) =>
-  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Left', 1), () => console.log('Left queued')))
+  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Left', 1), () => logQInfo('Left queued')))
 
 const Look = (data, clientsLocal, client, hubs) =>
-  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Look', 1), () => console.log('Look queued')))
+  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Look', 1), () => logQInfo('Look queued')))
 
 module.exports = { Forward, Right, Left, Look }
