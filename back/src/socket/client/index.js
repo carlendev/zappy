@@ -45,7 +45,7 @@ const connect = (data, clients, client, io) => {
         const nbPlayerMax = +currentHub.clientsPerTeam
         const _clients = JSON.parse(await get('clients'))
         const playerInHub = _clients.filter(e => e.hubName === data.hubName)
-        const playerPos = { x: 0, y: 0 }//randTile(currentHub.mapWidth, currentHub.mapHeight)
+        const playerPos = randTile(currentHub.mapWidth, currentHub.mapHeight)
         if (!playerInHub.length) return registerClient(clients, client, data, nbTeam, nbPlayerMax, playerPos, io)
         const nbPlayer = playerInHub.length
         if (nbPlayer === nbPlayerMax * nbTeam) return emitDead(client, `Connection rejected, ${data.hubName} to much player in this hub`)
@@ -81,20 +81,17 @@ const forward = (data, clients, client) => findClients(client.id).then(([ _clien
             case 4: ++_client.pos.x; break
         }
         _client.pos = circularPos(_client.pos, _hub.mapWidth, _hub.mapHeight)
-    setClients(_clients, _client => logInfoSocket('New pos is: ' + JSON.stringify(_client.pos)), _client)
-    client.socket.emit('ok')
+    setClients(_clients, _client => {logInfoSocket('New pos is: ' + JSON.stringify(_client.pos)); client.socket.emit('ok')}, _client)
 }))
 
 const left = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     if (--_client.orientation < 1) _client.orientation = 4
-    setClients(_clients, _client => logInfoSocket('New orientation is: ' + _client.orientation), _client)
-    client.socket.emit('ok')
+    setClients(_clients, _client => {logInfoSocket('New orientation is: ' + _client.orientation); client.socket.emit('ok')}, _client)
 })
 
 const right = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     if (_client.orientation > 4) _client.orientation = 1
-    setClients(_clients, _client => logInfoSocket('New orientation is: ' + _client.orientation), _client)
-    client.socket.emit('ok')
+    setClients(_clients, _client => {logInfoSocket('New orientation is: ' + _client.orientation); client.socket.emit('ok')}, _client)
 })
 
 const look = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
@@ -114,7 +111,6 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
         }
 
         let nb = 1
-        logInfoSocket('orientation: ' + _client.orientation)
         for (let forward = 0; forward < _client.lvl; ++forward) {
             switch (_client.orientation) {
                 case 1: getRow(_client.pos, forward, nb, 0, -1, -1, 0); break
