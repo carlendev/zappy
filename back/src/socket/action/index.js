@@ -17,13 +17,16 @@ const forge = (e, clientsLocal, id) => {
   return (action, time) => Object.assign(forgeClientInfo(client, front_id), forgeInfoString(action, time))
 }
 
-const moveForward = (data, clientsLocal, client, hubs) => 
+const Forward = (data, clientsLocal, client, hubs) => 
   get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Forward', 1), () => console.log('Forward queued')))
 
-const moveRight = (data, clientsLocal, client, hubs) =>
+const Right = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Right', 1), () => console.log('Right queued')))
 
-const moveLeft = (data, clientsLocal, client, hubs) =>
+const Left = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Left', 1), () => console.log('Left queued')))
 
-module.exports = { moveForward, moveRight, moveLeft }
+const Look = (data, clientsLocal, client, hubs) =>
+  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Look', 1), () => console.log('Look queued')))
+
+module.exports = { Forward, Right, Left, Look }

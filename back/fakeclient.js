@@ -31,6 +31,22 @@ io.on('connect', () => {
     wesh('I\' am connected')
 })
 
+io.on('ok', () => {
+    wesh('ok')
+})
+
+io.on('ko', () => {
+    wesh('ko')
+})
+
+io.on('look', look =>{ 
+    wesh('Look: ', look)
+})
+
+io.on('inventory', inventory => {
+    wesh('Inventory: ', inventory)
+})
+
 io.on('dead', () => {
     wesh('I\' dead')
     exit()
@@ -41,6 +57,7 @@ io.on('start', () => {
     io.emit('Forward')
     io.emit('Right')
     io.emit('Left')
+    io.emit('Look')
 })
 
 io.on('disconnect', () => {

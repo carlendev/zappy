@@ -4,7 +4,7 @@ const { createHub, deleteHub } = require('../hub/index')
 const { connectFront } = require('../front/index')
 const { set, get, findClients, findHubs, setClients } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
-const { randTile } = require('../../utils/map')
+const { randTile, circularPos } = require('../../utils/map')
 
 let _clients = {}
 
@@ -19,7 +19,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     logInfoSocket('Client connected ' + client.id)
     findClients('').then(([ add ]) => {
         const id = client.id
-        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1 }))
+        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2 }))
         set('clients', JSON.stringify(add)).then(e => {
             createHubQ(id, userEvents)
             findClients('').then(([ _clients ]) => {
@@ -45,7 +45,7 @@ const connect = (data, clients, client, io) => {
         const nbPlayerMax = +currentHub.clientsPerTeam
         const _clients = JSON.parse(await get('clients'))
         const playerInHub = _clients.filter(e => e.hubName === data.hubName)
-        const playerPos = randTile(currentHub.mapWidth, currentHub.mapHeight)
+        const playerPos = {x: 0, y: 0}//randTile(currentHub.mapWidth, currentHub.mapHeight)
         if (!playerInHub.length) return registerClient(clients, client, data, nbTeam, nbPlayerMax, playerPos, io)
         const nbPlayer = playerInHub.length
         if (nbPlayer === nbPlayerMax * nbTeam) return emitDead(client, `Connection rejected, ${data.hubName} to much player in this hub`)
@@ -75,30 +75,61 @@ const disconnect = (data, clients, client) => {
 const forward = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) =>
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         switch (_client.orientation) {
-        case 1:
-            if (--_client.pos.y < 0) _client.pos.y = _hub.mapHeight - 1
-            break
-        case 2:
-            if (--_client.pos.x) _client.pos.x = _hub.mapWidth - 1
-            break
-        case 3:
-            _client.pos.y = (_client.pos.y + 1) % _hub.mapHeight
-            break
-        case 4:
-            _client.pos.x = (_client.pos.x + 1) % _hub.mapWidth
-            break
+            case 1: --_client.pos.y; break
+            case 2: --_client.pos.x; break
+            case 3: ++_client.pos.y; break
+            case 4: ++_client.pos.x; break
         }
+        _client.pos = circularPos(_client.pos, _hub.mapWidth, _hub.mapHeight)
     setClients(_clients, _client => logInfoSocket('New pos is: ' + JSON.stringify(_client.pos)), _client)
+    client.socket.emit('ok')
 }))
 
 const left = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     if (--_client.orientation < 1) _client.orientation = 4
     setClients(_clients, _client => logInfoSocket('New orientation is: ' + _client.orientation), _client)
+    client.socket.emit('ok')
 })
 
 const right = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     if (_client.orientation > 4) _client.orientation = 1
     setClients(_clients, _client => logInfoSocket('New orientation is: ' + _client.orientation), _client)
+    client.socket.emit('ok')
+})
+
+const look = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        const res = []
+            
+        const getRow = (pos, forward, nb, xForward, yForward, xLeft, yLeft) => {
+            let x = pos.x + xForward * forward
+            let y = pos.y + yForward * forward
+
+            if (nb - 1 === 0) return res.push({x: x, y: y})
+            for (let i = 0; i < nb; ++i) {
+                let off = (nb - 1) / 2
+                if (i === off )
+                    res.push(circularPos({x: x, y: y}, _hub.mapWidth, _hub.mapHeight))
+                else if (i < off)
+                    res.push(circularPos({x: x + (xLeft * (off - i)), y: y + (yLeft * (off - i))}, _hub.mapWidth, _hub.mapHeight))
+                else if (i > off)
+                    res.push(circularPos({x: x + (-xLeft * (i - off)), y: y + (-yLeft * (i - off))}, _hub.mapWidth, _hub.mapHeight))
+            }
+        }
+
+        let nb = 1
+        console.log('orientation: ', _client.orientation)
+        for (let forward = 0; forward < _client.lvl; ++forward) {
+            switch (_client.orientation) {
+                case 1: getRow(_client.pos, forward, nb, 0, -1, -1, 0); break
+                case 2: getRow(_client.pos, forward, nb, 1, 0, 0, -1); break
+                case 3: getRow(_client.pos, forward, nb, 0, 1, 1, 0); break
+                case 4: getRow(_client.pos, forward, nb, -1, 0, 0, 1); break
+            }
+            nb += 2
+        }
+        client.socket.emit('look', res.map(p => _hub.map[p.y][p.x]))
+    })
 })
 
 const userEvents = async (job, done) => {
@@ -109,7 +140,7 @@ const userEvents = async (job, done) => {
     const hubInfo = hubs.find(e => e.name === client.hubName)
     const clients = JSON.parse(await get('clients'))
     setTimeout(() => {
-        data.fn && eval(data.fn + '(data, _clients, client)')
+        data.fn && eval(data.fn + '(data, clients, client)')
         client.socket.emit(data.id)
         front.socket.emit('update', { hubInfo, clients })
         done()
