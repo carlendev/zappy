@@ -45,7 +45,7 @@ const connect = (data, clients, client, io) => {
         const nbPlayerMax = +currentHub.clientsPerTeam
         const _clients = JSON.parse(await get('clients'))
         const playerInHub = _clients.filter(e => e.hubName === data.hubName)
-        const playerPos = {x: 0, y: 0}//randTile(currentHub.mapWidth, currentHub.mapHeight)
+        const playerPos = { x: 0, y: 0 }//randTile(currentHub.mapWidth, currentHub.mapHeight)
         if (!playerInHub.length) return registerClient(clients, client, data, nbTeam, nbPlayerMax, playerPos, io)
         const nbPlayer = playerInHub.length
         if (nbPlayer === nbPlayerMax * nbTeam) return emitDead(client, `Connection rejected, ${data.hubName} to much player in this hub`)
@@ -102,23 +102,19 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
         const res = []
             
         const getRow = (pos, forward, nb, xForward, yForward, xLeft, yLeft) => {
-            let x = pos.x + xForward * forward
-            let y = pos.y + yForward * forward
-
-            if (nb - 1 === 0) return res.push({x: x, y: y})
+            const x = pos.x + xForward * forward
+            const y = pos.y + yForward * forward
+            if (nb - 1 === 0) return res.push({ x , y })
             for (let i = 0; i < nb; ++i) {
-                let off = (nb - 1) / 2
-                if (i === off )
-                    res.push(circularPos({x: x, y: y}, _hub.mapWidth, _hub.mapHeight))
-                else if (i < off)
-                    res.push(circularPos({x: x + (xLeft * (off - i)), y: y + (yLeft * (off - i))}, _hub.mapWidth, _hub.mapHeight))
-                else if (i > off)
-                    res.push(circularPos({x: x + (-xLeft * (i - off)), y: y + (-yLeft * (i - off))}, _hub.mapWidth, _hub.mapHeight))
+                const off = (nb - 1) / 2
+                if (i === off) res.push(circularPos({ x , y }, _hub.mapWidth, _hub.mapHeight))
+                else if (i < off) res.push(circularPos({ x: x + (xLeft * (off - i)), y: y + (yLeft * (off - i)) }, _hub.mapWidth, _hub.mapHeight))
+                else if (i > off) res.push(circularPos({ x: x + (-xLeft * (i - off)), y: y + (-yLeft * (i - off)) }, _hub.mapWidth, _hub.mapHeight))
             }
         }
 
         let nb = 1
-        console.log('orientation: ', _client.orientation)
+        logInfoSocket('orientation: ' + _client.orientation)
         for (let forward = 0; forward < _client.lvl; ++forward) {
             switch (_client.orientation) {
                 case 1: getRow(_client.pos, forward, nb, 0, -1, -1, 0); break
