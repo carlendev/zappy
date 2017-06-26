@@ -7,6 +7,42 @@ function gup(name, url) {
   return results == null ? null : results[1];
 }
 
+/*var socket = io("http://127.0.0.1:3001");
+
+const wesh = console.log;
+
+const exit = (code = 0) => process.exit(code);
+
+socket.on("connect", () => {
+  socket.emit("connectFront");
+  wesh("I' am connected");
+  socket.emit("createHub", {
+    name: "test",
+    properties: {
+      hubName: "hub1",
+      mapWidth: 8,
+      mapHeight: 8,
+      teams: ["ISSOU", "BITE"],
+      clientsPerTeam: 1
+    }
+  });
+});
+
+socket.on("dead", () => {
+  wesh("I' dead");
+  exit();
+});
+
+socket.on("update", data => {
+  wesh("I' m updated");
+  wesh(prettyjson.render(data));
+});
+
+socket.on("disconnect", () => {
+  wesh("I'm out");
+  exit();
+});*/
+
 window.onload = () => {
   const WelcomeDiv = document.getElementById("welcome");
   const id = gup("id", window.location.href);
@@ -22,6 +58,8 @@ window.onload = () => {
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
   //Crafty.audio.play("PokemonSounds", 5, 1);
 
+
+
   //turn the sprite map into usable components
   Crafty.sprite(16, "/images/sprite.png", {
     grass1: [0, 0],
@@ -29,7 +67,11 @@ window.onload = () => {
     grass3: [2, 0],
     grass4: [3, 0],
     flower: [0, 1],
-    player: [0, 3]
+  });
+
+  Crafty.sprite(33, "/images/Pl.png" , {
+      team1: [0, 2],
+      team2: [3, 2]
   });
 
   //randomy generate map
@@ -69,14 +111,38 @@ window.onload = () => {
   Crafty.scene("main", () => {
     generateWorld();
 
-    const player = Crafty.e(
-      "2D, Canvas, player, Controls, Collision, SpriteAnimation"
+    const team1 = Crafty.e(
+      "2D, Canvas, team1, Controls, Collision, SpriteAnimation"
     )
-      .attr({ x: 84, y: 84, w: tileMapSize, h: tileMapSize })
-      .reel("walk_right", 100, [[9, 3], [10, 3], [11, 3]])
-      .reel("walk_left", 100, [[6, 3], [7, 3], [8, 3]])
-      .reel("walk_down", 100, [[0, 3], [1, 3], [2, 3]])
-      .reel("walk_up", 100, [[3, 3], [4, 3], [5, 3]])
+      .attr({ x: 60, y: 60, w: tileMapSize, h: tileMapSize })
+      .reel("walk_right", 100, [[0, 3], [1, 3], [2, 3]])
+      .reel("walk_left", 100, [[0, 1], [1, 1], [2, 1]])
+      .reel("walk_down", 100, [[0, 2], [1, 2], [2, 2]])
+      .reel("walk_up", 100, [[0, 0], [1, 0], [2, 0]])
+      .bind("KeyDown", function(e) {
+        if (e.key === Crafty.keys.LEFT_ARROW) {
+          this.animate("walk_left");
+          this.x -= tileMapSize;
+        } else if (e.key === Crafty.keys.RIGHT_ARROW) {
+          this.animate("walk_right");
+          this.x += tileMapSize;
+        } else if (e.key === Crafty.keys.UP_ARROW) {
+          this.animate("walk_up");
+          this.y -= tileMapSize;
+        } else if (e.key === Crafty.keys.DOWN_ARROW) {
+          this.animate("walk_down");
+          this.y += tileMapSize;
+        }
+      });
+
+    const team2 = Crafty.e(
+      "2D, Canvas, team2, Controls, Collision, SpriteAnimation"
+    )
+      .attr({ x: 100, y: 100, w: tileMapSize, h: tileMapSize })
+      .reel("walk_right", 100, [[3, 3], [4, 3], [5, 3]])
+      .reel("walk_left", 100, [[3, 1], [4, 1], [5, 1]])
+      .reel("walk_down", 100, [[3, 2], [4, 2], [5, 2]])
+      .reel("walk_up", 100, [[3, 0], [4, 0], [5, 0]])
       .bind("KeyDown", function(e) {
         if (e.key === Crafty.keys.LEFT_ARROW) {
           this.animate("walk_left");
@@ -93,6 +159,12 @@ window.onload = () => {
         }
       });
   });
+
+var zoom = Crafty.e("2D");
+    zoom.onMouseDown = function(e) {
+        Crafty.viewport.zoom(2, 100, 100, 500);
+    };
+Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
 
   Crafty.scene("loading");
 };
