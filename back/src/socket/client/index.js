@@ -1,7 +1,6 @@
 const { logInfoSocket, logQInfo, logQError } = require('../../utils/logger')
 const { clientPnw, validateJson } = require('../../utils/validator')
 const { createHub, deleteHub } = require('../hub/index')
-const { connectFront } = require('../front/index')
 const { set, get, findClients, findClientsInHub, findHubs, setClients } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 const { randTile, circularPos } = require('../../utils/map')
@@ -32,6 +31,13 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
             })
         })
     })
+}
+
+
+const connectFront = (_, clients, client) => {
+    clients[ client.id ] = { socket: client, id: client.id, front: true }
+    _clients = clients
+    logInfoSocket('Front connected')
 }
 
 const connect = (data, clients, client, io) => {
@@ -144,4 +150,4 @@ const userEvents = async (job, done) => {
     }, data.time * 1000)
 }
 
-module.exports = { connect, disconnect }
+module.exports = { connect, disconnect, connectFront }
