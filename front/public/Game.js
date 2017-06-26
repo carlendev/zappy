@@ -7,6 +7,42 @@ function gup(name, url) {
   return results == null ? null : results[1];
 }
 
+/*var socket = io("http://127.0.0.1:3001");
+
+const wesh = console.log;
+
+const exit = (code = 0) => process.exit(code);
+
+socket.on("connect", () => {
+  socket.emit("connectFront");
+  wesh("I' am connected");
+  socket.emit("createHub", {
+    name: "test",
+    properties: {
+      hubName: "hub1",
+      mapWidth: 8,
+      mapHeight: 8,
+      teams: ["ISSOU", "BITE"],
+      clientsPerTeam: 1
+    }
+  });
+});
+
+socket.on("dead", () => {
+  wesh("I' dead");
+  exit();
+});
+
+socket.on("update", data => {
+  wesh("I' m updated");
+  wesh(prettyjson.render(data));
+});
+
+socket.on("disconnect", () => {
+  wesh("I'm out");
+  exit();
+});*/
+
 window.onload = () => {
   const WelcomeDiv = document.getElementById("welcome");
   const id = gup("id", window.location.href);
@@ -122,12 +158,11 @@ window.onload = () => {
           this.y += tileMapSize;
         }
       });
-
   });
 
 var zoom = Crafty.e("2D");
     zoom.onMouseDown = function(e) {
-        Crafty.viewport.zoom(4, 100, 100, 3000);
+        Crafty.viewport.zoom(2, 100, 100, 500);
     };
 Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
 
