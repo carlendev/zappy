@@ -33,7 +33,6 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     })
 }
 
-
 const connectFront = (_, clients, client) => {
     clients[ client.id ] = { socket: client, id: client.id, front: true }
     _clients = clients
@@ -138,14 +137,14 @@ const inventory = (data, clients, client) => findClients(client.id).then(([ _cli
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
-    const front = _clients[ data.front_id ]
+    const fronts = Object.keys(_clients).filter(e => _clients[e].front === true)
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
     const clients = JSON.parse(await get('clients'))
     setTimeout(() => {
         data.fn && eval(data.fn + '(data, clients, client)')
         client.socket.emit(data.id)
-        front.socket.emit(`update:${client.hub}`, { hubInfo, clients })
+        fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
         done()
     }, data.time * 1000)
 }
