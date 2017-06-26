@@ -128,9 +128,9 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
             }
             nb += 2
         }
-        findClientsInHub(_client.hubName).then(_clients => {
-            client.socket.emit('look', res.map(p => Object.assign( {}, { players: _clients.filter(e => p.y === e.pos.y && p.x === e.pos.x).length }, _hub.map[p.y][p.x] )))
-        })
+        findClientsInHub(_client.hubName).then(_clients => 
+            client.socket.emit('look', res.map(p =>
+                Object.assign({}, { players: _clients.filter(e => p.y === e.pos.y && p.x === e.pos.x).length }, _hub.map[p.y][p.x]))))
     })
 })
 

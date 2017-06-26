@@ -1,47 +1,50 @@
 function gup(name, url) {
-  if (!url) url = location.href;
-  name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-  var regexS = "[\\?&]" + name + "=([^&#]*)";
-  var regex = new RegExp(regexS);
-  var results = regex.exec(url);
-  return results == null ? null : results[1];
+  if (!url) url = location.href
+  name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]")
+  var regexS = "[\\?&]" + name + "=([^&#]*)"
+  var regex = new RegExp(regexS)
+  var results = regex.exec(url)
+  return results == null ? null : results[1]
 }
 
-/*var socket = io("http://127.0.0.1:3001");
+const socket = io("http://127.0.0.1:3001")
 
-const wesh = console.log;
+const wesh = console.log
 
-const exit = (code = 0) => process.exit(code);
+const exit = (code=0) => process.exit(code)
+
+//TODO: make this dynamic
+const hubName = 'hub1'
 
 socket.on("connect", () => {
-  socket.emit("connectFront");
-  wesh("I' am connected");
-  socket.emit("createHub", {
-    name: "test",
-    properties: {
-      hubName: "hub1",
-      mapWidth: 8,
-      mapHeight: 8,
-      teams: ["ISSOU", "BITE"],
-      clientsPerTeam: 1
-    }
-  });
-});
+  socket.emit("connectFront")
+  wesh("I' am connected")
+  socket.emit('createHub', {
+    hubName,
+    mapWidth: 40,
+    mapHeight: 40,
+    teams: [
+      'ISSOU',
+      'BITE'
+    ],
+    clientsPerTeam: 1
+  })
+})
 
 socket.on("dead", () => {
   wesh("I' dead");
-  exit();
+  //exit();
 });
 
-socket.on("update", data => {
-  wesh("I' m updated");
-  wesh(prettyjson.render(data));
+socket.on(`update:${hubName}`, data => {
+  wesh("I' m updated")
+  wesh(data)
 });
 
 socket.on("disconnect", () => {
   wesh("I'm out");
-  exit();
-});*/
+  //exit()
+})
 
 window.onload = () => {
   const WelcomeDiv = document.getElementById("welcome");
