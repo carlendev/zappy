@@ -29,4 +29,7 @@ const Left = (data, clientsLocal, client, hubs) =>
 const Look = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Look', 1), () => logQInfo('Look queued')))
 
-module.exports = { Forward, Right, Left, Look }
+const Inventory = (data, clientsLocal, client, hubs) =>
+  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Inventory', 1), () => logQInfo('Inventory queued')))
+
+module.exports = { Forward, Right, Left, Look, Inventory }

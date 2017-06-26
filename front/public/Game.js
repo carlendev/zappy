@@ -160,11 +160,15 @@ window.onload = () => {
       });
   });
 
-    var zoom = Crafty.e("2D");
-        zoom.onMouseDown = function(e) {
-            Crafty.viewport.zoom(2, 100, 100, 500);
-        };
-    Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
+const zoom = Crafty.e("2D")
+zoom.onMouseDown = e => {
+    //For CraftyJS Middle === Left, I don't know why
+  if (e.buttons === Crafty.mouseButtons.MIDDLE)
+    Crafty.viewport.zoom(2, e.clientX, e.clientY, 500)
+  else if (e.buttons === Crafty.mouseButtons.RIGHT)
+    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500) 
+}
+Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown)
 
   Crafty.scene("loading");
-};
+}
