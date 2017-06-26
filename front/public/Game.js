@@ -7,6 +7,42 @@ function gup(name, url) {
   return results == null ? null : results[1];
 }
 
+var socket = io("http://127.0.0.1:3001");
+
+const wesh = console.log;
+
+const exit = (code = 0) => process.exit(code);
+
+socket.on("connect", () => {
+  socket.emit("connectFront");
+  wesh("I' am connected");
+  socket.emit("createHub", {
+    name: "test",
+    properties: {
+      hubName: "hub1",
+      mapWidth: 8,
+      mapHeight: 8,
+      teams: ["ISSOU", "BITE"],
+      clientsPerTeam: 1
+    }
+  });
+});
+
+socket.on("dead", () => {
+  wesh("I' dead");
+  exit();
+});
+
+socket.on("update", data => {
+  wesh("I' m updated");
+  wesh(prettyjson.render(data));
+});
+
+socket.on("disconnect", () => {
+  wesh("I'm out");
+  exit();
+});
+
 window.onload = () => {
   const WelcomeDiv = document.getElementById("welcome");
   const id = gup("id", window.location.href);
@@ -32,8 +68,8 @@ window.onload = () => {
     player: [0, 3]
   });
 
-  Crafty.sprite(32, "/images/Pl.png" , {
-      player1: [0, 2]
+  Crafty.sprite(32, "/images/Pl.png", {
+    player1: [0, 2]
   });
 
   //randomy generate map
@@ -97,7 +133,7 @@ window.onload = () => {
         }
       });
 
- const player1 = Crafty.e(
+    const player1 = Crafty.e(
       "2D, Canvas, player1, Controls, Collision, SpriteAnimation"
     )
       .attr({ x: 100, y: 100, w: tileMapSize, h: tileMapSize })
@@ -120,7 +156,6 @@ window.onload = () => {
           this.y += tileMapSize;
         }
       });
-
   });
 
   Crafty.scene("loading");
