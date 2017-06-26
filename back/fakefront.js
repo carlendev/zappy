@@ -26,7 +26,7 @@ io.on('dead', () => {
     exit()
 })
 
-io.on('update', data => {
+io.on('update:hub1', data => {
     wesh('I\' m updated')
     wesh(prettyjson.render(data))
 })

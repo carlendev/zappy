@@ -128,6 +128,7 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
 
 const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('inventory', _client.inventory) })
 
+//TODO: (carlendev) limit to 10 actions
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
@@ -138,7 +139,7 @@ const userEvents = async (job, done) => {
     setTimeout(() => {
         data.fn && eval(data.fn + '(data, clients, client)')
         client.socket.emit(data.id)
-        front.socket.emit('update', { hubInfo, clients })
+        front.socket.emit(`update:${client.hub}`, { hubInfo, clients })
         done()
     }, data.time * 1000)
 }
