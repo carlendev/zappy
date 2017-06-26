@@ -18,7 +18,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     logInfoSocket('Client connected ' + client.id)
     findClients('').then(([ add ]) => {
         const id = client.id
-        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
+        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0, inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
         set('clients', JSON.stringify(add)).then(e => {
             createHubQ(id, userEvents)
             findClients('').then(([ _clients ]) => {
@@ -133,7 +133,6 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
 
 const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('inventory', _client.inventory) })
 
-//TODO: (carlendev) limit to 10 actions
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
@@ -141,10 +140,22 @@ const userEvents = async (job, done) => {
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
     const clients = JSON.parse(await get('clients'))
-    setTimeout(() => {
+    const rClient = clients.find(e => e.id === data.client_id)
+    if (rClient.nbActions >= 10) {
+        client.socket.emit('ko')
+        return done()
+    }
+    ++rClient.nbActions
+    await set('clients', JSON.stringify(clients))
+    const id = rClient.id
+    setTimeout(async () => {
         data.fn && eval(data.fn + '(data, clients, client)')
-        client.socket.emit(data.id)
+        const __clients = JSON.parse(await get('clients'))
+        const _client = __clients.find(e => e.id === id)
+        --_client.nbActions
+        set('clients', JSON.stringify(__clients))
         fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
+        client.socket.emit(data.id)
         done()
     }, data.time * 1000)
 }
