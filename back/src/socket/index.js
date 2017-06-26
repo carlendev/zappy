@@ -4,7 +4,7 @@ const { clientPnw, validateJson } = require('../utils/validator')
 const { createHub, deleteHub } = require('./hub/index') 
 const { connectFront } = require('./front/index')
 const { connect, disconnect } = require('./client/index')
-const { Forward, Right, Left, Look } = require('./action/index')
+const { Forward, Right, Left, Look, Inventory } = require('./action/index')
 const { set, get } = require('../utils/redisfn')
 
 const socket = () => {
@@ -31,7 +31,7 @@ const socket = () => {
         client.on('Right', data => Right(data, clients, client, hubs))
         client.on('Left', data => Left(data, clients, client, hubs))
         client.on('Look', data => Look(data, clients, client, hubs))
-
+        client.on('Inventory', data => Inventory(data, clients, client, hubs))
     })
 }
 

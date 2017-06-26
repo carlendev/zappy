@@ -19,7 +19,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     logInfoSocket('Client connected ' + client.id)
     findClients('').then(([ add ]) => {
         const id = client.id
-        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2 }))
+        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
         set('clients', JSON.stringify(add)).then(e => {
             createHubQ(id, userEvents)
             findClients('').then(([ _clients ]) => {
@@ -125,6 +125,8 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
         })
     })
 })
+
+const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('inventory', _client.inventory) })
 
 const userEvents = async (job, done) => {
     const data = job.data
