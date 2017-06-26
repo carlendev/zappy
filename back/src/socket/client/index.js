@@ -1,7 +1,6 @@
 const { logInfoSocket, logQInfo, logQError } = require('../../utils/logger')
 const { clientPnw, validateJson } = require('../../utils/validator')
 const { createHub, deleteHub } = require('../hub/index')
-const { connectFront } = require('../front/index')
 const { set, get, findClients, findClientsInHub, findHubs, setClients } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 const { randTile, circularPos } = require('../../utils/map')
@@ -19,7 +18,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     logInfoSocket('Client connected ' + client.id)
     findClients('').then(([ add ]) => {
         const id = client.id
-        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
+        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0, inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
         set('clients', JSON.stringify(add)).then(e => {
             createHubQ(id, userEvents)
             findClients('').then(([ _clients ]) => {
@@ -32,6 +31,12 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
             })
         })
     })
+}
+
+const connectFront = (_, clients, client) => {
+    clients[ client.id ] = { socket: client, id: client.id, front: true }
+    _clients = clients
+    logInfoSocket('Front connected')
 }
 
 const connect = (data, clients, client, io) => {
@@ -131,16 +136,28 @@ const inventory = (data, clients, client) => findClients(client.id).then(([ _cli
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
-    const front = _clients[ data.front_id ]
+    const fronts = Object.keys(_clients).filter(e => _clients[e].front === true)
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
     const clients = JSON.parse(await get('clients'))
-    setTimeout(() => {
+    const rClient = clients.find(e => e.id === data.client_id)
+    if (rClient.nbActions >= 10) {
+        client.socket.emit('ko')
+        return done()
+    }
+    ++rClient.nbActions
+    await set('clients', JSON.stringify(clients))
+    const id = rClient.id
+    setTimeout(async () => {
         data.fn && eval(data.fn + '(data, clients, client)')
+        const __clients = JSON.parse(await get('clients'))
+        const _client = __clients.find(e => e.id === id)
+        --_client.nbActions
+        set('clients', JSON.stringify(__clients))
+        fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
         client.socket.emit(data.id)
-        front.socket.emit('update', { hubInfo, clients })
         done()
     }, data.time * 1000)
 }
 
-module.exports = { connect, disconnect }
+module.exports = { connect, disconnect, connectFront }
