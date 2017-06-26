@@ -160,11 +160,11 @@ window.onload = () => {
       });
   });
 
-var zoom = Crafty.e("2D");
-    zoom.onMouseDown = function(e) {
-        Crafty.viewport.zoom(2, 100, 100, 500);
-    };
-Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
+const zoom = Crafty.e("2D")
+zoom.onMouseDown = e => {
+  if (e.buttons === 1) Crafty.viewport.zoom(2, e.clientX, e.clientY, 500)
+}
+Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown)
 
   Crafty.scene("loading");
-};
+}
