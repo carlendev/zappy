@@ -32,6 +32,10 @@ window.onload = () => {
     player: [0, 3]
   });
 
+  Crafty.sprite(32, "/images/Pl.png" , {
+      player1: [0, 2]
+  });
+
   //randomy generate map
   const generateWorld = () => {
     for (let i = 0; i < size; ++i) {
@@ -92,6 +96,31 @@ window.onload = () => {
           this.y += tileMapSize;
         }
       });
+
+ const player1 = Crafty.e(
+      "2D, Canvas, player1, Controls, Collision, SpriteAnimation"
+    )
+      .attr({ x: 100, y: 100, w: tileMapSize, h: tileMapSize })
+      .reel("walk_right", 100, [[0, 3], [1, 3], [2, 3]])
+      .reel("walk_left", 100, [[0, 1], [1, 1], [2, 1]])
+      .reel("walk_down", 100, [[0, 2], [1, 2], [2, 2]])
+      .reel("walk_up", 100, [[0, 0], [1, 0], [2, 0]])
+      .bind("KeyDown", function(e) {
+        if (e.key === Crafty.keys.LEFT_ARROW) {
+          this.animate("walk_left");
+          this.x -= tileMapSize;
+        } else if (e.key === Crafty.keys.RIGHT_ARROW) {
+          this.animate("walk_right");
+          this.x += tileMapSize;
+        } else if (e.key === Crafty.keys.UP_ARROW) {
+          this.animate("walk_up");
+          this.y -= tileMapSize;
+        } else if (e.key === Crafty.keys.DOWN_ARROW) {
+          this.animate("walk_down");
+          this.y += tileMapSize;
+        }
+      });
+
   });
 
   Crafty.scene("loading");
