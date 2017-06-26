@@ -2,7 +2,7 @@ const { logInfoSocket, logQInfo, logQError } = require('../../utils/logger')
 const { clientPnw, validateJson } = require('../../utils/validator')
 const { createHub, deleteHub } = require('../hub/index')
 const { connectFront } = require('../front/index')
-const { set, get, findClients, findHubs, setClients } = require('../../utils/redisfn')
+const { set, get, findClients, findClientsInHub, findHubs, setClients } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 const { randTile, circularPos } = require('../../utils/map')
 
@@ -96,7 +96,7 @@ const right = (data, clients, client) => findClients(client.id).then(([ _clients
 
 const look = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
-        const res = []
+        let res = []
             
         const getRow = (pos, forward, nb, xForward, yForward, xLeft, yLeft) => {
             const x = pos.x + xForward * forward
@@ -120,7 +120,9 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
             }
             nb += 2
         }
-        client.socket.emit('look', res.map(p => _hub.map[p.y][p.x]))
+        findClientsInHub(_client.hubName).then(_clients => {
+            client.socket.emit('look', res.map(p => Object.assign( {}, { players: _clients.filter(e => p.y === e.pos.y && p.x === e.pos.x).length }, _hub.map[p.y][p.x] )))
+        })
     })
 })
 

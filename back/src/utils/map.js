@@ -5,7 +5,7 @@ const initMap = (width, height) => {
   for (let y = 0; y < height; ++y) {
     map[y] = []
     for (let x = 0; x < width; ++x)
-      map[y][x] = { dietary: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 }
+      map[y][x] = { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 }
   }
   return map
 }
@@ -23,7 +23,7 @@ const generateMap = async (width, height) => {
   const map = initMap(width, height)
   for (let i = Math.floor(width * height * ressourceRatio); i > 0; --i) {
     let tile = randTile(width, height)
-    map[tile.y][tile.x].dietary++
+    map[tile.y][tile.x].food++
     tile = randTile(width, height)
     map[tile.y][tile.x][ Object.keys(map[ 0 ][ 0 ])[ randBetween(1, 6) ] ]++
   }
