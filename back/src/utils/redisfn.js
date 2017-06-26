@@ -4,6 +4,10 @@ const get = key => redis.getAsync(key)
 
 const set = (key, value) => redis.setAsync(key, value)
 
+const incr = key => redis.incrAsync(key)
+
+const decr = key => redis.decrAsync(key)
+
 const send = cmd => redis.send_commandAsync(cmd)
 
 const findClients = id => new Promise(s => get('clients').then(e => {
@@ -23,4 +27,4 @@ const findHubs = hubName => new Promise(s => get('hubs').then(e => {
 
 const setClients = (clients, fn, ...args) => set('clients', JSON.stringify(clients)).then(() => fn(...args))
 
-module.exports = { get, set, send, findClients, findClientsInHub, findHubs, setClients }
+module.exports = { get, set, send, incr, decr, findClients, findClientsInHub, findHubs, setClients }

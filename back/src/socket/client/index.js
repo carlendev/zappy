@@ -1,7 +1,7 @@
 const { logInfoSocket, logQInfo, logQError } = require('../../utils/logger')
 const { clientPnw, validateJson } = require('../../utils/validator')
 const { createHub, deleteHub } = require('../hub/index')
-const { set, get, findClients, findClientsInHub, findHubs, setClients } = require('../../utils/redisfn')
+const { set, get, decr, findClients, findClientsInHub, findHubs, setClients } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 const { randTile, circularPos } = require('../../utils/map')
 
@@ -18,16 +18,19 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     logInfoSocket('Client connected ' + client.id)
     findClients('').then(([ add ]) => {
         const id = client.id
-        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0, inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
+        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0,
+            inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
         set('clients', JSON.stringify(add)).then(e => {
-            createHubQ(id, userEvents)
-            findClients('').then(([ _clients ]) => {
-                const playerInHub = _clients.filter(e => e.hubName === data.hubName)
-                if (playerInHub.length !== nbPlayerMax * nbTeam) return 
-                io.emit('play')
-                const front_id = Object.keys(clients).find(e => clients[e].front === true)
-                playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id },
-                                () => logQInfo('Start game')))
+            set(client.id, 0).then(() => {
+                createHubQ(id, userEvents)
+                findClients('').then(([ _clients ]) => {
+                    const playerInHub = _clients.filter(e => e.hubName === data.hubName)
+                    if (playerInHub.length !== nbPlayerMax * nbTeam) return 
+                    io.emit('play')
+                    const front_id = Object.keys(clients).find(e => clients[e].front === true)
+                    playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id },
+                                    () => logQInfo('Start game')))
+                })
             })
         })
     })
@@ -139,21 +142,10 @@ const userEvents = async (job, done) => {
     const fronts = Object.keys(_clients).filter(e => _clients[e].front === true)
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
-    const clients = JSON.parse(await get('clients'))
-    const rClient = clients.find(e => e.id === data.client_id)
-    if (rClient.nbActions >= 10) {
-        client.socket.emit('ko')
-        return done()
-    }
-    ++rClient.nbActions
-    await set('clients', JSON.stringify(clients))
-    const id = rClient.id
     setTimeout(async () => {
+        const clients = JSON.parse(await get('clients'))
         data.fn && eval(data.fn + '(data, clients, client)')
-        const __clients = JSON.parse(await get('clients'))
-        const _client = __clients.find(e => e.id === id)
-        --_client.nbActions
-        set('clients', JSON.stringify(__clients))
+        decr(client.id)
         fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
         client.socket.emit(data.id)
         done()
