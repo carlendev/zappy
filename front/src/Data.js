@@ -1,152 +1,30 @@
 import React, { Component } from "react";
 
+import PartiesList from "./PartiesList";
+import AddData from "./AddData";
+
 export default class Data extends Component {
   constructor(props) {
     super(props);
-    this.onChangePseudo = this.onChangePseudo.bind(this);
-    this.firstStep = this.firstStep.bind(this);
+    this.nextStep = this.nextStep.bind(this);
   }
   state = {
-    step: 0,
-    pseudo: ""
+    step: 0
   };
 
-  onChangePseudo(event) {
-    event.preventDefault();
+  nextStep() {
     this.setState({
-      pseudo: event.target.value
+      step: 1
     });
-  }
-
-  firstStep(e) {
-    e.preventDefault();
-    if (this.state.step === 1) {
-      document.getElementById("gamee").style.display = "block";
-      document.getElementById("data").style.display = "none";
-    } else {
-      if (this.state.pseudo === "") {
-        alert("Veuillez entrez un pseudo valide");
-        return;
-      }
-      this.setState({
-        step: 1
-      });
-    }
-  }
-
-  play(e) {
-    window.location.replace("game.html");
-    e.preventDefault();
-  }
-
-  joinGame(id) {
-    window.location.replace("game.html" + id);
   }
 
   render() {
     switch (this.state.step) {
       case 1: {
-        return (
-          <div>
-            <div className="has-text-centered">
-              <h2 className="title is-2">Bienvenue {this.state.pseudo}</h2>
-            </div>
-            <h2 className="title is-4">Liste des parties en cours</h2>
-            <div className="box">
-              <article className="media">
-                <div className="media-content">
-                  <div className="content">
-                    <div className="columns">
-                      <div className="column is-half">
-                        <p><strong>Partie de Guillaume</strong></p>
-
-                      </div>
-                      <div className="column is-one-quarter">
-                        <small>3 minutes</small>
-                      </div>
-                      <div className="column">
-                        <a className="button is-primary" href="game.html?id=1">
-                          Rejoindre
-                        </a>
-                      </div>
-                      <div className="column">
-                        <a className="button is-info">Regarder</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </div>
-            <div className="box">
-              <article className="media">
-                <div className="media-content">
-                  <div className="content">
-                    <div className="columns">
-                      <div className="column is-half">
-                        <p><strong>Partie de Ludovic</strong></p>
-                      </div>
-                      <div className="column is-one-quarter">
-                        <small>5 minutes</small>
-                      </div>
-                      <div className="column">
-                        <a className="button is-primary" href="game.html?id=2">
-                          Rejoindre
-                        </a>
-                      </div>
-                      <div className="column">
-                        <a className="button is-info">Regarder</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            </div>
-
-            <div>
-              <button className="button is-info is-medium">
-                <span className="icon is-medium">
-                  <i className="fa fa-plus" aria-hidden="true" />
-                </span>
-                <span>Creer une nouvelle partie</span>
-              </button>
-            </div>
-            <div className="modal">
-              <div className="modal-background"></div>
-              <div className="modal-card">
-                <header className="modal-card-head">
-                  <p className="modal-card-title">Modal title</p>
-                  <button className="delete"></button>
-                </header>
-                <section className="modal-card-body">
-                </section>
-                <footer className="modal-card-foot">
-                  <a className="button is-success">Save changes</a>
-                  <a className="button">Cancel</a>
-                </footer>
-              </div>
-            </div>
-          </div>
-        );
+        return <AddData />;
       }
       default: {
-        return (
-          <form className="has-text-centered">
-            <div className="field">
-              <label className="label">Name</label>
-              <p className="control">
-                <input
-                  className="input"
-                  type="text"
-                  value={this.state.pseudo}
-                  onChange={this.onChangePseudo}
-                />
-              </p>
-            </div>
-            <button className="button is-info" onClick={this.firstStep}>
-              Jouer
-            </button>
-          </form>
-        );
+        return <PartiesList nextStep={this.nextStep} />;
       }
     }
   }
