@@ -1,5 +1,5 @@
 const { logInfoSocket, logQInfo } = require('../../utils/logger')
-const { set, get } = require('../../utils/redisfn')
+const { set, get, incr } = require('../../utils/redisfn')
 const { createHubJob } = require('../../queue/index')
 
 const getFrontId = clients => Object.keys(clients).find(e => clients[e].front === true)
@@ -17,25 +17,40 @@ const forge = (e, data, clientsLocal, id) => {
   return (action, time) => Object.assign(forgeClientInfo(client, front_id), forgeInfoString(action, time), (data) ? data : {})
 }
 
+const maxActions = 10
+
+const nbActions = ({ id }) => new Promise((s, f) => get(id).then(e => {
+    const val = parseInt(e)
+    if (val >= maxActions) f()
+    incr(id).then(s).catch(f)
+  }))
+
 const Forward = (data, clientsLocal, client, hubs) => 
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Forward', 1), () => logQInfo('Forward queued')))
+  .catch(() => client.emit('ko'))
 
 const Right = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Right', 1), () => logQInfo('Right queued')))
+  .catch(() => client.emit('ko'))
 
 const Left = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Left', 1), () => logQInfo('Left queued')))
+  .catch(() => client.emit('ko'))
 
 const Look = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Look', 1), () => logQInfo('Look queued')))
+  .catch(() => client.emit('ko'))
 
 const Inventory = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Inventory', 1), () => logQInfo('Inventory queued')))
+  .catch(() => client.emit('ko'))
 
 const Take = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Take', 1), () => logQInfo('Take queued')))
+  .catch(() => client.emit('ko'))
 
 const Set_ = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Set_', 1), () => logQInfo('Set queued')))
+  .catch(() => client.emit('ko'))
 
 module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_ }
