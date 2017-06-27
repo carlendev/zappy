@@ -56,7 +56,9 @@ io.on('dead', () => {
     exit()
 })
 
-io.on('Connect_nbr', wesh)
+io.on('Connect_nbr', data => {
+    wesh(data)
+})
 
 io.on('start', () => {
     wesh('Start play ' + 'issou')
