@@ -147,11 +147,10 @@ const connectnbr = (data, clients, client) => findClients(client.id).then(([ _cl
     client.socket.emit('Connect_nbr', teams)
 }))
 
-//TODO: global job queue
 const take = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         if (data.object) {
-            let key = Object.keys(_client.inventory).find(e => e === data.object)
+            const key = Object.keys(_client.inventory).find(e => e === data.object)
             if (key && _hub.map[_client.pos.y][_client.pos.x][key] > 0) {
                 _hub.map[_client.pos.y][_client.pos.x][key]--
                 _client.inventory[key]++
@@ -166,7 +165,7 @@ const take = (data, clients, client) => findClients(client.id).then(([ _clients,
 const set_ = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         if (data.object) {
-            let key = Object.keys(_client.inventory).find(e => e === data.object)
+            const key = Object.keys(_client.inventory).find(e => e === data.object)
             if (key && _client.inventory[key] > 0) {
                 _hub.map[_client.pos.y][_client.pos.x][key]++
                 _client.inventory[key]--
@@ -180,7 +179,7 @@ const set_ = (data, clients, client) => findClients(client.id).then(([ _clients,
 
 const eject = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
-        let res = __clients.filter(c => c.hubName === _client.hubName && c.id !== _client.id && c.pos.x === _client.pos.x && c.pos.y === _client.pos.y)
+        const res = __clients.filter(c => c.hubName === _client.hubName && c.id !== _client.id && c.pos.x === _client.pos.x && c.pos.y === _client.pos.y)
         res.forEach(c => {
             switch (_client.orientation) {
                 case 1: --c.pos.y; break
@@ -189,7 +188,7 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
                 case 4: --c.pos.x; break
             }
             c.pos = circularPos(c.pos, _hub.mapWidth, _hub.mapHeight)
-            let _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
+            const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
             _clients[_c].socket.emit('eject', { orientation: (c.orientation + 2) % 4 })
         })
         setClients(__clients, () => client.socket.emit(res.length ? 'ok' : 'ko'), {})
@@ -203,6 +202,11 @@ const userEvents = async (job, done) => {
     const fronts = Object.keys(_clients).filter(e => _clients[e].front === true)
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
+    if (data.id === 'start') {          
+        client.socket.emit('start')
+        done()
+        return
+    }
     setTimeout(async () => {
         const clients = JSON.parse(await get('clients'))
         data.fn && eval(data.fn + '(data, clients, client)')
