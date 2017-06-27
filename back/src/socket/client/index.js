@@ -166,6 +166,24 @@ const set_ = (data, clients, client) => findClients(client.id).then(([ _clients,
     })
 })
 
+const eject = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        let res = __clients.filter(c => c.hubName === _client.hubName && c.id !== _client.id && c.pos.x === _client.pos.x && c.pos.y === _client.pos.y)
+        res.forEach(c => {
+            switch (_client.orientation) {
+                case 1: --c.pos.y; break
+                case 2: ++c.pos.x; break
+                case 3: ++c.pos.y; break
+                case 4: --c.pos.x; break
+            }
+            c.pos = circularPos(c.pos, _hub.mapWidth, _hub.mapHeight)
+            let _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
+            _clients[_c].socket.emit('eject', { orientation: (c.orientation + 2) % 4 })
+        })
+        setClients(__clients, () => client.socket.emit(res.length ? 'ok' : 'ko'), {})
+    })
+})
+
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
