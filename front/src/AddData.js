@@ -3,24 +3,35 @@ import React, { Component } from "react";
 export default class AddData extends Component {
   state = {
     hubName: "",
-    width: "",
-    height: "",
-    team: ""
+    width: "40",
+    height: "40",
+    team: "",
+    error: false
   };
 
   submitForm(e) {
     e.preventDefault();
-    console.log(this.state);
-    const url =
-      "game.html?hubname=" +
-      this.state.hubName +
-      "&width=" +
-      this.state.width +
-      "&height=" +
-      this.state.height +
-      "&team=" +
-      this.state.team;
-    window.location.replace(url);
+    if (
+      this.state.hubName === "" ||
+      this.state.width === "" ||
+      this.state.height === "" ||
+      this.state.team === ""
+    ) {
+      this.setState({
+        error: true
+      });
+    } else {
+      const url =
+        "game.html?hubname=" +
+        this.state.hubName +
+        "&width=" +
+        this.state.width +
+        "&height=" +
+        this.state.height +
+        "&team=" +
+        this.state.team;
+      window.location.replace(url);
+    }
   }
 
   render() {
@@ -106,6 +117,11 @@ export default class AddData extends Component {
           </p>
         </div>
 
+        {this.state.error
+          ? <div className="notification is-danger">
+              Veuillez remplir tous les champs
+            </div>
+          : ""}
       </form>
     );
   }

@@ -197,7 +197,7 @@ zoom.onMouseDown = e => {
 
 window.onload = () => {
   const WelcomeDiv = document.getElementById("welcome");
-  WelcomeDiv.innerHTML = "Vous êtes sur la partie numéro " + hubName;
+  WelcomeDiv.innerHTML = "Vous êtes sur la partie " + hubName;
 
   //Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
 };
