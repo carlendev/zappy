@@ -53,4 +53,8 @@ const Set_ = (data, clientsLocal, client, hubs) =>
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Set_', 1), () => logQInfo('Set queued')))
   .catch(() => client.emit('ko'))
 
-module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_ }
+const Eject = (data, clientsLocal, client, hubs) =>
+  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Eject', 1), () => logQInfo('Eject queued')))
+  .catch(() => client.emit('ko'))
+
+module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject }
