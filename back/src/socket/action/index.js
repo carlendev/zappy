@@ -45,4 +45,8 @@ const Inventory = (data, clientsLocal, client, hubs) => nbActions(client).then((
   get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('Inventory', 1), () => logQInfo('Inventory queued'))))
   .catch(() => client.emit('ko'))
 
-module.exports = { Forward, Right, Left, Look, Inventory }
+const ConnectNbr = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
+  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('ConnectNbr', 0), () => logQInfo('Connect Nbr queued'))))
+  .catch(() => client.emit('ko'))
+
+module.exports = { Forward, Right, Left, Look, Inventory, ConnectNbr }

@@ -52,12 +52,15 @@ io.on('dead', () => {
     exit()
 })
 
+io.on('Connect_nbr', wesh)
+
 io.on('start', () => {
     wesh('Start play ' + 'issou')
     io.emit('Forward')
     io.emit('Right')
     io.emit('Left')
     io.emit('Look')
+    io.emit('Connect_nbr')
 })
 
 io.on('disconnect', () => {

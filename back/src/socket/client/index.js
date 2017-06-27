@@ -136,6 +136,18 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
 
 const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('inventory', _client.inventory) })
 
+const connectnbr = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => findHubs(_client.hubName).then(([ hubs, hub ]) => {
+    const playerInHubs = _clients.filter(e => e.hubName === hub.hubName)
+    const teams = _clients.reduce((acc, cur) => {
+        acc[cur.team] = 0
+        return acc
+    }, {})
+    playerInHubs.map(e => teams[e.team]++)
+    Object.keys(teams).map(e => teams[e] = hub.clientsPerTeam - teams[e])
+    client.socket.emit('Connect_nbr', teams)
+}))
+
+//TODO: global job queue
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
