@@ -34,7 +34,8 @@ socket.on("connect", () => {
         teams: teams,
         clientsPerTeam: 1
   })
-  startGame()
+    //socket.emit('join', { hubName: 'hub1', team: 'ISSOU' })
+    startGame()
 })
 
 socket.on("dead", () => {
@@ -62,6 +63,11 @@ socket.on(`update:${hubName}`, data => {
 socket.on("disconnect", () => {
   wesh("I'm out");
   //exit()
+})
+
+socket.on('start', () => {
+    wesh('Start play ')
+    io.emit('Forward')
 })
 
 const createPlayer = (data) => {
@@ -145,6 +151,9 @@ const generateWorld = () => {
 };
 
 const startGame = () => {
+    const WelcomeDiv = document.getElementById("welcome");
+    WelcomeDiv.innerHTML = hubName;
+    //Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
     Crafty.init(windowSize, windowSize, document.getElementById("game"));
 
     //Add audio for Gameplay
@@ -164,12 +173,8 @@ const startGame = () => {
         team1: [0, 2],
         team2: [3, 2]
     });
-    Crafty.scene("main");
+    generateWorld();
 }
-
-  Crafty.scene("main", () => {
-      generateWorld();
-  });
 
 const zoom = Crafty.e("2D")
 zoom.onMouseDown = e => {
@@ -181,8 +186,4 @@ zoom.onMouseDown = e => {
 }
 
 window.onload = () => {
-    const WelcomeDiv = document.getElementById("welcome");
-    WelcomeDiv.innerHTML = "Vous êtes sur la partie numéro " + hubName;
-
-    //Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
 }
