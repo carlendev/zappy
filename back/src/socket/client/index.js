@@ -19,7 +19,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     logInfoSocket('Client connected ' + client.id)
     findClients('').then(([ add ]) => {
         const id = client.id
-        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
+        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, inventory: { food: 10, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
         set('clients', JSON.stringify(add)).then(e => {
             createHubQ(id, userEvents)
             findClients('').then(([ _clients ]) => {
@@ -127,6 +127,36 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
 })
 
 const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('inventory', _client.inventory) })
+
+const take = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        if (data.object) {
+            let key = Object.keys(_client.inventory).find(e => e === data.object)
+            if (key && _hub.map[_client.pos.y][_client.pos.x][key] > 0) {
+                _hub.map[_client.pos.y][_client.pos.x][key]--
+                _client.inventory[key]++
+                client.socket.emit('ok')
+                return
+            }
+        }
+        client.socket.emit('ko')
+    })
+})
+
+const set_ = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        if (data.object) {
+            let key = Object.keys(_client.inventory).find(e => e === data.object)
+            if (key && _client.inventory[key] > 0) {
+                _hub.map[_client.pos.y][_client.pos.x][key]++
+                _client.inventory[key]--
+                client.socket.emit('ok')
+                return
+            }
+        }
+        client.socket.emit('ko')
+    })
+})
 
 const userEvents = async (job, done) => {
     const data = job.data
