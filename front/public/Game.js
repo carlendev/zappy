@@ -13,22 +13,28 @@ const wesh = console.log
 
 const exit = (code=0) => process.exit(code)
 
+const tileMapSize = 16;
+const size = 40;
+const windowSize = size * tileMapSize;
+
 //TODO: make this dynamic
-const hubName = 'hub1'
+const hubName = 'hub1' //gup("id", window.location.href);
+
+const teams = ['ISSOU', 'BITE']
+
+const players = []
 
 socket.on("connect", () => {
   socket.emit("connectFront")
   wesh("I' am connected")
   socket.emit('createHub', {
-    hubName,
-    mapWidth: 40,
-    mapHeight: 40,
-    teams: [
-      'ISSOU',
-      'BITE'
-    ],
-    clientsPerTeam: 1
+        hubName,
+        mapWidth: size,
+        mapHeight: size,
+        teams: teams,
+        clientsPerTeam: 1
   })
+  startGame()
 })
 
 socket.on("dead", () => {
@@ -39,6 +45,18 @@ socket.on("dead", () => {
 socket.on(`update:${hubName}`, data => {
   wesh("I' m updated")
   wesh(data)
+    parseHubData(data.hubInfo)
+    parseClientsData(data.clients)
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].alive) {
+            players[i].entity.trigger("Update", players[i])
+            players[i].alive = false
+        }
+        else {
+            players[i].entity.destroy()
+            players.slice(i, 1)
+        }
+    }
 });
 
 socket.on("disconnect", () => {
@@ -46,121 +64,111 @@ socket.on("disconnect", () => {
   //exit()
 })
 
-window.onload = () => {
-  const WelcomeDiv = document.getElementById("welcome");
-  const id = gup("id", window.location.href);
-  WelcomeDiv.innerHTML = "Vous êtes sur la partie numéro " + id;
+const createPlayer = (data) => {
+    return (Crafty.e("2D, Canvas, team1, Controls, Collision, SpriteAnimation")
+        .attr({ x: data.pos.x * tileMapSize, y: data.pos.y * tileMapSize, w: tileMapSize, h: tileMapSize })
+        .reel("1", 100, [[3, 3], [4, 3], [5, 3]])
+        .reel("2", 100, [[3, 1], [4, 1], [5, 1]])
+        .reel("3", 100, [[3, 2], [4, 2], [5, 2]])
+        .reel("4", 100, [[3, 0], [4, 0], [5, 0]])
+        .bind("Update", function(data) {
+            this.animate(data.orientation.toString())
+            this.x = data.pos.x * tileMapSize
+            this.y = data.pos.y * tileMapSize
+        }))
+}
 
-  const tileMapSize = 16;
-  const size = 40;
-  const windowSize = size * tileMapSize;
+const parseClientsData = (data) => {
+    for (let i = 0; i < data.length; i++) {
+        if (players.some(function(e) {
+                if (e.id == data[i].id) {
+                    e.pos = data[i].pos
+                    e.orientation = data[i].orientation
+                    e.alive = true
+                }
+                return e.id == data[i].id
+            })) {
+            wesh("Contains")
+        }
+        else {
+            wesh("Push player")
+            data[i].entity = createPlayer(data[i]);
+            data[i].alive = true;
+            players.push(data[i]);
+        }
+    }
+}
 
-  Crafty.init(windowSize, windowSize, document.getElementById("game"));
+const parseHubData = (data) => {
+    for (let i = 0; i < data.map.length; i++) {
+        for (let j = 0; j < data.map[i].length; j++) {
+            let item = data.map[i][j].food + data.map[i][j].deraumere + data.map[i][j].linemate + data.map[i][j].mendiane
+                + data.map[i][j].phiras + data.map[i][j].sibur + data.map[i][j].thystame
+            if (item > 0) {
+                Crafty.e(`2D, Canvas, flower`).attr({
+                    x: i * tileMapSize,
+                    y: j * tileMapSize
+                });
+            }
+        }
+    }
+}
 
-  //Add audio for Gameplay
-  //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
-  //Crafty.audio.play("PokemonSounds", 5, 1);
-
-
-
-  //turn the sprite map into usable components
-  Crafty.sprite(16, "/images/sprite.png", {
-    grass1: [0, 0],
-    grass2: [1, 0],
-    grass3: [2, 0],
-    grass4: [3, 0],
-    flower: [0, 1],
-  });
-
-  Crafty.sprite(33, "/images/Pl.png" , {
-      team1: [0, 2],
-      team2: [3, 2]
-  });
-
-  //randomy generate map
-  const generateWorld = () => {
+//randomy generate map
+const generateWorld = () => {
     for (let i = 0; i < size; ++i) {
-      for (let j = 0; j < size; ++j) {
-        grassType = Math.floor(Math.random() * 4 + 1);
-        Crafty.e(`2D, Canvas, grass${grassType}`).attr({
-          x: i * tileMapSize,
-          y: j * tileMapSize
-        });
-      }
+        for (let j = 0; j < size; ++j) {
+            grassType = Math.floor(Math.random() * 4 + 1);
+            Crafty.e(`2D, Canvas, grass${grassType}`).attr({
+                x: i * tileMapSize,
+                y: j * tileMapSize
+            });
+        }
     }
     for (let i = 0; i < size; ++i) {
-      Crafty.e(
-        "2D, Canvas, wall_top, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: i * tileMapSize, y: 0, z: 2 });
-      Crafty.e(
-        "2D, DOM, wall_bottom, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: i * tileMapSize, y: (size - 1) * tileMapSize, z: 2 });
+        Crafty.e(
+            "2D, Canvas, wall_top, bush" + Math.floor(Math.random() * 2 + 1)
+        ).attr({ x: i * tileMapSize, y: 0, z: 2 });
+        Crafty.e(
+            "2D, DOM, wall_bottom, bush" + Math.floor(Math.random() * 2 + 1)
+        ).attr({ x: i * tileMapSize, y: (size - 1) * tileMapSize, z: 2 });
     }
     //we need to start one more and one less to not overlap the previous bushes
     for (let i = 1; i < size; i++) {
-      Crafty.e(
-        "2D, DOM, wall_left, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: 0, y: i * tileMapSize, z: 2 });
-      Crafty.e(
-        "2D, Canvas, wall_right, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: (size - 1) * tileMapSize, y: i * tileMapSize, z: 2 });
+        Crafty.e(
+            "2D, DOM, wall_left, bush" + Math.floor(Math.random() * 2 + 1)
+        ).attr({ x: 0, y: i * tileMapSize, z: 2 });
+        Crafty.e(
+            "2D, Canvas, wall_right, bush" + Math.floor(Math.random() * 2 + 1)
+        ).attr({ x: (size - 1) * tileMapSize, y: i * tileMapSize, z: 2 });
     }
-  };
+};
 
-  Crafty.scene("loading", () => {
+const startGame = () => {
+    Crafty.init(windowSize, windowSize, document.getElementById("game"));
+
+    //Add audio for Gameplay
+    //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
+    //Crafty.audio.play("PokemonSounds", 5, 1);
+
+    //turn the sprite map into usable components
+    Crafty.sprite(16, "/images/sprite.png", {
+        grass1: [0, 0],
+        grass2: [1, 0],
+        grass3: [2, 0],
+        grass4: [3, 0],
+        flower: [0, 1],
+    });
+
+    Crafty.sprite(33, "/images/Pl.png" , {
+        team1: [0, 2],
+        team2: [3, 2]
+    });
     Crafty.scene("main");
-  });
+}
 
   Crafty.scene("main", () => {
-    generateWorld();
-
-    const team1 = Crafty.e(
-      "2D, Canvas, team1, Controls, Collision, SpriteAnimation"
-    )
-      .attr({ x: 60, y: 60, w: tileMapSize, h: tileMapSize })
-      .reel("walk_right", 100, [[0, 3], [1, 3], [2, 3]])
-      .reel("walk_left", 100, [[0, 1], [1, 1], [2, 1]])
-      .reel("walk_down", 100, [[0, 2], [1, 2], [2, 2]])
-      .reel("walk_up", 100, [[0, 0], [1, 0], [2, 0]])
-      .bind("KeyDown", function(e) {
-        if (e.key === Crafty.keys.LEFT_ARROW) {
-          this.animate("walk_left");
-          this.x -= tileMapSize;
-        } else if (e.key === Crafty.keys.RIGHT_ARROW) {
-          this.animate("walk_right");
-          this.x += tileMapSize;
-        } else if (e.key === Crafty.keys.UP_ARROW) {
-          this.animate("walk_up");
-          this.y -= tileMapSize;
-        } else if (e.key === Crafty.keys.DOWN_ARROW) {
-          this.animate("walk_down");
-          this.y += tileMapSize;
-        }
-      });
-
-    const team2 = Crafty.e(
-      "2D, Canvas, team2, Controls, Collision, SpriteAnimation"
-    )
-      .attr({ x: 100, y: 100, w: tileMapSize, h: tileMapSize })
-      .reel("walk_right", 100, [[3, 3], [4, 3], [5, 3]])
-      .reel("walk_left", 100, [[3, 1], [4, 1], [5, 1]])
-      .reel("walk_down", 100, [[3, 2], [4, 2], [5, 2]])
-      .reel("walk_up", 100, [[3, 0], [4, 0], [5, 0]])
-      .bind("KeyDown", function(e) {
-        if (e.key === Crafty.keys.LEFT_ARROW) {
-          this.animate("walk_left");
-          this.x -= tileMapSize;
-        } else if (e.key === Crafty.keys.RIGHT_ARROW) {
-          this.animate("walk_right");
-          this.x += tileMapSize;
-        } else if (e.key === Crafty.keys.UP_ARROW) {
-          this.animate("walk_up");
-          this.y -= tileMapSize;
-        } else if (e.key === Crafty.keys.DOWN_ARROW) {
-          this.animate("walk_down");
-          this.y += tileMapSize;
-        }
-      });
+      generateWorld();
   });
 
 const zoom = Crafty.e("2D")
@@ -171,7 +179,10 @@ zoom.onMouseDown = e => {
   else if (e.buttons === Crafty.mouseButtons.RIGHT)
     Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500) 
 }
-Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown)
 
-  Crafty.scene("loading");
+window.onload = () => {
+    const WelcomeDiv = document.getElementById("welcome");
+    WelcomeDiv.innerHTML = "Vous êtes sur la partie numéro " + hubName;
+
+    //Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
 }

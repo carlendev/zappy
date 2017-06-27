@@ -110,7 +110,21 @@ export default class Data extends Component {
                 <span>Creer une nouvelle partie</span>
               </button>
             </div>
-
+            <div className="modal">
+              <div className="modal-background"></div>
+              <div className="modal-card">
+                <header className="modal-card-head">
+                  <p className="modal-card-title">Modal title</p>
+                  <button className="delete"></button>
+                </header>
+                <section className="modal-card-body">
+                </section>
+                <footer className="modal-card-foot">
+                  <a className="button is-success">Save changes</a>
+                  <a className="button">Cancel</a>
+                </footer>
+              </div>
+            </div>
           </div>
         );
       }

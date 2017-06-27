@@ -19,7 +19,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     findClients('').then(([ add ]) => {
         const id = client.id
         add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0,
-            inventory: { food: 0, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
+            inventory: { food: 10, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
         set('clients', JSON.stringify(add)).then(e => {
             set(client.id, 0).then(() => {
                 createHubQ(id, userEvents)
@@ -148,6 +148,55 @@ const connectnbr = (data, clients, client) => findClients(client.id).then(([ _cl
 }))
 
 //TODO: global job queue
+const take = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        if (data.object) {
+            let key = Object.keys(_client.inventory).find(e => e === data.object)
+            if (key && _hub.map[_client.pos.y][_client.pos.x][key] > 0) {
+                _hub.map[_client.pos.y][_client.pos.x][key]--
+                _client.inventory[key]++
+                client.socket.emit('ok')
+                return
+            }
+        }
+        client.socket.emit('ko')
+    })
+})
+
+const set_ = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        if (data.object) {
+            let key = Object.keys(_client.inventory).find(e => e === data.object)
+            if (key && _client.inventory[key] > 0) {
+                _hub.map[_client.pos.y][_client.pos.x][key]++
+                _client.inventory[key]--
+                client.socket.emit('ok')
+                return
+            }
+        }
+        client.socket.emit('ko')
+    })
+})
+
+const eject = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        let res = __clients.filter(c => c.hubName === _client.hubName && c.id !== _client.id && c.pos.x === _client.pos.x && c.pos.y === _client.pos.y)
+        res.forEach(c => {
+            switch (_client.orientation) {
+                case 1: --c.pos.y; break
+                case 2: ++c.pos.x; break
+                case 3: ++c.pos.y; break
+                case 4: --c.pos.x; break
+            }
+            c.pos = circularPos(c.pos, _hub.mapWidth, _hub.mapHeight)
+            let _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
+            _clients[_c].socket.emit('eject', { orientation: (c.orientation + 2) % 4 })
+        })
+        setClients(__clients, () => client.socket.emit(res.length ? 'ok' : 'ko'), {})
+    })
+})
+
+//TODO: push all in job queue
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
@@ -159,7 +208,6 @@ const userEvents = async (job, done) => {
         data.fn && eval(data.fn + '(data, clients, client)')
         decr(client.id)
         fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
-        client.socket.emit(data.id)
         done()
     }, data.time * 1000)
 }

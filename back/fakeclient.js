@@ -47,6 +47,10 @@ io.on('inventory', inventory => {
     wesh('Inventory: ', inventory)
 })
 
+io.on('eject', orientation => {
+    wesh('Eject: ', orientation)
+})
+
 io.on('dead', () => {
     wesh('I\' dead')
     exit()
