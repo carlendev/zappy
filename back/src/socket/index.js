@@ -1,8 +1,7 @@
 const { logInfoSocket } = require('../utils/logger')
 const { io } = require('../app')
 const { clientPnw, validateJson } = require('../utils/validator')
-const { createHub, deleteHub } = require('./hub/index') 
-const { connect, disconnect, connectFront } = require('./client/index')
+const { connect, disconnect, connectFront, createHub, deleteHub } = require('./client/index')
 const {
     Forward,
     Right,
