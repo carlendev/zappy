@@ -1,49 +1,54 @@
-const express = require('express')
-const mapAPI = require('./api/map/index')
-const hubAPI = require('./api/hub/index')
-const teamAPI = require('./api/team/index')
-const bodyParser = require('body-parser')
-const _io = require('socket.io')
-const kue = require('kue')
-const { logInfo, logError } = require('./utils/logger')
-const { initializeRedis } = require('./utils/startup')
-const { jsonSchemaError, jsonSyntaxError } = require('./utils/middleware')
+const express = require("express");
+const mapAPI = require("./api/map/index");
+const hubAPI = require("./api/hub/index");
+const teamAPI = require("./api/team/index");
+const bodyParser = require("body-parser");
+const _io = require("socket.io");
+const kue = require("kue");
+const { logInfo, logError } = require("./utils/logger");
+const { initializeRedis } = require("./utils/startup");
+const { jsonSchemaError, jsonSyntaxError } = require("./utils/middleware");
+const cors = require("cors");
 
-require('dotenv').config()
+require("dotenv").config();
 
-const app = express()
+const app = express();
 
 //socket
-const server = require('http').createServer(app)
+const server = require("http").createServer(app);
 
 //middleware
-app.use(bodyParser.json())
+app.use(bodyParser.json());
+app.use(cors());
 
 //kue
-require('./queue/index')
-app.use('/queue', kue.app)
+require("./queue/index");
+app.use("/queue", kue.app);
 
 //route
-app.use('/api', mapAPI)
-app.use('/api', hubAPI)
-app.use('/api', teamAPI)
+app.use("/api", mapAPI);
+app.use("/api", hubAPI);
+app.use("/api", teamAPI);
 
 //error middleware
-app.use(jsonSyntaxError)
-app.use(jsonSchemaError)
+app.use(jsonSyntaxError);
+app.use(jsonSchemaError);
 
 const handleError = err => {
-    logError(err)
-    process.exit(1)
-}
+  logError(err);
+  process.exit(1);
+};
 
-const PORT = +process.env.PORT || 3001
+const PORT = +process.env.PORT || 3001;
 
 initializeRedis()
-    .then(() => {
-        const server = app.listen(PORT, err => err ? handleError(err) : logInfo(`App listen to ${PORT}`))
-        const io = _io(server)
-        module.exports = { io }
-        require('./socket/index')()
-    })
-    .catch(handleError)
+  .then(() => {
+    const server = app.listen(
+      PORT,
+      err => (err ? handleError(err) : logInfo(`App listen to ${PORT}`))
+    );
+    const io = _io(server);
+    module.exports = { io };
+    require("./socket/index")();
+  })
+  .catch(handleError);

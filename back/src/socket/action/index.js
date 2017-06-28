@@ -17,7 +17,8 @@ const forge = (e, data, clientsLocal, id) => {
   return (action, time) => Object.assign(forgeClientInfo(client, front_id), forgeInfoString(action, time), (data) ? data : {})
 }
 
-const maxActions = 10
+//TODO: set to 10
+const maxActions = 1000
 
 const nbActions = ({ id }) => new Promise((s, f) => get(id).then(e => {
     const val = parseInt(e)
@@ -25,40 +26,20 @@ const nbActions = ({ id }) => new Promise((s, f) => get(id).then(e => {
     incr(id).then(s).catch(f)
   }))
 
-const Forward = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Forward', 1), () => logQInfo('Forward queued'))))
+const registerAction = (data, clientsLocal, client, hubs) => (name, time) => nbActions(client).then(() => get('clients')
+  .then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)(name, time), () => logQInfo(`${name} queued`))))
   .catch(() => client.emit('ko'))
 
-const Right = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Right', 1), () => logQInfo('Right queued'))))
-  .catch(() => client.emit('ko'))
+const Forward = (...args) => registerAction(...args)('Forward', 1)
+const Right = (...args) => registerAction(...args)('Right', 1)
+const Left = (...args) => registerAction(...args)('Left', 1)
+const Look = (...args) => registerAction(...args)('Look', 1)
+const Inventory = (...args) => registerAction(...args)('Inventory', 1)
+const ConnectNbr = (...args) => registerAction(...args)('ConnectNbr', 0)
+const Take = (...args) => registerAction(...args)('Take', 1)
+const Set_ = (...args) => registerAction(...args)('Set_', 1)
+const Eject = (...args) => registerAction(...args)('Eject', 1)
+const Fork = (...args) => registerAction(...args)('Fork', 42)
+const Brodcast = (...args) => registerAction(...args)('Brodcast', 1)
 
-const Left = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Left', 1), () => logQInfo('Left queued'))))
-  .catch(() => client.emit('ko'))
-
-const Look = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Look', 1), () => logQInfo('Look queued'))))
-  .catch(() => client.emit('ko'))
-
-const Inventory = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Inventory', 1), () => logQInfo('Inventory queued'))))
-  .catch(() => client.emit('ko'))
-
-const ConnectNbr = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, clientsLocal, client.id)('ConnectNbr', 0), () => logQInfo('Connect Nbr queued'))))
-  .catch(() => client.emit('ko'))
-
-const Take = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Take', 1), () => logQInfo('Take queued'))))
-  .catch(() => client.emit('ko'))
-
-const Set_ = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Set_', 1), () => logQInfo('Set queued'))))
-  .catch(() => client.emit('ko'))
-
-const Eject = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
-  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Eject', 1), () => logQInfo('Eject queued'))))
-  .catch(() => client.emit('ko'))
-
-module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr }
+module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr, Brodcast, Fork }

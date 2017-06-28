@@ -3,6 +3,7 @@ const { clientPnw, validateJson, createHubP, deleteHubP } = require('../../utils
 const { set, get, decr, findClients, findClientsInHub, findHubs, setClients } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 const { randTile, circularPos, generateMap } = require('../../utils/map')
+const bresenham = require('../../utils/bresenham')
 
 let _clients = {}
 
@@ -83,9 +84,9 @@ const forward = (data, clients, client) => findClients(client.id).then(([ _clien
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         switch (_client.orientation) {
             case 1: --_client.pos.y; break
-            case 2: --_client.pos.x; break
+            case 2: ++_client.pos.x; break
             case 3: ++_client.pos.y; break
-            case 4: ++_client.pos.x; break
+            case 4: --_client.pos.x; break
         }
         _client.pos = circularPos(_client.pos, _hub.mapWidth, _hub.mapHeight)
     setClients(_clients, _client => {logInfoSocket('New pos is: ' + JSON.stringify(_client.pos)); client.socket.emit('ok')}, _client)
@@ -97,7 +98,7 @@ const left = (data, clients, client) => findClients(client.id).then(([ _clients,
 })
 
 const right = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
-    if (_client.orientation > 4) _client.orientation = 1
+    if (++_client.orientation > 4) _client.orientation = 1
     setClients(_clients, _client => {logInfoSocket('New orientation is: ' + _client.orientation); client.socket.emit('ok')}, _client)
 })
 
@@ -194,13 +195,59 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
     })
 })
 
+const fork = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+    //first increasre team player number
+    //check max per team
+    //second spwan an ia with good parameter to make it wait 600 before he play
+}))
+
+const brodcast = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        const res = __clients.filter(c => c.hubName === _client.hubName)
+        res.forEach(c => {
+
+            const getDir = (pos, tile, xForward, yForward, xLeft, yLeft) => {
+                const directions = []
+
+                directions.push(circularPos({ x: pos.x + xForward, y: pos.y + yForward }, _hub.mapWidth, _hub.mapHeight))
+                directions.push(circularPos({ x: pos.x + xForward + xLeft, y: pos.y + yForward + yLeft }, _hub.mapWidth, _hub.mapHeight))
+                directions.push(circularPos({ x: pos.x + xLeft, y: pos.y + yLeft }, _hub.mapWidth, _hub.mapHeight))
+                directions.push(circularPos({ x: pos.x + -xForward + xLeft, y: pos.y + -yForward + yLeft }, _hub.mapWidth, _hub.mapHeight))
+                directions.push(circularPos({ x: pos.x + -xForward, y: pos.y + -yForward }, _hub.mapWidth, _hub.mapHeight))
+                directions.push(circularPos({ x: pos.x + -xForward + -xLeft, y: pos.y + -yForward + -yLeft }, _hub.mapWidth, _hub.mapHeight))
+                directions.push(circularPos({ x: pos.x + -xLeft, y: pos.y + -yLeft }, _hub.mapWidth, _hub.mapHeight))
+                directions.push(circularPos({ x: pos.x + xForward + -xLeft, y: pos.y + yForward + -yLeft }, _hub.mapWidth, _hub.mapHeight))
+                return  directions.findIndex(e => e.x === tile.x && e.y === tile.y)
+            }
+
+            if (c.id === _client.id) {
+                client.socket.emit('message', { text: data.text, direction: 0 })
+                return
+            }
+
+            const tile = bresenham(_hub.mapWidth, _hub.mapHeight, _client.pos.x, _client.pos.y, c.pos.x, c.pos.y)
+            let dir = -1
+            switch (_client.orientation) {
+                case 1: dir = getDir(c.pos, tile, 0, -1, -1, 0); break
+                case 2: dir = getDir(c.pos, tile, 1, 0, 0, -1); break
+                case 3: dir = getDir(c.pos, tile, 0, 1, 1, 0); break
+                case 4: dir = getDir(c.pos, tile, -1, 0, 0, 1); break
+            }
+            const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
+            if (dir !== -1)
+                _clients[_c].socket.emit('message', { text: data.text, direction: dir + 1 })
+        })
+        client.socket.emit('ok')
+    })
+})
+
 //INFO: HUB
 const createHub = (data, clients, client, hubs) => {
     if (validateJson(createHubP)(data).errors.length) return
     get('hubs').then(async e => {
         const _hubs = JSON.parse(e)
         if (_hubs.find(_hub => _hub.hubName === data.hubName)) return
-        logInfoSocket('Hub created ' + data.name)
+        logInfoSocket('Hub created ' + data.hubName)
         _hubs.push(Object.assign(data, { id: _hubs.length + 1, map: await generateMap(data.mapWidth, data.mapHeight) }))
         set('hubs', JSON.stringify(_hubs)).then(() => {
             logInfoSocket('Job queue created ' + data.hubName)
@@ -229,7 +276,8 @@ const fns = {
     look,
     right,
     left,
-    forward    
+    forward,
+    fork 
 }
 
 const hubEvents = async (job, done) => {

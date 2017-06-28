@@ -11,7 +11,9 @@ const {
     Take,
     Set_,
     Eject,
-    ConnectNbr
+    ConnectNbr,
+    Fork,
+    Brodcast
 } = require('./action/index')
 const { set, get } = require('../utils/redisfn')
 
@@ -44,6 +46,8 @@ const socket = () => {
         client.on('Take', data => Take(data, clients, client, hubs))
         client.on('Set', data => Set_(data, clients, client, hubs))
         client.on('Eject', data => Eject(data, clients, client, hubs))
+        client.on('Fork', data => Fork(data, clients, client, hubs))
+        client.on('Brodcast', data => Brodcast(data, clients, client, hubs))
     })
 }
 
