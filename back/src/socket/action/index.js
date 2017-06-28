@@ -17,7 +17,7 @@ const forge = (e, data, clientsLocal, id) => {
   return (action, time) => Object.assign(forgeClientInfo(client, front_id), forgeInfoString(action, time), (data) ? data : {})
 }
 
-const maxActions = 10
+const maxActions = 1000
 
 const nbActions = ({ id }) => new Promise((s, f) => get(id).then(e => {
     const val = parseInt(e)
