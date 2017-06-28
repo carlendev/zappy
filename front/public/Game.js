@@ -18,14 +18,15 @@ const size = 40;
 const windowSize = size * tileMapSize;
 
 //TODO: make this dynamic
-const hubName = gup("hubname") || "hub1";
+const hubName = decodeURI(gup("hubname")) || "hub1";
 
 const mapWidth = parseInt(gup("width")) || 40;
 
 const mapHeight = parseInt(gup("height")) || 40;
 
 const teams = gup("team").split("*") || ["ISSOU", "BITE"];
-console.log(teams);
+
+const clientsPerTeam = gup("number") || 1;
 //Players and map infos
 const players = [];
 const map = [];
@@ -38,7 +39,7 @@ socket.on("connect", () => {
     mapWidth: mapWidth,
     mapHeight: mapHeight,
     teams: teams,
-    clientsPerTeam: 1
+    clientsPerTeam: clientsPerTeam
   });
   //socket.emit('join', { hubName: 'hub1', team: 'ISSOU' })
   startGame();

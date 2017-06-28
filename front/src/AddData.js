@@ -13,15 +13,25 @@ export default class AddData extends Component {
   };
 
   addToTeamList(e) {
-    this.setState({
-      teams: [...this.state.teams, this.state.team],
-      team: ""
-    });
+    if (this.state.teams.includes(this.state.team)) {
+      alert("Cette team existe déjà");
+      this.setState({
+        team: ""
+      });
+      return;
+    } else {
+      this.setState({
+        teams: [...this.state.teams, this.state.team],
+        team: ""
+      });
+    }
+
     e.preventDefault();
   }
 
   submitForm(e) {
     e.preventDefault();
+
     if (this.state.numberPlayer < 2 || this.state.numberPlayer > 100) {
       this.setState({
         errorTeam: true
@@ -46,7 +56,9 @@ export default class AddData extends Component {
           "&height=" +
           this.state.height +
           "&team=" +
-          teamName;
+          teamName +
+          "&number=" +
+          this.state.numberPlayer;
         window.location.replace(url);
       }
     }
