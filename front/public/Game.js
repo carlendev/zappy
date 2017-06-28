@@ -26,7 +26,9 @@ const mapHeight = parseInt(gup("height")) || 40;
 
 const teams = gup("team") || ["ISSOU", "BITE"];
 
+//Players and map infos
 const players = [];
+const map = [];
 
 socket.on("connect", () => {
   socket.emit("connectFront");
@@ -48,19 +50,11 @@ socket.on("dead", () => {
 });
 
 socket.on(`update:${hubName}`, data => {
-  wesh("I' m updated");
-  wesh(data);
-  parseHubData(data.hubInfo);
-  parseClientsData(data.clients);
-  for (let i = 0; i < players.length; i++) {
-    if (players[i].alive) {
-      players[i].entity.trigger("Update", players[i]);
-      players[i].alive = false;
-    } else {
-      players[i].entity.destroy();
-      players.slice(i, 1);
-    }
-  }
+  wesh("I' m updated")
+  wesh(data)
+  parseHubData(data.hubInfo)
+  parseClientsData(data.clients)
+  clearEntities()
 });
 
 socket.on("disconnect", () => {
@@ -94,19 +88,14 @@ const createPlayer = data => {
 
 const parseClientsData = data => {
   for (let i = 0; i < data.length; i++) {
-    if (
-      players.some(function(e) {
+    if (players.some(function(e) {
         if (e.id == data[i].id) {
           e.pos = data[i].pos;
           e.orientation = data[i].orientation;
           e.alive = true;
         }
         return e.id == data[i].id;
-      })
-    ) {
-      wesh("Contains");
-    } else {
-      wesh("Push player");
+      })) {} else {
       data[i].entity = createPlayer(data[i]);
       data[i].alive = true;
       players.push(data[i]);
@@ -126,14 +115,43 @@ const parseHubData = data => {
         data.map[i][j].sibur +
         data.map[i][j].thystame;
       if (item > 0) {
-        Crafty.e(`2D, Canvas, flower`).attr({
-          x: i * tileMapSize,
-          y: j * tileMapSize
-        });
+          data.map[i][j].x = i
+          data.map[i][j].y = j
+          data.map[i][j].draw = true
+          if (map.some(function(e) {
+                  if (e.x == i && e.y == j) {
+                      e = data.map[i][j]
+                  }
+                  return (e.x == i && e.y == j);
+              })) {} else {
+              data.map[i][j].entity = Crafty.e(`2D, Canvas, flower`).attr({
+                  x: i * tileMapSize,
+                  y: j * tileMapSize
+              });
+              map.push(data.map[i][j])
+          }
       }
     }
   }
 };
+
+const clearEntities = () => {
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].alive) {
+            players[i].entity.trigger("Update", players[i]);
+            players[i].alive = false;
+        } else {
+            players[i].entity.destroy();
+            players.slice(i, 1);
+        }
+    }
+    for (let i = 0; i < map.length; i++) {
+        if (!map[i].draw) {
+            map[i].entity.destroy();
+            map.slice(i, 1);
+        }
+    }
+}
 
 //randomy generate map
 const generateWorld = () => {
