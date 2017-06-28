@@ -247,7 +247,7 @@ const createHub = (data, clients, client, hubs) => {
     get('hubs').then(async e => {
         const _hubs = JSON.parse(e)
         if (_hubs.find(_hub => _hub.hubName === data.hubName)) return
-        logInfoSocket('Hub created ' + data.name)
+        logInfoSocket('Hub created ' + data.hubName)
         _hubs.push(Object.assign(data, { id: _hubs.length + 1, map: await generateMap(data.mapWidth, data.mapHeight) }))
         set('hubs', JSON.stringify(_hubs)).then(() => {
             logInfoSocket('Job queue created ' + data.hubName)
