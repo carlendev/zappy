@@ -195,7 +195,7 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
     })
 })
 
-//TODO: push all in job queue
+//TODO: push all in hub job queue
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
