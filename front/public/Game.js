@@ -75,10 +75,10 @@ const createPlayer = data => {
       w: tileMapSize,
       h: tileMapSize
     })
-    .reel("4", 100, [[3, 3], [4, 3], [5, 3]])
-    .reel("2", 100, [[3, 1], [4, 1], [5, 1]])
-    .reel("1", 100, [[3, 2], [4, 2], [5, 2]])
-    .reel("3", 100, [[3, 0], [4, 0], [5, 0]])
+    .reel("4", 100, [[0, 3], [1, 3], [2, 3]])
+    .reel("2", 100, [[0, 1], [1, 1], [2, 1]])
+    .reel("3", 100, [[0, 2], [1, 2], [2, 2]])
+    .reel("1", 100, [[0, 0], [1, 0], [2, 0]])
     .bind("Update", function(data) {
       this.animate(data.orientation.toString());
       this.x = data.pos.x * tileMapSize;
