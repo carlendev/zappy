@@ -75,10 +75,10 @@ const createPlayer = data => {
       w: tileMapSize,
       h: tileMapSize
     })
-    .reel("1", 100, [[3, 3], [4, 3], [5, 3]])
+    .reel("4", 100, [[3, 3], [4, 3], [5, 3]])
     .reel("2", 100, [[3, 1], [4, 1], [5, 1]])
-    .reel("3", 100, [[3, 2], [4, 2], [5, 2]])
-    .reel("4", 100, [[3, 0], [4, 0], [5, 0]])
+    .reel("1", 100, [[3, 2], [4, 2], [5, 2]])
+    .reel("3", 100, [[3, 0], [4, 0], [5, 0]])
     .bind("Update", function(data) {
       this.animate(data.orientation.toString());
       this.x = data.pos.x * tileMapSize;
@@ -92,7 +92,8 @@ const parseClientsData = data => {
         if (e.id == data[i].id) {
           e.pos = data[i].pos;
           e.orientation = data[i].orientation;
-          e.alive = true;
+            wesh(e.pos, e.orientation)
+            e.alive = true;
         }
         return e.id == data[i].id;
       })) {} else {
