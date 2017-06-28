@@ -1,9 +1,8 @@
 const { logInfoSocket, logQInfo, logQError } = require('../../utils/logger')
-const { clientPnw, validateJson } = require('../../utils/validator')
-const { createHub, deleteHub } = require('../hub/index')
+const { clientPnw, validateJson, createHubP, deleteHubP } = require('../../utils/validator')
 const { set, get, decr, findClients, findClientsInHub, findHubs, setClients } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
-const { randTile, circularPos } = require('../../utils/map')
+const { randTile, circularPos, generateMap } = require('../../utils/map')
 
 let _clients = {}
 
@@ -195,6 +194,32 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
     })
 })
 
+//INFO: HUB
+const createHub = (data, clients, client, hubs) => {
+    if (validateJson(createHubP)(data).errors.length) return
+    get('hubs').then(async e => {
+        const _hubs = JSON.parse(e)
+        if (_hubs.find(_hub => _hub.hubName === data.hubName)) return
+        logInfoSocket('Hub created ' + data.name)
+        _hubs.push(Object.assign(data, { id: _hubs.length + 1, map: await generateMap(data.mapWidth, data.mapHeight) }))
+        set('hubs', JSON.stringify(_hubs)).then(() => {
+            logInfoSocket('Job queue created ' + data.hubName)
+            hubs[ _hubs.length + 1 ] = { hub: createHubQ(data.hubName, hubEvents), name: data.hubName }
+        })
+    })
+}
+
+const deleteHub = data => {
+    if (validateJson(deleteHubP)(data).errors.length) return
+    get('hubs').then(e => {
+        const hubs = JSON.parse(e)
+        const id = data.id
+        const _new = hubs.filter(e => e.id !== id)
+        set('hubs', JSON.stringify(_new))
+    })
+    logInfoSocket('Hub deleted ' + data.name)
+}
+
 const fns = {
     eject,
     set_,
@@ -207,25 +232,31 @@ const fns = {
     forward    
 }
 
-//TODO: push all in hub job queue
-const userEvents = async (job, done) => {
+const hubEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
+    const clients = JSON.parse(await get('clients'))
     const fronts = Object.keys(_clients).filter(e => _clients[e].front === true)
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
+    await fns[data.fn](data, clients, client)
+    decr(client.id)
+    fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
+    done()
+}
+
+const userEvents = async (job, done) => {
+    const data = job.data
+    const client = _clients[ data.client_id ]
     if (data.id === 'start') {          
         client.socket.emit('start')
         done()
         return
     }
-    setTimeout(async () => {
-        const clients = JSON.parse(await get('clients'))
-        await fns[data.fn](data, clients, client)
-        decr(client.id)
-        fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
+    setTimeout(() => {
+        createHubJob(client.hub, data, () => logQInfo(`${data.title} hub queued`))
         done()
     }, data.time * 1000)
 }
 
-module.exports = { connect, disconnect, connectFront }
+module.exports = { connect, disconnect, connectFront, createHub, deleteHub }

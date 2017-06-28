@@ -18,14 +18,15 @@ const size = 40;
 const windowSize = size * tileMapSize;
 
 //TODO: make this dynamic
-const hubName = gup("hubname") || "hub1";
+const hubName = decodeURI(gup("hubname")) || "hub1";
 
 const mapWidth = parseInt(gup("width")) || 40;
 
 const mapHeight = parseInt(gup("height")) || 40;
 
-const teams = gup("team") || ["ISSOU", "BITE"];
+const teams = gup("team").split("*") || ["ISSOU", "BITE"];
 
+const clientsPerTeam = gup("number") || 1;
 //Players and map infos
 const players = [];
 const map = [];
@@ -38,7 +39,7 @@ socket.on("connect", () => {
     mapWidth: mapWidth,
     mapHeight: mapHeight,
     teams: teams,
-    clientsPerTeam: 1
+    clientsPerTeam: clientsPerTeam
   });
   //socket.emit('join', { hubName: 'hub1', team: 'ISSOU' })
   startGame();
@@ -50,22 +51,22 @@ socket.on("dead", () => {
 });
 
 socket.on(`update:${hubName}`, data => {
-  wesh("I' m updated")
-  wesh(data)
-  parseHubData(data.hubInfo)
-  parseClientsData(data.clients)
-  clearEntities()
+  wesh("I' m updated");
+  wesh(data);
+  parseHubData(data.hubInfo);
+  parseClientsData(data.clients);
+  clearEntities();
 });
 
 socket.on("disconnect", () => {
   wesh("I'm out");
   //exit()
-})
+});
 
-socket.on('start', () => {
-    wesh('Start play ')
-    socket.emit('Right')
-})
+socket.on("start", () => {
+  wesh("Start play ");
+  socket.emit("Right");
+});
 
 const createPlayer = data => {
   return Crafty.e("2D, Canvas, team1, Controls, Collision, SpriteAnimation")
@@ -88,15 +89,18 @@ const createPlayer = data => {
 
 const parseClientsData = data => {
   for (let i = 0; i < data.length; i++) {
-    if (players.some(function(e) {
+    if (
+      players.some(function(e) {
         if (e.id == data[i].id) {
           e.pos = data[i].pos;
           e.orientation = data[i].orientation;
-            wesh(e.pos, e.orientation)
-            e.alive = true;
+          wesh(e.pos, e.orientation);
+          e.alive = true;
         }
         return e.id == data[i].id;
-      })) {} else {
+      })
+    ) {
+    } else {
       data[i].entity = createPlayer(data[i]);
       data[i].alive = true;
       players.push(data[i]);
@@ -116,43 +120,46 @@ const parseHubData = data => {
         data.map[i][j].sibur +
         data.map[i][j].thystame;
       if (item > 0) {
-          data.map[i][j].x = i
-          data.map[i][j].y = j
-          data.map[i][j].draw = true
-          if (map.some(function(e) {
-                  if (e.x == i && e.y == j) {
-                      e = data.map[i][j]
-                  }
-                  return (e.x == i && e.y == j);
-              })) {} else {
-              data.map[i][j].entity = Crafty.e(`2D, Canvas, flower`).attr({
-                  x: i * tileMapSize,
-                  y: j * tileMapSize
-              });
-              map.push(data.map[i][j])
-          }
+        data.map[i][j].x = i;
+        data.map[i][j].y = j;
+        data.map[i][j].draw = true;
+        if (
+          map.some(function(e) {
+            if (e.x == i && e.y == j) {
+              e = data.map[i][j];
+            }
+            return e.x == i && e.y == j;
+          })
+        ) {
+        } else {
+          data.map[i][j].entity = Crafty.e(`2D, Canvas, flower`).attr({
+            x: i * tileMapSize,
+            y: j * tileMapSize
+          });
+          map.push(data.map[i][j]);
+        }
       }
     }
   }
 };
 
 const clearEntities = () => {
-    for (let i = 0; i < players.length; i++) {
-        if (players[i].alive) {
-            players[i].entity.trigger("Update", players[i]);
-            players[i].alive = false;
-        } else {
-            players[i].entity.destroy();
-            players.slice(i, 1);
-        }
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].alive) {
+      players[i].entity.trigger("Update", players[i]);
+      players[i].alive = false;
+    } else {
+      players[i].entity.destroy();
+      players.slice(i, 1);
     }
-    for (let i = 0; i < map.length; i++) {
-        if (!map[i].draw) {
-            map[i].entity.destroy();
-            map.slice(i, 1);
-        }
+  }
+  for (let i = 0; i < map.length; i++) {
+    if (!map[i].draw) {
+      map[i].entity.destroy();
+      map.slice(i, 1);
     }
-}
+  }
+};
 
 //randomy generate map
 const generateWorld = () => {
@@ -203,16 +210,20 @@ const startGame = () => {
         flower: [0, 1],
     });
 
-    Crafty.sprite(33, "/images/Pl.png" , {
-        team1: [0, 2],
-        team2: [3, 2]
-    });
+  Crafty.sprite(33, "/images/Pl.png", {
+    team1: [0, 2],
+    team2: [3, 2]
+  });
 
-    Crafty.sprite(28, "/images/Object.png", {
+  Crafty.sprite(
+    28,
+    "/images/Object.png",
+    {
       //Sprite for Food object.
-    });
-    generateWorld();
-}
+    }
+  );
+  generateWorld();
+};
 
  Crafty.extend({
     mouseWheelDispatch: function(e) {
