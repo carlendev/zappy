@@ -42,7 +42,7 @@ export default class AddData extends Component {
   submitForm(e) {
     e.preventDefault();
 
-    if (this.state.numberPlayer < 2 || this.state.numberPlayer > 100) {
+    if (this.state.numberPlayer < 1 || this.state.numberPlayer > 100) {
       this.setState({
         errorTeam: true
       });
@@ -157,9 +157,11 @@ export default class AddData extends Component {
         <div className="content">
           <ul>
             {this.state.teams.map((team, key) => {
-              {
-                return <li key={key}>{team}</li>;
-              }
+              return (
+                <li key={key}>
+                  {team}
+                </li>
+              );
             })}
           </ul>
         </div>
