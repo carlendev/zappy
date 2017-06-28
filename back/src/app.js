@@ -1,5 +1,7 @@
 const express = require('express')
 const mapAPI = require('./api/map/index')
+const hubAPI = require('./api/hub/index')
+const teamAPI = require('./api/team/index')
 const bodyParser = require('body-parser')
 const _io = require('socket.io')
 const kue = require('kue')
@@ -23,6 +25,8 @@ app.use('/queue', kue.app)
 
 //route
 app.use('/api', mapAPI)
+app.use('/api', hubAPI)
+app.use('/api', teamAPI)
 
 //error middleware
 app.use(jsonSyntaxError)

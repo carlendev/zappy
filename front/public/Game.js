@@ -24,8 +24,8 @@ const mapWidth = parseInt(gup("width")) || 40;
 
 const mapHeight = parseInt(gup("height")) || 40;
 
-const teams = gup("team").split("*") || ["ISSOU", "BITE"];
-
+const teams = decodeURI(gup("team")).split("*") || ["ISSOU", "BITE"];
+console.log(teams);
 const clientsPerTeam = gup("number") || 1;
 //Players and map infos
 const players = [];
