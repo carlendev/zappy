@@ -186,8 +186,8 @@ const generateWorld = () => {
 const startGame = () => {
     const WelcomeDiv = document.getElementById("welcome");
     WelcomeDiv.innerHTML = hubName;
-    //Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
     Crafty.init(windowSize, windowSize, document.getElementById("game"));
+    Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
 
     //Add audio for Gameplay
     //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
@@ -218,3 +218,4 @@ zoom.onMouseDown = e => {
   else if (e.buttons === Crafty.mouseButtons.RIGHT)
     Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500);
 };
+
