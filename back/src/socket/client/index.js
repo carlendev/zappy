@@ -203,8 +203,8 @@ const createHub = (data, clients, client, hubs) => {
         logInfoSocket('Hub created ' + data.name)
         _hubs.push(Object.assign(data, { id: _hubs.length + 1, map: await generateMap(data.mapWidth, data.mapHeight) }))
         set('hubs', JSON.stringify(_hubs)).then(() => {
-            logInfoSocket('Job queue created ' + data.name)
-            hubs[ _hubs.length + 1 ] = { hub: createHubQ(data.name, hubEvents), name: data.name }
+            logInfoSocket('Job queue created ' + data.hubName)
+            hubs[ _hubs.length + 1 ] = { hub: createHubQ(data.hubName, hubEvents), name: data.hubName }
         })
     })
 }
@@ -220,12 +220,6 @@ const deleteHub = data => {
     logInfoSocket('Hub deleted ' + data.name)
 }
 
-const hubEvents = (job, done) => {
-    const data = job.data
-    console.log(data)
-    done()
-}
-
 const fns = {
     eject,
     set_,
@@ -238,23 +232,29 @@ const fns = {
     forward    
 }
 
-//TODO: push all in hub job queue
-const userEvents = async (job, done) => {
+const hubEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
+    const clients = JSON.parse(await get('clients'))
     const fronts = Object.keys(_clients).filter(e => _clients[e].front === true)
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
+    await fns[data.fn](data, clients, client)
+    decr(client.id)
+    fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
+    done()
+}
+
+const userEvents = async (job, done) => {
+    const data = job.data
+    const client = _clients[ data.client_id ]
     if (data.id === 'start') {          
         client.socket.emit('start')
         done()
         return
     }
-    setTimeout(async () => {
-        const clients = JSON.parse(await get('clients'))
-        await fns[data.fn](data, clients, client)
-        decr(client.id)
-        fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
+    setTimeout(() => {
+        createHubJob(client.hub, data, () => logQInfo(`${data.title} hub queued`))
         done()
     }, data.time * 1000)
 }
