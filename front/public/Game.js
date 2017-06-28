@@ -232,7 +232,7 @@ const startGame = () => {
 });
 
 Crafty.bind("MouseWheel", function(e) {
-        var delta= (e.wheelDelta? e.wheelDelta/120 : evt.detail)/2;
+        var delta= (e.wheelDelta? e.wheelDelta/120 : e.detail)/2;
         Crafty.viewport.zoom(
         (delta>0)? (delta+1) : 1/(-delta+1)
         , Crafty.viewport.width/2
