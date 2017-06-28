@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-
 import PartiesList from "./PartiesList";
 import AddData from "./AddData";
 
