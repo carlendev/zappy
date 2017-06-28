@@ -84,9 +84,9 @@ const forward = (data, clients, client) => findClients(client.id).then(([ _clien
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         switch (_client.orientation) {
             case 1: --_client.pos.y; break
-            case 2: --_client.pos.x; break
+            case 2: ++_client.pos.x; break
             case 3: ++_client.pos.y; break
-            case 4: ++_client.pos.x; break
+            case 4: --_client.pos.x; break
         }
         _client.pos = circularPos(_client.pos, _hub.mapWidth, _hub.mapHeight)
     setClients(_clients, _client => {logInfoSocket('New pos is: ' + JSON.stringify(_client.pos)); client.socket.emit('ok')}, _client)
