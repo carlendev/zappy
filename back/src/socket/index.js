@@ -12,11 +12,8 @@ const {
     Set_,
     Eject,
     ConnectNbr,
-<<<<<<< HEAD
     Fork
-=======
     Brodcast
->>>>>>> a8d73716bd64b58461863314efedd0fb7fbe39a9
 } = require('./action/index')
 const { set, get } = require('../utils/redisfn')
 
