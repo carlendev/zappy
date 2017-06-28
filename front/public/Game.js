@@ -192,23 +192,23 @@ const generateWorld = () => {
 };
 
 const startGame = () => {
-  const WelcomeDiv = document.getElementById("welcome");
-  WelcomeDiv.innerHTML = hubName;
-  Crafty.init(windowSize, windowSize, document.getElementById("game"));
-  Crafty.addEvent(zoom, Crafty.stage.elem, "mousedown", zoom.onMouseDown);
+    const WelcomeDiv = document.getElementById("welcome");
+    WelcomeDiv.innerHTML = hubName;
+    Crafty.init(windowSize, windowSize, document.getElementById("game"));
+    Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
 
-  //Add audio for Gameplay
-  //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
-  //Crafty.audio.play("PokemonSounds", 5, 1);
+    //Add audio for Gameplay
+    //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
+    //Crafty.audio.play("PokemonSounds", 5, 1);
 
-  //turn the sprite map into usable components
-  Crafty.sprite(16, "/images/sprite.png", {
-    grass1: [0, 0],
-    grass2: [1, 0],
-    grass3: [2, 0],
-    grass4: [3, 0],
-    flower: [0, 1]
-  });
+    //turn the sprite map into usable components
+    Crafty.sprite(16, "/images/sprite.png", {
+        grass1: [0, 0],
+        grass2: [1, 0],
+        grass3: [2, 0],
+        grass4: [3, 0],
+        flower: [0, 1],
+    });
 
   Crafty.sprite(33, "/images/Pl.png", {
     team1: [0, 2],
@@ -225,7 +225,22 @@ const startGame = () => {
   generateWorld();
 };
 
-const zoom = Crafty.e("2D");
+ Crafty.extend({
+    mouseWheelDispatch: function(e) {
+        Crafty.trigger("MouseWheel", e);
+   }
+});
+
+Crafty.bind("MouseWheel", function(e) {
+        var delta= (e.wheelDelta? e.wheelDelta/120 : evt.detail)/2;
+        Crafty.viewport.zoom(
+        (delta>0)? (delta+1) : 1/(-delta+1)
+        , Crafty.viewport.width/2
+        , Crafty.viewport.height/2
+        , 10);
+});
+
+/*const zoom = Crafty.e("2D")
 
 zoom.onMouseDown = e => {
   //For CraftyJS Middle === Left, I don't know why
@@ -233,4 +248,5 @@ zoom.onMouseDown = e => {
     Crafty.viewport.zoom(2, e.clientX, e.clientY, 500);
   else if (e.buttons === Crafty.mouseButtons.RIGHT)
     Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500);
-};
+};*/
+
