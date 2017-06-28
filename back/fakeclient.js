@@ -60,6 +60,10 @@ io.on('Connect_nbr', data => {
     wesh(data)
 })
 
+io.on('message', data => {
+    wesh('received "' + data.text + '" from ' + data.direction)
+})
+
 io.on('start', () => {
     wesh('Start play ' + 'issou')
     io.emit('Left')
