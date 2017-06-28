@@ -98,7 +98,7 @@ const left = (data, clients, client) => findClients(client.id).then(([ _clients,
 })
 
 const right = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => {
-    if (_client.orientation > 4) _client.orientation = 1
+    if (++_client.orientation > 4) _client.orientation = 1
     setClients(_clients, _client => {logInfoSocket('New orientation is: ' + _client.orientation); client.socket.emit('ok')}, _client)
 })
 
