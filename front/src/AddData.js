@@ -9,7 +9,8 @@ export default class AddData extends Component {
     numberPlayer: "",
     teams: [],
     error: false,
-    errorTeam: false
+    errorTeam: false,
+    errorNumberTeam: false
   };
 
   addToTeamList(e) {
@@ -18,6 +19,15 @@ export default class AddData extends Component {
       this.setState({
         team: ""
       });
+      return;
+    } else if (this.state.team === "") {
+      alert("Une team doit obligatoirement avoir un nom");
+      return;
+    } else if (this.state.teams.length > 7) {
+      alert("Vous avez atteint le nombre maximum de team possible");
+      return;
+    } else if (this.state.team.includes("*")) {
+      alert("Le nom de team ne peut pas comprendre un *");
       return;
     } else {
       this.setState({
@@ -36,15 +46,23 @@ export default class AddData extends Component {
       this.setState({
         errorTeam: true
       });
+      return;
+    } else if (this.state.teams.length < 2 || this.state.teams.length > 8) {
+      this.setState({
+        errorNumberTeam: true,
+        errorTeam: false
+      });
+      return;
     } else {
       if (
         this.state.hubName === "" ||
         this.state.width === "" ||
-        this.state.height === "" ||
-        this.state.teams.length < 2
+        this.state.height === ""
       ) {
         this.setState({
-          error: true
+          error: true,
+          errorNumberTeam: true,
+          errorTeam: true
         });
       } else {
         const teamName = this.state.teams.join("*");
@@ -138,9 +156,9 @@ export default class AddData extends Component {
 
         <div className="content">
           <ul>
-            {this.state.teams.map(team => {
+            {this.state.teams.map((team, key) => {
               {
-                return <li>{team}</li>;
+                return <li key={key}>{team}</li>;
               }
             })}
           </ul>
@@ -194,6 +212,11 @@ export default class AddData extends Component {
         {this.state.errorTeam
           ? <div className="notification is-danger">
               Vous devez rentrer entre 1 et 100 joueurs par team
+            </div>
+          : ""}
+        {this.state.errorNumberTeam
+          ? <div className="notification is-danger">
+              Vous devez rentrer entre 2 et 7 teams.
             </div>
           : ""}
       </form>
