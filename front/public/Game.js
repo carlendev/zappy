@@ -206,6 +206,10 @@ const startGame = () => {
         team1: [0, 2],
         team2: [3, 2]
     });
+
+    Crafty.sprite(28, "/images/Object.png", {
+      //Sprite for Food object.
+    });
     generateWorld();
 }
 
