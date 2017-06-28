@@ -18,7 +18,8 @@ if (gup("id")) {
     //socket.emit('join', { hubName: 'hub1', team: 'ISSOU' })
     startGame();
   });
-
+  const players = [];
+  const map = [];
   socket.on("dead", () => {
     wesh("I' dead");
     //exit();
@@ -243,7 +244,7 @@ zoom.onMouseDown = e => {
     socket.emit("connectFront");
     wesh("I' am connected");
     socket.emit("createHub", {
-      hubName,
+      hubName: hubName,
       mapWidth: mapWidth,
       mapHeight: mapHeight,
       teams: teams,
