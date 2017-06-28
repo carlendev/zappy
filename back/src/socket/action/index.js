@@ -61,4 +61,8 @@ const Eject = (data, clientsLocal, client, hubs) => nbActions(client).then(() =>
   get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Eject', 1), () => logQInfo('Eject queued')))
   .catch(() => client.emit('ko')))
 
-module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr }
+const Brodcast = (data, clientsLocal, client, hubs) => nbActions(client).then(() => 
+  get('clients').then(e => createHubJob(client.id, forge(e, data, clientsLocal, client.id)('Brodcast', 1), () => logQInfo('Brodcast queued')))
+  .catch(() => client.emit('ko')))
+
+module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr, Brodcast }
