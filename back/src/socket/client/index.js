@@ -195,6 +195,18 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
     })
 })
 
+const fns = {
+    eject,
+    set_,
+    take,
+    connectnbr,
+    inventory,
+    look,
+    right,
+    left,
+    forward    
+}
+
 //TODO: push all in hub job queue
 const userEvents = async (job, done) => {
     const data = job.data
@@ -209,7 +221,8 @@ const userEvents = async (job, done) => {
     }
     setTimeout(async () => {
         const clients = JSON.parse(await get('clients'))
-        data.fn && eval(data.fn + '(data, clients, client)')
+        if (data.fn === undefined || data.fn === null || fns[data.fn] === undefined) return done()
+        await fns[data.fn](data, clients, client)
         decr(client.id)
         fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
         done()
