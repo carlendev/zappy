@@ -66,6 +66,11 @@ io.on('start', () => {
     io.emit('Right')
     io.emit('Left')
     io.emit('Look')
+    io.emit('Forward')
+    io.emit('Forward')
+    io.emit('Forward')
+    io.emit('Forward')
+    io.emit('Forward')
     io.emit('Connect_nbr')
 })
 
