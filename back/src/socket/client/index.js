@@ -195,6 +195,12 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
     })
 })
 
+const fork = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+    //first increasre team player number
+    //check max per team
+    //second spwan an ia with good parameter to make it wait 600 before he play
+}))
+
 const brodcast = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         const res = __clients.filter(c => c.hubName === _client.hubName)
@@ -270,7 +276,8 @@ const fns = {
     look,
     right,
     left,
-    forward    
+    forward,
+    fork 
 }
 
 const hubEvents = async (job, done) => {
