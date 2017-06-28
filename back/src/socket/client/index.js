@@ -221,7 +221,6 @@ const userEvents = async (job, done) => {
     }
     setTimeout(async () => {
         const clients = JSON.parse(await get('clients'))
-        if (data.fn === undefined || data.fn === null || fns[data.fn] === undefined) return done()
         await fns[data.fn](data, clients, client)
         decr(client.id)
         fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
