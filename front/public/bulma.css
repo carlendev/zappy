@@ -7192,11 +7192,38 @@ label.panel-block:hover {
 }
 
 .tag.food {
-  background-color: #C01900;
+  background-color: #E74C3C;
   color: white;
 }
 
 .tag.linemate {
-  background-color: #A3B9F7;
+  background-color: #3498DB;
   color: white;
 }
+
+.tag.deraumere {
+  background-color: #1ABC9C;
+  color: white;
+}
+
+.tag.mendiane {
+  color: white;
+background-color: #F1C40F
+}
+
+.tag.phiras {
+  color: white;
+  background-color: #2C3E50
+}
+.tag.sibur {
+background-color: #8E44AD;
+  color: white;
+}
+.tag.thystame {
+  color: white;
+background-color: #27AE60
+}
+
+body {
+    overflow-x: hidden;
+} 
