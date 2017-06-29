@@ -110,6 +110,11 @@ socket.on(`update:${hubName}`, data => {
     const para = document.createElement("p");
     contentDiv.appendChild(para);
 
+    const title = document.createElement("strong");
+    title.innerHTML = players[i].team;
+    para.appendChild(title);
+    const br = document.createElement("br");
+    para.appendChild(br);
     const strong = document.createElement("strong");
     strong.innerHTML = players[i].id + " ";
     para.appendChild(strong);
@@ -209,16 +214,18 @@ const clearEntities = () => {
 
 //creer tag pour ressources
 const createTag = (name, value) => {
-  const block = document.getElementById("foodBlock");
-  const span = document.createElement("span");
-  span.classList.add("tag");
-  span.classList.add(name);
-  span.innerHTML = name;
-  const button = document.createElement("button");
-  button.classList.add("is-small");
-  button.innerHTML = value;
-  span.appendChild(button);
-  block.appendChild(span);
+  if (value != 0) {
+    const block = document.getElementById("foodBlock");
+    const span = document.createElement("span");
+    span.classList.add("tag");
+    span.classList.add(name);
+    span.innerHTML = name;
+    const button = document.createElement("button");
+    button.classList.add("is-small");
+    button.innerHTML = value;
+    span.appendChild(button);
+    block.appendChild(span);
+  }
 };
 
 // display what is in the case
