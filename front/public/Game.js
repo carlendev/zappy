@@ -92,7 +92,9 @@ socket.on(`update:${hubName}`, data => {
   for (let i = 0; i < players.length; i++) {
     const div = document.createElement("div");
     div.classList.add("box");
-    div.classList.add("is-dark");
+    if (!players[i].alive) {
+      div.classList.add("is-dark");
+    }
     node.appendChild(div);
 
     const article = document.createElement("article");
