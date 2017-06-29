@@ -13,6 +13,10 @@ class Timer {
     clearTimeout(this.timeout)
     this.timeout = setTimeout(this.fn, remaining / this.freq)
   }
+
+  clear() {
+    clearTimeout(this.timeout)
+  }
 }
 
 module.exports = Timer

@@ -13,6 +13,10 @@ class Interval {
     clearInterval(this.interval)
     this.interval = setInterval(this.fn, remaining / this.freq)
   }
+
+  clear() {
+    clearInterval(this.interval)
+  }
 }
 
 module.exports = Interval

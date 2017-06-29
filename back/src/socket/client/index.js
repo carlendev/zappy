@@ -307,11 +307,13 @@ const deleteHub = data => {
     logInfoSocket('Hub deleted ' + data.name)
 }
 
-// TODO (carlen): disconnect user on die
 const eat = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
     --_client.inventory.food
     if (_client.inventory.food < 0) {
-        //TODO: (carlendev) disconnect here
+        _timeouts.filter(e => e.id === client.id).map(({ t }) => t.clear())
+        _intervals.filter(e => e.id === client.id).map(({ i }) => i.clear())
+        _timeouts = _timeouts.filter(e => e.id !== client.id)
+        _intervals = _intervals.filter(e => e.id !== client.id)
         const _new = __clients.filter(e => e.id !== client.id)
         setClients(_new, client => {
             client.socket.emit('dead')
@@ -319,8 +321,10 @@ const eat = (data, clients, client) => findClients(client.id).then(([ __clients,
             logInfoSocket('Client disconnected ' + client.id)
         }, client)
         logQInfo(`${client.id} will die of hunger.`)
-    } else logQInfo(`${client.id} ate and has ${_client.inventory.food} food left.`)
-    setClients(__clients, () => {}, {})
+    } else {
+        logQInfo(`${client.id} ate and has ${_client.inventory.food} food left.`)
+        setClients(__clients, () => {}, {})
+    }
 })
 
 const sst = data => findHubs(data.hub).then(([ _hubs, _hub ]) => {
@@ -369,7 +373,10 @@ const userEvents = async (job, done) => {
     const [ _hubs, _hub ] = await findHubs(client.hub)
     if (data.id === 'start' || data.id === 'forkStart') {
         data.id !== 'forkStart' && client.socket.emit('start')
-        _intervals.push({ hub: client.hub, i: new Interval(() => createHubJob(client.hub, {client_id: data.client_id, title: 'eat', fn: 'eat'}, () => logQInfo(`eat hub queued`)), 126, _hub.freq) })
+        _intervals.push({ id: client.id, hub: client.hub,
+            i: new Interval(() => createHubJob(client.hub, { client_id: data.client_id, title: 'eat', fn: 'eat' }, () => logQInfo('eat hub queued')),
+            126,
+            _hub.freq) })
         done()
         return
     }
@@ -378,7 +385,7 @@ const userEvents = async (job, done) => {
         _timeouts.splice(_timeouts.findIndex(e => e.t === t), 1)
         done()
     }, data.time, _hub.freq)
-    _timeouts.push({ hub: client.hub, t })
+    _timeouts.push({ id: client.id, hub: client.hub, t })
 }
 
 module.exports = { connect, disconnect, connectFront, createHub, deleteHub, sst }

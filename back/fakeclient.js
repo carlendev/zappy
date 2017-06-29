@@ -73,7 +73,7 @@ io.on('start', () => {
     io.emit('Right')
     io.emit('Fork')
     //io.emit('Incantation')
-    //setTimeout(() => io.emit('sst', { hub: args.options.hub, freq: 10 }), 500)
+    setTimeout(() => io.emit('sst', { hub: args.options.hub, freq: 100 }), 500)
 })
 
 
