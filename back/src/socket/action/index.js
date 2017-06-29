@@ -39,8 +39,10 @@ const ConnectNbr = (...args) => registerAction(...args)('ConnectNbr', 0)
 const Take = (...args) => registerAction(...args)('Take', 1)
 const Set_ = (...args) => registerAction(...args)('Set_', 1)
 const Eject = (...args) => registerAction(...args)('Eject', 1)
-const Fork = (...args) => registerAction(...args)('Fork', 42)
+//TODO: set to 42
+const Fork = (...args) => registerAction(...args)('Fork', 1)
 const Brodcast = (...args) => registerAction(...args)('Brodcast', 1)
 const Incantation = (...args) => registerAction(...args)('Incantation', 1)
+const ForkStart = (...args) => registerAction(...args)('ForkStart', 1)
 
-module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr, Brodcast, Fork, Incantation }
+module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr, Brodcast, Fork, Incantation, ForkStart }

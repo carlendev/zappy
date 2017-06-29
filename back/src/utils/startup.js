@@ -11,10 +11,10 @@ const initClients = () => set('clients', JSON.stringify([]))
 const initHubs = () => set('hubs', JSON.stringify([]))
  
 const initializeRedis = () => new Promise((s, f) => flush()
-    .then(initClients)
-    .then(initHubs)
-    .then(initRessourceRatio)
-    .then(s)
-    .catch(f))
+.then(initClients)
+.then(initHubs)
+.then(initRessourceRatio)
+.then(s)
+.catch(f))
 
 module.exports = { initializeRedis }

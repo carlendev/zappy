@@ -1,13 +1,16 @@
 const { logInfoSocket, logQInfo, logQError, logInfo } = require('../../utils/logger')
 const { clientPnw, validateJson, createHubP, deleteHubP } = require('../../utils/validator')
-const { set, get, decr, findClients, findClientsInHub, findHubs, setClients, setHubs } = require('../../utils/redisfn')
+const { set, get, decr, findClients, findClientsInHub, findHubs, findInfos, setClients, setHubs } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 const { randTile, circularPos, generateMap } = require('../../utils/map')
+const spawnProcess = require('child_process').spawn
 const bresenham = require('../../utils/bresenham')
 const Timer = require('../../utils/timer')
 
 let _clients = {}
 let _timeouts = []
+let _io = null
+let asStart = {}
 
 const emitDead = (client, msg) => {
     logInfoSocket(msg)
@@ -17,6 +20,7 @@ const emitDead = (client, msg) => {
 const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, io) => {
     clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }
     _clients = clients
+    _io = io
     logInfoSocket('Client connected ' + client.id)
     findClients('').then(([ add ]) => {
         const id = client.id
@@ -25,13 +29,16 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
         set('clients', JSON.stringify(add)).then(e => {
             set(client.id, 0).then(() => {
                 createHubQ(id, userEvents)
-                findClients('').then(([ _clients ]) => {
-                    const playerInHub = _clients.filter(e => e.hubName === data.hubName)
+                findClients('').then(([ __clients ]) => {
+                    if (asStart[ data.hubName ]) return
+                    const playerInHub = __clients.filter(e => e.hubName === data.hubName)
                     if (playerInHub.length !== nbPlayerMax * nbTeam) return 
+                    asStart[ data.hubName ] = true
                     io.emit('play')
                     const front_id = Object.keys(clients).find(e => clients[e].front === true)
+                    if (_clients[ client.id ].front) return
                     playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id },
-                                    () => logQInfo('Start game')))
+                                () => logQInfo('Start game')))
                 })
             })
         })
@@ -197,11 +204,28 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
     })
 })
 
-const fork = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
-    //first increasre team player number
-    //check max per team
-    //second spwan an ia with good parameter to make it wait 600 before he play
-}))
+const fork = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs ]) => {
+    const _hub = _hubs.find(e => e.hubName === client.hub)
+    ++_hub.clientsPerTeam
+    //TODO: set this to subject post time
+    data.time = 1
+    data.id = 'forkSpawn'
+    data.title = 'Spawn'
+    data.fn  = 'spawn'
+    await setHubs(_hubs, _hub => logInfoSocket(_hub.hubName + '\'s number of players increased ' + _hub.freq), _hub)
+    createHubJob(client.id, data, () => logInfoSocket('Swpan queued'))
+    client.socket.emit('ok')
+})
+
+const spawn = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs ]) => {
+    const _hub = _hubs.find(e => e.hubName === client.hub)
+    spawnProcess('node', [' ../../../fakeclient.js', `--team="${client.team}"`, `--hub="${_hub.hubName}"`])
+    setTimeout(() => _io.emit('forkStart'), 500)
+})
+
+const forkstart = (data, clients, client) => {
+    logInfoSocket('Fork start ' + client.id)
+}
 
 const brodcast = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
@@ -298,7 +322,9 @@ const fns = {
     left,
     forward,
     fork,
-    incantation
+    incantation,
+    spawn,
+    forkstart
 }
 
 const hubEvents = async (job, done) => {
