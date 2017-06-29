@@ -11,6 +11,7 @@ const mapWidth = parseInt(gup("width"));
 const mapHeight = parseInt(gup("height"));
 const teams = decodeURI(gup("team")).split("*");
 const clientsPerTeam = parseInt(gup("number"));
+const freq = parseInt(gup("freq")) || 2;
 
 //Players and map infos
 const players = [];
@@ -43,7 +44,8 @@ socket.on("connect", () => {
     mapWidth: mapWidth,
     mapHeight: mapHeight,
     teams: teams,
-    clientsPerTeam: clientsPerTeam
+    clientsPerTeam: clientsPerTeam,
+    freq: freq
   });
   //socket.emit('join', { hubName: 'hub1', team: 'ISSOU' })
   startGame();
