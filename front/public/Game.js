@@ -4,7 +4,7 @@ const wesh = console.log;
 
 const exit = (code = 0) => process.exit(code);
 
-const tileMapSize = 16;
+const tileMapSize = 32;
 
 const hubName = decodeURI(gup("hubname"));
 const mapWidth = parseInt(gup("width"));
@@ -190,10 +190,19 @@ const parseHubData = data => {
       map[i][j].thystame = data.map[i][j].thystame;
       if (map[i][j].food > 0 && !map[i][j].entity) {
         map[i][j].entity = Crafty.e(
-          `2D, Canvas, Mouse, flower, ClickFocus`
+          `2D, Canvas, Mouse, item, ClickFocus`
         ).attr({
           x: i * tileMapSize,
           y: j * tileMapSize
+        })
+        .bind("Click", function(data) {
+            displayItem(this.x, this.y);
+        })
+        .bind("Focus", function() {
+            this.sprite("itemHover");
+        })
+        .bind("Blur", function() {
+            this.sprite(`item`);
         });
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
         map[i][j].entity.destroy();
@@ -288,24 +297,25 @@ const startGame = () => {
   //Crafty.audio.play("PokemonSounds", 5, 1);
 
   //turn the sprite map into usable components
-  Crafty.sprite(16, "/images/sprite.png", {
+  Crafty.sprite(32, "/images/sprite.png", {
     grass1: [0, 0],
     grass2: [1, 0],
     grass3: [2, 0],
     grass4: [3, 0],
     hover: [4, 0],
-    flower: [0, 1]
   });
 
-  Crafty.sprite(33, "/images/Pl.png", {
+  Crafty.sprite(32, "/images/Pl.png", {
     team1: [0, 2],
     team2: [3, 2]
   });
 
   Crafty.sprite(
-    28,
+    32,
     "/images/Object.png",
     {
+        item: [6, 20],
+        itemHover: [14, 26]
       //Sprite for Food object.
     }
   );
