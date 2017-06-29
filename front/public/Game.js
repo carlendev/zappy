@@ -5,8 +5,6 @@ const wesh = console.log;
 const exit = (code = 0) => process.exit(code);
 
 const tileMapSize = 16;
-const size = 40;
-const windowSize = size * tileMapSize;
 
 //TODO: make this dynamic
 const hubName = decodeURI(gup("hubname")) || "hub1";
@@ -172,11 +170,10 @@ const generateWorld = () => {
 };
 
 const startGame = () => {
-  const WelcomeDiv = document.getElementById("welcome");
-  WelcomeDiv.innerHTML = hubName;
-  Crafty.init(windowSize, windowSize, document.getElementById("game"));
+  const WelcomeDiv = document.getElementById("welcome").innerHTML = hubName;
+    Crafty.init(window.innerWidth * 0.75, window.innerHeight * 0.75, document.getElementById("game"));
+    Crafty.viewport.zoom(1, window.innerWidth * 0.75 / 2, window.innerHeight * 0.75 / 2);
   Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
-
   //Add audio for Gameplay
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
   //Crafty.audio.play("PokemonSounds", 5, 1);
@@ -212,7 +209,7 @@ Crafty.extend({
 });
 
 Crafty.bind("MouseWheel", function(e) {
-  var delta = (e.wheelDelta ? e.wheelDelta / 120 : e.detail) / 2;
+  let delta = (e.wheelDelta ? e.wheelDelta / 120 : e.detail) / 2;
   Crafty.viewport.zoom(
     delta > 0 ? delta + 1 : 1 / (-delta + 1),
     e.clientX,
@@ -221,6 +218,9 @@ Crafty.bind("MouseWheel", function(e) {
   );
 });
 
+window.onresize = function() {
+    Crafty.init(window.innerWidth * 0.75, window.innerHeight * 0.75, document.getElementById("game"));
+};
 /*const zoom = Crafty.e("2D")
 
 zoom.onMouseDown = e => {
