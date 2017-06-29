@@ -13,6 +13,28 @@ const teams = decodeURI(gup("team")).split("*");
 const clientsPerTeam = parseInt(gup("number"));
 const freq = parseInt(gup("freq")) || 2;
 
+noUiSlider.create(stepSlider, {
+  start: [freq],
+  step: 8,
+  range: {
+    min: [2],
+    max: [100]
+  }
+});
+
+stepSlider.addEventListener("mouseup", function(res) {
+  const freqValue = parseInt(
+    document
+      .getElementsByClassName("noUi-handle noUi-handle-lower")[0]
+      .getAttribute("aria-valuetext")
+  );
+
+  socket.emit("sst", {
+    hub: hubName,
+    freq: freqValue
+  });
+});
+
 //Players and map infos
 const players = [];
 const createMap = () => {
@@ -202,9 +224,17 @@ const generateWorld = () => {
 };
 
 const startGame = () => {
-  const WelcomeDiv = document.getElementById("welcome").innerHTML = hubName;
-    Crafty.init(window.innerWidth * 0.75, window.innerHeight * 0.75, document.getElementById("game"));
-    Crafty.viewport.zoom(1, window.innerWidth * 0.75 / 2, window.innerHeight * 0.75 / 2);
+  const WelcomeDiv = (document.getElementById("welcome").innerHTML = hubName);
+  Crafty.init(
+    window.innerWidth * 0.75,
+    window.innerHeight * 0.75,
+    document.getElementById("game")
+  );
+  Crafty.viewport.zoom(
+    1,
+    window.innerWidth * 0.75 / 2,
+    window.innerHeight * 0.75 / 2
+  );
   Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
   //Add audio for Gameplay
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
@@ -251,7 +281,11 @@ Crafty.bind("MouseWheel", function(e) {
 });
 
 window.onresize = function() {
-    Crafty.init(window.innerWidth * 0.75, window.innerHeight * 0.75, document.getElementById("game"));
+  Crafty.init(
+    window.innerWidth * 0.75,
+    window.innerHeight * 0.75,
+    document.getElementById("game")
+  );
 };
 /*const zoom = Crafty.e("2D")
 

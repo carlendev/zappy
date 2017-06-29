@@ -21,8 +21,6 @@ const handle = props => {
   );
 };
 
-const createSliderWithTooltip = Slider.createSliderWithTooltip;
-const Range = createSliderWithTooltip(Slider.Range);
 const Handle = Slider.Handle;
 
 export default class AddData extends Component {
