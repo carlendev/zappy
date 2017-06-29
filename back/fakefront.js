@@ -17,7 +17,7 @@ io.on('connect', () => {
             'ISSOU',
             'BITE'
         ],
-        clientsPerTeam: 1
+        clientsPerTeam: 2
     })
 })
 
