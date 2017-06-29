@@ -1,7 +1,7 @@
 const { logInfoSocket } = require('../utils/logger')
 const { io } = require('../app')
 const { clientPnw, validateJson } = require('../utils/validator')
-const { connect, disconnect, connectFront, createHub, deleteHub } = require('./client/index')
+const { connect, disconnect, connectFront, createHub, deleteHub, sst } = require('./client/index')
 const {
     Forward,
     Right,
@@ -13,7 +13,8 @@ const {
     Eject,
     ConnectNbr,
     Fork,
-    Brodcast
+    Brodcast,
+    Incantation
 } = require('./action/index')
 const { set, get } = require('../utils/redisfn')
 
@@ -35,6 +36,8 @@ const socket = () => {
         //TODO: (carlendev) delete all the client in this hub
         client.on('deleteHub', data => deleteHub(data, clients, client, hubs))
 
+        client.on('sst', data => sst(data, clients, client, hubs))
+
         //INFO: Protocol ia -> server
         //TODO (hitier_g): create job directly with callback + timer
         client.on('Forward', data => Forward(data, clients, client, hubs))
@@ -48,6 +51,7 @@ const socket = () => {
         client.on('Eject', data => Eject(data, clients, client, hubs))
         client.on('Fork', data => Fork(data, clients, client, hubs))
         client.on('Brodcast', data => Brodcast(data, clients, client, hubs))
+        client.on('Incantation', data => Incantation(data, clients, client, hubs))
     })
 }
 

@@ -1,11 +1,13 @@
-const { logInfoSocket, logQInfo, logQError } = require('../../utils/logger')
+const { logInfoSocket, logQInfo, logQError, logInfo } = require('../../utils/logger')
 const { clientPnw, validateJson, createHubP, deleteHubP } = require('../../utils/validator')
-const { set, get, decr, findClients, findClientsInHub, findHubs, setClients } = require('../../utils/redisfn')
+const { set, get, decr, findClients, findClientsInHub, findHubs, setClients, setHubs } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
 const { randTile, circularPos, generateMap } = require('../../utils/map')
 const bresenham = require('../../utils/bresenham')
+const Timer = require('../../utils/timer')
 
 let _clients = {}
+let _timeouts = []
 
 const emitDead = (client, msg) => {
     logInfoSocket(msg)
@@ -241,6 +243,17 @@ const brodcast = (data, clients, client) => findClients(client.id).then(([ __cli
     })
 })
 
+const incantation = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        const res = __clients.filter(c => {
+            const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
+            return c.hubName === _client.hubName && c.id !== _client.id && _clients[_c].team !== client.team && c.pos.x === _client.pos.x && c.pos.y === _client.pos.y && c.lvl === _client.lvl
+        })
+        console.log('res: ', res)
+        // setClients(__clients, () => client.socket.emit(res.length ? 'ok' : 'ko'), {})
+    })
+})
+
 //INFO: HUB
 const createHub = (data, clients, client, hubs) => {
     if (validateJson(createHubP)(data).errors.length) return
@@ -267,6 +280,13 @@ const deleteHub = data => {
     logInfoSocket('Hub deleted ' + data.name)
 }
 
+const sst = data => findHubs(data.hub).then(([ _hubs, _hub ]) => {
+    if (!_hub || !data.freq) return
+    _hub.freq = data.freq
+    _timeouts.forEach(timeout => timeout.t.frequency(data.freq))
+    setHubs(_hubs, _hub => logInfo(_hub.hubName + '\'s frequency was updated to ' + _hub.freq), _hub)
+})
+
 const fns = {
     eject,
     set_,
@@ -277,7 +297,8 @@ const fns = {
     right,
     left,
     forward,
-    fork 
+    fork,
+    incantation
 }
 
 const hubEvents = async (job, done) => {
@@ -301,10 +322,13 @@ const userEvents = async (job, done) => {
         done()
         return
     }
-    setTimeout(() => {
+    const [ _hubs, _hub ] = await findHubs(client.hub)
+    const t = new Timer(() => {
         createHubJob(client.hub, data, () => logQInfo(`${data.title} hub queued`))
+        _timeouts.splice(_timeouts.findIndex(e => e.t === t), 1)
         done()
-    }, data.time * 1000)
+    }, data.time, _hub.freq)
+    _timeouts.push({ hub: client.hubName, t })
 }
 
-module.exports = { connect, disconnect, connectFront, createHub, deleteHub }
+module.exports = { connect, disconnect, connectFront, createHub, deleteHub, sst }
