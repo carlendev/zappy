@@ -29,7 +29,8 @@ const createHubP = {
         mapWidth: { type: 'number' },
         mapHeight: { type: 'number' },
         teams: { type: 'array', items: { type: 'string' }, minItems: 1, uniqueItems: true },
-        clientsPerTeam: { type: 'number' }
+        clientsPerTeam: { type: 'number' },
+        freq: { type: 'number' }
     }
 }
 

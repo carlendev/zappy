@@ -29,4 +29,6 @@ const findsInfos = (id, hubName) => Promise.all([ findClients(id), findHubs(hubN
 
 const setClients = (clients, fn, ...args) => set('clients', JSON.stringify(clients)).then(() => fn(...args))
 
-module.exports = { get, set, send, incr, decr, findClients, findClientsInHub, findHubs, findsInfos, setClients }
+const setHubs = (hubs, fn, ...args) => set('hubs', JSON.stringify(hubs)).then(() => fn(...args))
+
+module.exports = { get, set, send, incr, decr, findClients, findClientsInHub, findHubs, findsInfos, setClients, setHubs }

@@ -6,16 +6,11 @@ const exit = (code = 0) => process.exit(code);
 
 const tileMapSize = 16;
 
-//TODO: make this dynamic
-const hubName = decodeURI(gup("hubname")) || "hub1";
-
-const mapWidth = parseInt(gup("width")) || 40;
-
-const mapHeight = parseInt(gup("height")) || 40;
-
-const teams = decodeURI(gup("team")).split("*") || ["ISSOU", "BITE"];
-
-const clientsPerTeam = parseInt(gup("number")) || 1;
+const hubName = decodeURI(gup("hubname"));
+const mapWidth = parseInt(gup("width"));
+const mapHeight = parseInt(gup("height"));
+const teams = decodeURI(gup("team")).split("*");
+const clientsPerTeam = parseInt(gup("number"));
 
 //Players and map infos
 const players = [];
@@ -64,6 +59,41 @@ socket.on(`update:${hubName}`, data => {
   wesh(data);
   parseHubData(data.hubInfo);
   parseClientsData(data.clients);
+
+  //score
+  const node = document.getElementById("playersName");
+  while (node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
+  for (let i = 0; i < players.length; i++) {
+    const div = document.createElement("div");
+    div.classList.add("box");
+    div.classList.add("is-dark");
+    node.appendChild(div);
+
+    const article = document.createElement("article");
+    article.classList.add("media");
+    div.appendChild(article);
+
+    const mediaDiv = document.createElement("div");
+    mediaDiv.classList.add("media-content");
+    article.appendChild(mediaDiv);
+
+    const contentDiv = document.createElement("div");
+    contentDiv.classList.add("content");
+    mediaDiv.appendChild(contentDiv);
+
+    const para = document.createElement("p");
+    contentDiv.appendChild(para);
+
+    const strong = document.createElement("strong");
+    strong.innerHTML = players[i].id + " ";
+    para.appendChild(strong);
+
+    const small = document.createElement("small");
+    small.innerHTML = players[i].lvl;
+    para.appendChild(small);
+  }
   clearEntities();
 });
 
