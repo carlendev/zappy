@@ -12,14 +12,36 @@ if (gup("id")) {
   const id = gup("id");
   const hubName = decodeURI(gup("hubname"));
   console.log("ONLY JOINING");
+
   socket.on("connect", () => {
     socket.emit("connectFront");
     wesh("I' am connected");
     //socket.emit('join', { hubName: 'hub1', team: 'ISSOU' })
     startGame();
   });
+
   const players = [];
-  const map = [];
+  const createMap = () => {
+      let arr = new Array(mapHeight)
+      for (let i = 0; i < mapHeight; i++) {
+          arr[i] = new Array()
+          for (let j = 0; j < mapWidth; j++) {
+            arr[i].push({
+                food: 0,
+                entity: null,
+                deraumere: 0,
+                linemate: 0,
+                mendiane: 0,
+                phiras: 0,
+                sibur: 0,
+                thystame: 0
+            })
+        }
+    }
+    return arr
+  };
+  const map = createMap();
+
   socket.on("dead", () => {
     wesh("I' dead");
     //exit();
@@ -83,40 +105,32 @@ if (gup("id")) {
     }
   };
 
-  const parseHubData = data => {
-    for (let i = 0; i < data.map.length; i++) {
-      for (let j = 0; j < data.map[i].length; j++) {
-        let item =
-          data.map[i][j].food +
-          data.map[i][j].deraumere +
-          data.map[i][j].linemate +
-          data.map[i][j].mendiane +
-          data.map[i][j].phiras +
-          data.map[i][j].sibur +
-          data.map[i][j].thystame;
-        if (item > 0) {
-          data.map[i][j].x = i;
-          data.map[i][j].y = j;
-          data.map[i][j].draw = true;
-          if (
-            map.some(function(e) {
-              if (e.x == i && e.y == j) {
-                e = data.map[i][j];
-              }
-              return e.x == i && e.y == j;
-            })
-          ) {
-          } else {
-            data.map[i][j].entity = Crafty.e(`2D, Canvas, flower`).attr({
-              x: i * tileMapSize,
-              y: j * tileMapSize
-            });
-            map.push(data.map[i][j]);
-          }
+    const parseHubData = data => {
+        for (let i = 0; i < data.map.length; i++) {
+            for (let j = 0; j < data.map[i].length; j++) {
+                map[i][j].food = data.map[i][j].food
+                map[i][j].deraumere = data.map[i][j].deraumere
+                map[i][j].linemate = data.map[i][j].linemate
+                map[i][j].mendiane = data.map[i][j].mendiane
+                map[i][j].phiras = data.map[i][j].phiras
+                map[i][j].sibur = data.map[i][j].sibur
+                map[i][j].thystame = data.map[i][j].thystame;
+                if (map[i][j].food > 0 && !map[i][j].entity) {
+                    map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, flower`).attr({
+                        x: i * tileMapSize,
+                        y: j * tileMapSize
+                    })
+                        .bind("Click", function(data) {
+                            wesh(data)
+                            wesh(this.x / tileMapSize, this.y / tileMapSize)
+                        });
+                }
+                else if (map[i][j].food <= 0 && map[i][j].entity) {
+                    map[i][j].entity.destroy()
+                }
+            }
         }
-      }
-    }
-  };
+    };
 
   const clearEntities = () => {
     for (let i = 0; i < players.length; i++) {
@@ -126,12 +140,6 @@ if (gup("id")) {
       } else {
         players[i].entity.destroy();
         players.slice(i, 1);
-      }
-    }
-    for (let i = 0; i < map.length; i++) {
-      if (!map[i].draw) {
-        map[i].entity.destroy();
-        map.slice(i, 1);
       }
     }
   };
@@ -231,9 +239,29 @@ zoom.onMouseDown = e => {
   const teams = decodeURI(gup("team")).split("*") || ["ISSOU", "BITE"];
 
   const clientsPerTeam = parseInt(gup("number")) || 1;
+
   //Players and map infos
-  const players = [];
-  const map = [];
+    const players = [];
+    const createMap = () => {
+        let arr = new Array(mapHeight)
+        for (let i = 0; i < mapHeight; i++) {
+            arr[i] = new Array()
+            for (let j = 0; j < mapWidth; j++) {
+                arr[i].push({
+                    food: 0,
+                    entity: null,
+                    deraumere: 0,
+                    linemate: 0,
+                    mendiane: 0,
+                    phiras: 0,
+                    sibur: 0,
+                    thystame: 0
+                })
+            }
+        }
+        return arr
+    };
+    const map = createMap();
 
   socket.on("connect", () => {
     socket.emit("connectFront");
@@ -280,8 +308,8 @@ zoom.onMouseDown = e => {
         w: tileMapSize,
         h: tileMapSize
       })
-      .reel("4", 100, [[0, 3], [1, 3], [2, 3]])
-      .reel("2", 100, [[0, 1], [1, 1], [2, 1]])
+      .reel("2", 100, [[0, 3], [1, 3], [2, 3]])
+      .reel("4", 100, [[0, 1], [1, 1], [2, 1]])
       .reel("3", 100, [[0, 2], [1, 2], [2, 2]])
       .reel("1", 100, [[0, 0], [1, 0], [2, 0]])
       .bind("Update", function(data) {
@@ -312,40 +340,32 @@ zoom.onMouseDown = e => {
     }
   };
 
-  const parseHubData = data => {
-    for (let i = 0; i < data.map.length; i++) {
-      for (let j = 0; j < data.map[i].length; j++) {
-        let item =
-          data.map[i][j].food +
-          data.map[i][j].deraumere +
-          data.map[i][j].linemate +
-          data.map[i][j].mendiane +
-          data.map[i][j].phiras +
-          data.map[i][j].sibur +
-          data.map[i][j].thystame;
-        if (item > 0) {
-          data.map[i][j].x = i;
-          data.map[i][j].y = j;
-          data.map[i][j].draw = true;
-          if (
-            map.some(function(e) {
-              if (e.x == i && e.y == j) {
-                e = data.map[i][j];
-              }
-              return e.x == i && e.y == j;
-            })
-          ) {
-          } else {
-            data.map[i][j].entity = Crafty.e(`2D, Canvas, flower`).attr({
-              x: i * tileMapSize,
-              y: j * tileMapSize
-            });
-            map.push(data.map[i][j]);
-          }
+    const parseHubData = data => {
+        for (let i = 0; i < data.map.length; i++) {
+            for (let j = 0; j < data.map[i].length; j++) {
+                map[i][j].food = data.map[i][j].food
+                map[i][j].deraumere = data.map[i][j].deraumere
+                map[i][j].linemate = data.map[i][j].linemate
+                map[i][j].mendiane = data.map[i][j].mendiane
+                map[i][j].phiras = data.map[i][j].phiras
+                map[i][j].sibur = data.map[i][j].sibur
+                map[i][j].thystame = data.map[i][j].thystame;
+                if (map[i][j].food > 0 && !map[i][j].entity) {
+                    map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, flower, ClickFocus`).attr({
+                        x: i * tileMapSize,
+                        y: j * tileMapSize
+                    })
+                    .bind("Click", function(data) {
+                        wesh(data)
+                        wesh(this.x / tileMapSize, this.y / tileMapSize)
+                    });
+                }
+                else if (map[i][j].food <= 0 && map[i][j].entity) {
+                    map[i][j].entity.destroy()
+                }
+            }
         }
-      }
-    }
-  };
+    };
 
   const clearEntities = () => {
     for (let i = 0; i < players.length; i++) {
@@ -355,12 +375,6 @@ zoom.onMouseDown = e => {
       } else {
         players[i].entity.destroy();
         players.slice(i, 1);
-      }
-    }
-    for (let i = 0; i < map.length; i++) {
-      if (!map[i].draw) {
-        map[i].entity.destroy();
-        map.slice(i, 1);
       }
     }
   };
@@ -450,3 +464,36 @@ zoom.onMouseDown = e => {
     Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500);
 };*/
 }
+
+(function() {
+    var focus_e=null;
+    var entity_clicked=false;
+    var init_first_entity=true;
+
+    Crafty.c("ClickFocus", {
+        init: function() {
+            this.requires("Mouse");
+            this.bind("Click", function() {
+                if(focus_e) {
+                    focus_e.trigger("Blur");
+                }
+                focus_e=this;
+                focus_e.trigger("Focus");
+                entity_clicked=true;
+            });
+
+            if(init_first_entity) {
+                init_first_entity=false;
+                Crafty.addEvent(this, Crafty.stage.elem, "click", function() {
+                    if(!entity_clicked) {
+                        if(focus_e) {
+                            focus_e.trigger("Blur")
+                        }
+                        focus_e=null;
+                    }
+                    entity_clicked=false;
+                });
+            }
+        }
+    });
+})();
