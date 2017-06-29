@@ -222,13 +222,13 @@ const fork = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs
 
 const spawn = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs ]) => {
     const _hub = _hubs.find(e => e.hubName === client.hub)
-    spawnProcess('node', [' ../../../fakeclient.js', `--team="${client.team}"`, `--hub="${_hub.hubName}"`])
+    const process = spawnProcess('node', ['./fakeclient.js', `--team=${client.team}`, `--hub=${_hub.hubName}`])
     setTimeout(() => _io.emit('forkStart'), 500)
 })
 
 const forkstart = (data, clients, client) => {
     logInfoSocket('Fork start ' + client.id)
-}
+}   
 
 const brodcast = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
@@ -263,8 +263,7 @@ const brodcast = (data, clients, client) => findClients(client.id).then(([ __cli
                 case 4: dir = getDir(c.pos, tile, -1, 0, 0, 1); break
             }
             const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
-            if (dir !== -1)
-                _clients[_c].socket.emit('message', { text: data.text, direction: dir + 1 })
+            if (dir !== -1) _clients[_c].socket.emit('message', { text: data.text, direction: dir + 1 })
         })
         client.socket.emit('ok')
     })
@@ -274,7 +273,8 @@ const incantation = (data, clients, client) => findClients(client.id).then(([ __
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         const res = __clients.filter(c => {
             const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
-            return c.hubName === _client.hubName && c.id !== _client.id && _clients[_c].team !== client.team && c.pos.x === _client.pos.x && c.pos.y === _client.pos.y && c.lvl === _client.lvl
+            return c.hubName === _client.hubName && c.id !== _client.id && _clients[_c].team !== client.team &&
+                     c.pos.x === _client.pos.x && c.pos.y === _client.pos.y && c.lvl === _client.lvl
         })
         console.log('res: ', res)
         // setClients(__clients, () => client.socket.emit(res.length ? 'ok' : 'ko'), {})
