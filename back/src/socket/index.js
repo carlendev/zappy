@@ -14,7 +14,8 @@ const {
     ConnectNbr,
     Fork,
     Brodcast,
-    Incantation
+    Incantation,
+    ForkStart
 } = require('./action/index')
 const { set, get } = require('../utils/redisfn')
 
@@ -52,6 +53,7 @@ const socket = () => {
         client.on('Fork', data => Fork(data, clients, client, hubs))
         client.on('Brodcast', data => Brodcast(data, clients, client, hubs))
         client.on('Incantation', data => Incantation(data, clients, client, hubs))
+        client.on('ForkStart', data => ForkStart(data, clients, client, hubs))
     })
 }
 

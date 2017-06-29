@@ -1,5 +1,28 @@
 import React, { Component } from "react";
 
+import Slider from "rc-slider";
+
+import "rc-slider/assets/index.css";
+
+import Tooltip from "rc-tooltip";
+
+const handle = props => {
+  const { value, dragging, index, ...restProps } = props;
+  return (
+    <Tooltip
+      prefixCls="rc-slider-tooltip"
+      overlay={value}
+      visible={dragging}
+      placement="top"
+      key={index}
+    >
+      <Handle value={value} {...restProps} />
+    </Tooltip>
+  );
+};
+
+const Handle = Slider.Handle;
+
 export default class AddData extends Component {
   state = {
     hubName: "",
@@ -10,7 +33,8 @@ export default class AddData extends Component {
     teams: [],
     error: false,
     errorTeam: false,
-    errorNumberTeam: false
+    errorNumberTeam: false,
+    freq: 2
   };
 
   addToTeamList(e) {
@@ -76,11 +100,19 @@ export default class AddData extends Component {
           "&team=" +
           teamName +
           "&number=" +
-          this.state.numberPlayer;
+          this.state.numberPlayer +
+          "&freq=" +
+          this.state.freq;
         window.location.replace(url);
       }
     }
   }
+
+  onChangeFreq = value => {
+    this.setState({
+      freq: value
+    });
+  };
 
   render() {
     return (
@@ -178,6 +210,21 @@ export default class AddData extends Component {
               }}
             />
           </p>
+        </div>
+
+        <div className="field">
+          <label className="label">Fréquence</label>
+          <div className="columns">
+            <div className="column is-half">
+              <Slider
+                min={2}
+                max={100}
+                onChange={this.onChangeFreq}
+                value={this.state.freq}
+                handle={handle}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="field is-grouped">

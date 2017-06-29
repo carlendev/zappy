@@ -21,6 +21,8 @@ const args = argv.option([
     }
 ]).run()
 
+let asStart = false
+
 if (args.options.hub === undefined || args.options.team === undefined) {
     argv.help()
     exit()
@@ -65,9 +67,21 @@ io.on('message', data => {
 })
 
 io.on('start', () => {
-    wesh('Start play ' + 'issou')
-    io.emit('Incantation')
-    setTimeout(() => io.emit('sst', { hub: args.options.hub, freq: 10 }), 500)
+    wesh('Start play')
+    if (asStart) return
+    asStart = true
+    io.emit('Right')
+    io.emit('Fork')
+    //io.emit('Incantation')
+    //setTimeout(() => io.emit('sst', { hub: args.options.hub, freq: 10 }), 500)
+})
+
+
+io.on('forkStart', () => {
+    wesh('Start play fork')
+    if (asStart) return
+    asStart = true
+    io.emit('Right')
 })
 
 io.on('disconnect', () => {

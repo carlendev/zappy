@@ -4,13 +4,36 @@ const wesh = console.log;
 
 const exit = (code = 0) => process.exit(code);
 
-const tileMapSize = 16;
+const tileMapSize = 32;
 
 const hubName = decodeURI(gup("hubname"));
 const mapWidth = parseInt(gup("width"));
 const mapHeight = parseInt(gup("height"));
 const teams = decodeURI(gup("team")).split("*");
 const clientsPerTeam = parseInt(gup("number"));
+const freq = parseInt(gup("freq")) || 2;
+
+noUiSlider.create(stepSlider, {
+  start: [freq],
+  step: 8,
+  range: {
+    min: [2],
+    max: [100]
+  }
+});
+
+stepSlider.addEventListener("mouseup", function(res) {
+  const freqValue = parseInt(
+    document
+      .getElementsByClassName("noUi-handle noUi-handle-lower")[0]
+      .getAttribute("aria-valuetext")
+  );
+
+  socket.emit("sst", {
+    hub: hubName,
+    freq: freqValue
+  });
+});
 
 //Players and map infos
 const players = [];
@@ -43,7 +66,8 @@ socket.on("connect", () => {
     mapWidth: mapWidth,
     mapHeight: mapHeight,
     teams: teams,
-    clientsPerTeam: clientsPerTeam
+    clientsPerTeam: clientsPerTeam,
+    freq: freq
   });
   //socket.emit('join', { hubName: 'hub1', team: 'ISSOU' })
   startGame();
@@ -68,7 +92,9 @@ socket.on(`update:${hubName}`, data => {
   for (let i = 0; i < players.length; i++) {
     const div = document.createElement("div");
     div.classList.add("box");
-    div.classList.add("is-dark");
+    if (!players[i].alive) {
+      div.classList.add("is-dark");
+    }
     node.appendChild(div);
 
     const article = document.createElement("article");
@@ -86,6 +112,11 @@ socket.on(`update:${hubName}`, data => {
     const para = document.createElement("p");
     contentDiv.appendChild(para);
 
+    const title = document.createElement("strong");
+    title.innerHTML = players[i].team;
+    para.appendChild(title);
+    const br = document.createElement("br");
+    para.appendChild(br);
     const strong = document.createElement("strong");
     strong.innerHTML = players[i].id + " ";
     para.appendChild(strong);
@@ -158,15 +189,21 @@ const parseHubData = data => {
       map[i][j].sibur = data.map[i][j].sibur;
       map[i][j].thystame = data.map[i][j].thystame;
       if (map[i][j].food > 0 && !map[i][j].entity) {
-        map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, flower, ClickFocus`)
-          .attr({
-            x: i * tileMapSize,
-            y: j * tileMapSize
-          })
-          .bind("Click", function(data) {
-            wesh(data);
-            wesh(this.x / tileMapSize, this.y / tileMapSize);
-          });
+        map[i][j].entity = Crafty.e(
+          `2D, Canvas, Mouse, item, ClickFocus`
+        ).attr({
+          x: i * tileMapSize,
+          y: j * tileMapSize
+        })
+        .bind("Click", function(data) {
+            displayItem(this.x, this.y);
+        })
+        .bind("Focus", function() {
+            this.sprite("itemHover");
+        })
+        .bind("Blur", function() {
+            this.sprite(`item`);
+        });
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
         map[i][j].entity.destroy();
       }
@@ -186,46 +223,99 @@ const clearEntities = () => {
   }
 };
 
+//creer tag pour ressources
+const createTag = (name, value) => {
+  if (value != 0) {
+    const block = document.getElementById("foodBlock");
+    const span = document.createElement("span");
+    span.classList.add("tag");
+    span.classList.add(name);
+    span.innerHTML = name;
+    const button = document.createElement("button");
+    button.classList.add("is-small");
+    button.innerHTML = value;
+    span.appendChild(button);
+    block.appendChild(span);
+  }
+};
+
+// display what is in the case
+const displayItem = (x, y) => {
+  const node = document.getElementById("foodBlock");
+  while (node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
+  const item = map[x / tileMapSize][y / tileMapSize];
+  createTag("food", item.food);
+  createTag("linemate", item.linemate);
+  createTag("deraumere", item.deraumere);
+  createTag("mendiane", item.mendiane);
+  createTag("phiras", item.phiras);
+  createTag("sibur", item.sibur);
+  createTag("thystame", item.thystame);
+};
+
 //randomy generate map
 const generateWorld = () => {
   for (let i = 0; i < mapHeight; ++i) {
     for (let j = 0; j < mapWidth; ++j) {
       grassType = Math.floor(Math.random() * 4 + 1);
-      Crafty.e(`2D, Canvas, Color, grass${grassType}`).attr({
-        x: i * tileMapSize,
-        y: j * tileMapSize
-      });
+      Crafty.e(`2D, Canvas, ClickFocus, grass${grassType}`)
+        .attr({
+          x: i * tileMapSize,
+          y: j * tileMapSize
+        })
+        .bind("Click", function(data) {
+          displayItem(this.x, this.y);
+        })
+        .bind("Focus", function() {
+          this.sprite("hover");
+        })
+        .bind("Blur", function() {
+          grassType = Math.floor(Math.random() * 4 + 1);
+          this.sprite(`grass${grassType}`);
+        });
     }
   }
 };
 
 const startGame = () => {
-  const WelcomeDiv = document.getElementById("welcome").innerHTML = hubName;
-    Crafty.init(window.innerWidth * 0.75, window.innerHeight * 0.75, document.getElementById("game"));
-    Crafty.viewport.zoom(1, window.innerWidth * 0.75 / 2, window.innerHeight * 0.75 / 2);
+  const WelcomeDiv = (document.getElementById("welcome").innerHTML = hubName);
+  Crafty.init(
+    window.innerWidth * 0.75,
+    window.innerHeight * 0.75,
+    document.getElementById("game")
+  );
+  // Crafty.viewport.zoom(
+  //   1,
+  //   window.innerWidth * 0.75 / 2,
+  //   window.innerHeight * 0.75 / 2
+  // );
   Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
   //Add audio for Gameplay
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
   //Crafty.audio.play("PokemonSounds", 5, 1);
 
   //turn the sprite map into usable components
-  Crafty.sprite(16, "/images/sprite.png", {
+  Crafty.sprite(32, "/images/sprite.png", {
     grass1: [0, 0],
     grass2: [1, 0],
     grass3: [2, 0],
     grass4: [3, 0],
-    flower: [0, 1]
+    hover: [4, 0],
   });
 
-  Crafty.sprite(33, "/images/Pl.png", {
+  Crafty.sprite(32, "/images/Pl.png", {
     team1: [0, 2],
     team2: [3, 2]
   });
 
   Crafty.sprite(
-    28,
+    32,
     "/images/Object.png",
     {
+        item: [6, 20],
+        itemHover: [14, 26]
       //Sprite for Food object.
     }
   );
@@ -249,7 +339,11 @@ Crafty.bind("MouseWheel", function(e) {
 });
 
 window.onresize = function() {
-    Crafty.init(window.innerWidth * 0.75, window.innerHeight * 0.75, document.getElementById("game"));
+  Crafty.init(
+    window.innerWidth * 0.75,
+    window.innerHeight * 0.75,
+    document.getElementById("game")
+  );
 };
 /*const zoom = Crafty.e("2D")
 
@@ -260,3 +354,36 @@ zoom.onMouseDown = e => {
   else if (e.buttons === Crafty.mouseButtons.RIGHT)
     Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500);
 };*/
+
+(function() {
+  var focus_e = null;
+  var entity_clicked = false;
+  var init_first_entity = true;
+
+  Crafty.c("ClickFocus", {
+    init: function() {
+      this.requires("Mouse");
+      this.bind("Click", function() {
+        if (focus_e) {
+          focus_e.trigger("Blur");
+        }
+        focus_e = this;
+        focus_e.trigger("Focus");
+        entity_clicked = true;
+      });
+
+      if (init_first_entity) {
+        init_first_entity = false;
+        Crafty.addEvent(this, Crafty.stage.elem, "click", function() {
+          if (!entity_clicked) {
+            if (focus_e) {
+              focus_e.trigger("Blur");
+            }
+            focus_e = null;
+          }
+          entity_clicked = false;
+        });
+      }
+    }
+  });
+})();
