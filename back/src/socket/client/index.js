@@ -57,10 +57,10 @@ const connect = (data, clients, client, io) => {
         if (!playerInHub.length) return registerClient(clients, client, data, nbTeam, nbPlayerMax, playerPos, io)
         const nbPlayer = playerInHub.length
         if (nbPlayer === nbPlayerMax * nbTeam) return emitDead(client, `Connection rejected, ${data.hubName} to much player in this hub`)
-        const playerInTeam = playerInHub.find(e => e.team === data.team)
+        const playerInTeam = playerInHub.filter(e => e.team === data.team)
         if (playerInTeam === undefined || playerInTeam === null) return registerClient(clients, client, data, nbTeam, nbPlayerMax, playerPos, io)
         if (playerInTeam.length === currentHub.nbPlayerMax) return emitDead(client, `Connection rejected, ${data.hubName} to much player in this team`)
-        return registerClient(clients, client, data, nbTeam, nbPlayerMax, io)
+        return registerClient(clients, client, data, nbTeam, nbPlayerMax, playerPos, io)
     })
 }
 
