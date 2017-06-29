@@ -145,34 +145,17 @@ if (gup("id")) {
   };
 
   //randomy generate map
-  const generateWorld = () => {
-    for (let i = 0; i < size; ++i) {
-      for (let j = 0; j < size; ++j) {
-        grassType = Math.floor(Math.random() * 4 + 1);
-        Crafty.e(`2D, Canvas, grass${grassType}`).attr({
-          x: i * tileMapSize,
-          y: j * tileMapSize
-        });
-      }
-    }
-    for (let i = 0; i < size; ++i) {
-      Crafty.e(
-        "2D, Canvas, wall_top, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: i * tileMapSize, y: 0, z: 2 });
-      Crafty.e(
-        "2D, DOM, wall_bottom, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: i * tileMapSize, y: (size - 1) * tileMapSize, z: 2 });
-    }
-    //we need to start one more and one less to not overlap the previous bushes
-    for (let i = 1; i < size; i++) {
-      Crafty.e(
-        "2D, DOM, wall_left, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: 0, y: i * tileMapSize, z: 2 });
-      Crafty.e(
-        "2D, Canvas, wall_right, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: (size - 1) * tileMapSize, y: i * tileMapSize, z: 2 });
-    }
-  };
+    const generateWorld = () => {
+        for (let i = 0; i < mapHeight; ++i) {
+            for (let j = 0; j < mapWidth; ++j) {
+                grassType = Math.floor(Math.random() * 4 + 1);
+                Crafty.e(`2D, Canvas, Color, grass${grassType}`).attr({
+                    x: i * tileMapSize,
+                    y: j * tileMapSize
+                });
+            }
+        }
+    };
 
   const startGame = () => {
     const WelcomeDiv = document.getElementById("welcome");
@@ -381,31 +364,14 @@ zoom.onMouseDown = e => {
 
   //randomy generate map
   const generateWorld = () => {
-    for (let i = 0; i < size; ++i) {
-      for (let j = 0; j < size; ++j) {
+    for (let i = 0; i < mapHeight; ++i) {
+      for (let j = 0; j < mapWidth; ++j) {
         grassType = Math.floor(Math.random() * 4 + 1);
-        Crafty.e(`2D, Canvas, grass${grassType}`).attr({
+        Crafty.e(`2D, Canvas, Color, grass${grassType}`).attr({
           x: i * tileMapSize,
           y: j * tileMapSize
         });
       }
-    }
-    for (let i = 0; i < size; ++i) {
-      Crafty.e(
-        "2D, Canvas, wall_top, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: i * tileMapSize, y: 0, z: 2 });
-      Crafty.e(
-        "2D, DOM, wall_bottom, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: i * tileMapSize, y: (size - 1) * tileMapSize, z: 2 });
-    }
-    //we need to start one more and one less to not overlap the previous bushes
-    for (let i = 1; i < size; i++) {
-      Crafty.e(
-        "2D, DOM, wall_left, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: 0, y: i * tileMapSize, z: 2 });
-      Crafty.e(
-        "2D, Canvas, wall_right, bush" + Math.floor(Math.random() * 2 + 1)
-      ).attr({ x: (size - 1) * tileMapSize, y: i * tileMapSize, z: 2 });
     }
   };
 
@@ -464,36 +430,3 @@ zoom.onMouseDown = e => {
     Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500);
 };*/
 }
-
-(function() {
-    var focus_e=null;
-    var entity_clicked=false;
-    var init_first_entity=true;
-
-    Crafty.c("ClickFocus", {
-        init: function() {
-            this.requires("Mouse");
-            this.bind("Click", function() {
-                if(focus_e) {
-                    focus_e.trigger("Blur");
-                }
-                focus_e=this;
-                focus_e.trigger("Focus");
-                entity_clicked=true;
-            });
-
-            if(init_first_entity) {
-                init_first_entity=false;
-                Crafty.addEvent(this, Crafty.stage.elem, "click", function() {
-                    if(!entity_clicked) {
-                        if(focus_e) {
-                            focus_e.trigger("Blur")
-                        }
-                        focus_e=null;
-                    }
-                    entity_clicked=false;
-                });
-            }
-        }
-    });
-})();
