@@ -186,10 +186,6 @@ const parseHubData = data => {
           .attr({
             x: i * tileMapSize,
             y: j * tileMapSize
-          })
-          .bind("Click", function(data) {
-            wesh(data);
-            wesh(this.x / tileMapSize, this.y / tileMapSize);
           });
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
         map[i][j].entity.destroy();
@@ -215,9 +211,20 @@ const generateWorld = () => {
   for (let i = 0; i < mapHeight; ++i) {
     for (let j = 0; j < mapWidth; ++j) {
       grassType = Math.floor(Math.random() * 4 + 1);
-      Crafty.e(`2D, Canvas, Color, grass${grassType}`).attr({
+      Crafty.e(`2D, Canvas, ClickFocus, grass${grassType}`).attr({
         x: i * tileMapSize,
         y: j * tileMapSize
+      })
+      .bind("Click", function(data) {
+          wesh(data);
+          wesh(this.x / tileMapSize, this.y / tileMapSize);
+      })
+      .bind('Focus', function () {
+          this.sprite("hover")
+      })
+      .bind('Blur', function () {
+          grassType = Math.floor(Math.random() * 4 + 1);
+          this.sprite(`grass${grassType}`)
       });
     }
   }
@@ -246,7 +253,8 @@ const startGame = () => {
     grass2: [1, 0],
     grass3: [2, 0],
     grass4: [3, 0],
-    flower: [0, 1]
+    hover: [4, 0],
+  flower: [0, 1]
   });
 
   Crafty.sprite(33, "/images/Pl.png", {
@@ -296,3 +304,36 @@ zoom.onMouseDown = e => {
   else if (e.buttons === Crafty.mouseButtons.RIGHT)
     Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500);
 };*/
+
+(function() {
+    var focus_e=null;
+    var entity_clicked=false;
+    var init_first_entity=true;
+
+    Crafty.c("ClickFocus", {
+        init: function() {
+            this.requires("Mouse");
+            this.bind("Click", function() {
+                if(focus_e) {
+                    focus_e.trigger("Blur");
+                }
+                focus_e=this;
+                focus_e.trigger("Focus");
+                entity_clicked=true;
+            });
+
+            if(init_first_entity) {
+                init_first_entity=false;
+                Crafty.addEvent(this, Crafty.stage.elem, "click", function() {
+                    if(!entity_clicked) {
+                        if(focus_e) {
+                            focus_e.trigger("Blur")
+                        }
+                        focus_e=null;
+                    }
+                    entity_clicked=false;
+                });
+            }
+        }
+    });
+})();
