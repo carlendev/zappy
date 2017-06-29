@@ -182,11 +182,12 @@ const parseHubData = data => {
       map[i][j].sibur = data.map[i][j].sibur;
       map[i][j].thystame = data.map[i][j].thystame;
       if (map[i][j].food > 0 && !map[i][j].entity) {
-        map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, flower, ClickFocus`)
-          .attr({
-            x: i * tileMapSize,
-            y: j * tileMapSize
-          });
+        map[i][j].entity = Crafty.e(
+          `2D, Canvas, Mouse, flower, ClickFocus`
+        ).attr({
+          x: i * tileMapSize,
+          y: j * tileMapSize
+        });
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
         map[i][j].entity.destroy();
       }
@@ -206,26 +207,56 @@ const clearEntities = () => {
   }
 };
 
+//creer tag pour ressources
+const createTag = (name, value) => {
+  const block = document.getElementById("foodBlock");
+  const span = document.createElement("span");
+  span.classList.add("tag");
+  span.classList.add(name);
+  span.innerHTML = name;
+  const button = document.createElement("button");
+  button.classList.add("is-small");
+  button.innerHTML = value;
+  span.appendChild(button);
+  block.appendChild(span);
+};
+
+// display what is in the case
+const displayItem = (x, y) => {
+  const node = document.getElementById("foodBlock");
+  while (node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
+  const item = map[x / tileMapSize][y / tileMapSize];
+  createTag("food", item.food);
+  createTag("linemate", item.linemate);
+  createTag("deraumere", item.deraumere);
+  createTag("mendiane", item.mendiane);
+  createTag("phiras", item.phiras);
+  createTag("sibur", item.sibur);
+  createTag("thystame", item.thystame);
+};
+
 //randomy generate map
 const generateWorld = () => {
   for (let i = 0; i < mapHeight; ++i) {
     for (let j = 0; j < mapWidth; ++j) {
       grassType = Math.floor(Math.random() * 4 + 1);
-      Crafty.e(`2D, Canvas, ClickFocus, grass${grassType}`).attr({
-        x: i * tileMapSize,
-        y: j * tileMapSize
-      })
-      .bind("Click", function(data) {
-          wesh(data);
-          wesh(this.x / tileMapSize, this.y / tileMapSize);
-      })
-      .bind('Focus', function () {
-          this.sprite("hover")
-      })
-      .bind('Blur', function () {
+      Crafty.e(`2D, Canvas, ClickFocus, grass${grassType}`)
+        .attr({
+          x: i * tileMapSize,
+          y: j * tileMapSize
+        })
+        .bind("Click", function(data) {
+          displayItem(this.x, this.y);
+        })
+        .bind("Focus", function() {
+          this.sprite("hover");
+        })
+        .bind("Blur", function() {
           grassType = Math.floor(Math.random() * 4 + 1);
-          this.sprite(`grass${grassType}`)
-      });
+          this.sprite(`grass${grassType}`);
+        });
     }
   }
 };
@@ -237,11 +268,11 @@ const startGame = () => {
     window.innerHeight * 0.75,
     document.getElementById("game")
   );
-  Crafty.viewport.zoom(
-    1,
-    window.innerWidth * 0.75 / 2,
-    window.innerHeight * 0.75 / 2
-  );
+  // Crafty.viewport.zoom(
+  //   1,
+  //   window.innerWidth * 0.75 / 2,
+  //   window.innerHeight * 0.75 / 2
+  // );
   Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
   //Add audio for Gameplay
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
@@ -254,7 +285,7 @@ const startGame = () => {
     grass3: [2, 0],
     grass4: [3, 0],
     hover: [4, 0],
-  flower: [0, 1]
+    flower: [0, 1]
   });
 
   Crafty.sprite(33, "/images/Pl.png", {
@@ -306,34 +337,34 @@ zoom.onMouseDown = e => {
 };*/
 
 (function() {
-    var focus_e=null;
-    var entity_clicked=false;
-    var init_first_entity=true;
+  var focus_e = null;
+  var entity_clicked = false;
+  var init_first_entity = true;
 
-    Crafty.c("ClickFocus", {
-        init: function() {
-            this.requires("Mouse");
-            this.bind("Click", function() {
-                if(focus_e) {
-                    focus_e.trigger("Blur");
-                }
-                focus_e=this;
-                focus_e.trigger("Focus");
-                entity_clicked=true;
-            });
-
-            if(init_first_entity) {
-                init_first_entity=false;
-                Crafty.addEvent(this, Crafty.stage.elem, "click", function() {
-                    if(!entity_clicked) {
-                        if(focus_e) {
-                            focus_e.trigger("Blur")
-                        }
-                        focus_e=null;
-                    }
-                    entity_clicked=false;
-                });
-            }
+  Crafty.c("ClickFocus", {
+    init: function() {
+      this.requires("Mouse");
+      this.bind("Click", function() {
+        if (focus_e) {
+          focus_e.trigger("Blur");
         }
-    });
+        focus_e = this;
+        focus_e.trigger("Focus");
+        entity_clicked = true;
+      });
+
+      if (init_first_entity) {
+        init_first_entity = false;
+        Crafty.addEvent(this, Crafty.stage.elem, "click", function() {
+          if (!entity_clicked) {
+            if (focus_e) {
+              focus_e.trigger("Blur");
+            }
+            focus_e = null;
+          }
+          entity_clicked = false;
+        });
+      }
+    }
+  });
 })();

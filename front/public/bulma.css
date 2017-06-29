@@ -7190,3 +7190,13 @@ label.panel-block:hover {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.tag.food {
+  background-color: #C01900;
+  color: white;
+}
+
+.tag.linemate {
+  background-color: #A3B9F7;
+  color: white;
+}
