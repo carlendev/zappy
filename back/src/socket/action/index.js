@@ -42,7 +42,7 @@ const Eject = (...args) => registerAction(...args)('Eject', 1)
 //TODO: set to 42
 const Fork = (...args) => registerAction(...args)('Fork', 1)
 const Brodcast = (...args) => registerAction(...args)('Brodcast', 1)
-const Incantation = (...args) => registerAction(...args)('Incantation', 1)
+const Incantation = (...args) => registerAction(...args)('Incantation', 30)
 const ForkStart = (...args) => registerAction(...args)('ForkStart', 1)
 
 module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr, Brodcast, Fork, Incantation, ForkStart }
