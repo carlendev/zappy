@@ -4,10 +4,12 @@ const { set, get, decr, findClients, findClientsInHub, findHubs, setClients, set
 const { createHubQ, createHubJob } = require('../../queue/index')
 const { randTile, circularPos, generateMap } = require('../../utils/map')
 const bresenham = require('../../utils/bresenham')
+const Interval = require('../../utils/interval')
 const Timer = require('../../utils/timer')
 
 let _clients = {}
 let _timeouts = []
+let _intervals = []
 
 const emitDead = (client, msg) => {
     logInfoSocket(msg)
@@ -280,14 +282,26 @@ const deleteHub = data => {
     logInfoSocket('Hub deleted ' + data.name)
 }
 
+// TODO (carlen): disconnect user on die
+const eat = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
+    --_client.inventory.food
+    if (_client.inventory.food < 0) {
+        logQInfo(`${client.id} will die of hunger.`)
+    } else
+        logQInfo(`${client.id} ate and has ${_client.inventory.food} food left.`)
+    setClients(__clients, () => {}, {})
+})
+
 const sst = data => findHubs(data.hub).then(([ _hubs, _hub ]) => {
     if (!_hub || !data.freq) return
     _hub.freq = data.freq
-    _timeouts.forEach(timeout => timeout.t.frequency(data.freq))
+    _timeouts.filter(e => e.hub === data.hub).forEach(timeout => timeout.t.frequency(data.freq))
+    _intervals.filter(e => e.hub === data.hub).forEach(interval => interval.i.frequency(data.freq))
     setHubs(_hubs, _hub => logInfo(_hub.hubName + '\'s frequency was updated to ' + _hub.freq), _hub)
 })
 
 const fns = {
+    eat,
     eject,
     set_,
     take,
@@ -309,26 +323,29 @@ const hubEvents = async (job, done) => {
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
     await fns[data.fn](data, clients, client)
-    decr(client.id)
-    fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
+    if (data.fn !== 'eat') {
+        decr(client.id)
+        fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
+    }
     done()
 }
 
 const userEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
-    if (data.id === 'start') {          
-        client.socket.emit('start')
+    const [ _hubs, _hub ] = await findHubs(client.hub)
+    if (data.id === 'start' || data.id === 'forkStart') {
+        data.id !== 'forkStart' && client.socket.emit('start')
+        _intervals.push({ hub: client.hub, i: new Interval(() => createHubJob(client.hub, {client_id: data.client_id, title: 'eat', fn: 'eat'}, () => logQInfo(`eat hub queued`)), 126, _hub.freq) })
         done()
         return
     }
-    const [ _hubs, _hub ] = await findHubs(client.hub)
     const t = new Timer(() => {
         createHubJob(client.hub, data, () => logQInfo(`${data.title} hub queued`))
         _timeouts.splice(_timeouts.findIndex(e => e.t === t), 1)
         done()
     }, data.time, _hub.freq)
-    _timeouts.push({ hub: client.hubName, t })
+    _timeouts.push({ hub: client.hub, t })
 }
 
 module.exports = { connect, disconnect, connectFront, createHub, deleteHub, sst }

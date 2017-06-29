@@ -41,6 +41,6 @@ const Set_ = (...args) => registerAction(...args)('Set_', 1)
 const Eject = (...args) => registerAction(...args)('Eject', 1)
 const Fork = (...args) => registerAction(...args)('Fork', 42)
 const Brodcast = (...args) => registerAction(...args)('Brodcast', 1)
-const Incantation = (...args) => registerAction(...args)('Incantation', 1)
+const Incantation = (...args) => registerAction(...args)('Incantation', 30)
 
 module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr, Brodcast, Fork, Incantation }
