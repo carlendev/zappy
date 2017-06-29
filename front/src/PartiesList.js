@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import axios from "axios";
 
 import Loader from "./components/Loader";
-
 export default class PartiesList extends Component {
   state = {
     hubs: [],
