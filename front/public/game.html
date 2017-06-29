@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="theme-color" content="#000000">
   <link rel="stylesheet" href="./bulma.css">
+  <link rel="stylesheet" href="./slider/nouislider.min.css">
   <title>Zappy</title>
 </head>
 
@@ -16,11 +17,14 @@
         <h2 id="welcome" class="title is-2">
           <div class="loader"></div>
         </h2>
-        <a href="/" class="button is-warning">Retourner au menu</a>
+        <div class="block">
+          <a href="/" class="button is-warning">Retourner au menu</a>
+        </div>
         <div id="game"></div>
       </div>
     </div>
     <div class="column">
+      <div id="slider-step"></div>
       <div class="box">
         <article class="media">
           <div class="media-content">
@@ -61,6 +65,7 @@
 </body>
 <script src="./io.js"></script>
 <script type="text/javascript" src="https://rawgithub.com/craftyjs/Crafty/release/dist/crafty-min.js"></script>
+<script src="./slider/nouislider.min.js"></script>
 <script src="./utils.js"></script>
 <script src="./Game.js"></script>
 
