@@ -76,6 +76,7 @@ const connect = (data, clients, client, io) => {
 }
 
 const disconnect = (data, clients, client) => {
+    if (clients === undefined || clients[ client.id ] === undefined) return
     if (clients[ client.id ].front) {
         delete clients[ client.id ]
         _clients = clients
@@ -310,9 +311,15 @@ const deleteHub = data => {
 const eat = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
     --_client.inventory.food
     if (_client.inventory.food < 0) {
+        //TODO: (carlendev) disconnect here
+        const _new = __clients.filter(e => e.id !== client.id)
+        setClients(_new, client => {
+            client.socket.emit('dead')
+            delete _clients[ client.id ]
+            logInfoSocket('Client disconnected ' + client.id)
+        }, client)
         logQInfo(`${client.id} will die of hunger.`)
-    } else
-        logQInfo(`${client.id} ate and has ${_client.inventory.food} food left.`)
+    } else logQInfo(`${client.id} ate and has ${_client.inventory.food} food left.`)
     setClients(__clients, () => {}, {})
 })
 
