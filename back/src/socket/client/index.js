@@ -13,6 +13,7 @@ let _timeouts = []
 let _intervals = []
 let _io = null
 let asStart = {}
+const ia = './fakeclient.js'
 
 const emitDead = (client, msg) => {
     logInfoSocket(msg)
@@ -281,6 +282,11 @@ const incantation = (data, clients, client) => findClients(client.id).then(([ __
     })
 })
 
+const generateIA = ({ hubName, teams, clientsPerTeam }) => teams.map(e => [ ...Array(clientsPerTeam) ].reduce((acc, cur) => {
+        acc.push({ team: e, hub: hubName })
+        return acc
+    }, [])).map(e => e.map(f => spawnProcess('node', [ ia, `--team=${f.team}`, `--hub=${f.hub}` ])))
+
 //INFO: HUB
 const createHub = (data, clients, client, hubs) => {
     if (validateJson(createHubP)(data).errors.length) return
@@ -292,6 +298,7 @@ const createHub = (data, clients, client, hubs) => {
         set('hubs', JSON.stringify(_hubs)).then(() => {
             logInfoSocket('Job queue created ' + data.hubName)
             hubs[ _hubs.length + 1 ] = { hub: createHubQ(data.hubName, hubEvents), name: data.hubName }
+            generateIA(data)
         })
     })
 }
