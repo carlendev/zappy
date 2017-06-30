@@ -84,7 +84,14 @@ socket.on(`update:${hubName}`, data => {
   parseHubData(data.hubInfo);
   parseClientsData(data.clients);
 
-  //score
+  //TOTO : afficher par équipe
+  players.sort(function(a, b) {
+    console.log("aaa", a);
+    var x = a.team.toLowerCase();
+    var y = b.team.toLowerCase();
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+
   const node = document.getElementById("playersName");
   while (node.firstChild) {
     node.removeChild(node.firstChild);
@@ -189,21 +196,20 @@ const parseHubData = data => {
       map[i][j].sibur = data.map[i][j].sibur;
       map[i][j].thystame = data.map[i][j].thystame;
       if (map[i][j].food > 0 && !map[i][j].entity) {
-        map[i][j].entity = Crafty.e(
-          `2D, Canvas, Mouse, item, ClickFocus`
-        ).attr({
-          x: i * tileMapSize,
-          y: j * tileMapSize
-        })
-        .bind("Click", function(data) {
+        map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, item, ClickFocus`)
+          .attr({
+            x: i * tileMapSize,
+            y: j * tileMapSize
+          })
+          .bind("Click", function(data) {
             displayItem(this.x, this.y);
-        })
-        .bind("Focus", function() {
+          })
+          .bind("Focus", function() {
             this.sprite("itemHover");
-        })
-        .bind("Blur", function() {
+          })
+          .bind("Blur", function() {
             this.sprite(`item`);
-        });
+          });
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
         map[i][j].entity.destroy();
       }
@@ -302,7 +308,7 @@ const startGame = () => {
     grass2: [1, 0],
     grass3: [2, 0],
     grass4: [3, 0],
-    hover: [4, 0],
+    hover: [4, 0]
   });
 
   Crafty.sprite(32, "/images/Pl.png", {
@@ -310,15 +316,11 @@ const startGame = () => {
     team2: [3, 2]
   });
 
-  Crafty.sprite(
-    32,
-    "/images/Object.png",
-    {
-        item: [6, 20],
-        itemHover: [14, 26]
-      //Sprite for Food object.
-    }
-  );
+  Crafty.sprite(32, "/images/Object.png", {
+    item: [6, 20],
+    itemHover: [14, 26]
+    //Sprite for Food object.
+  });
   generateWorld();
 };
 
