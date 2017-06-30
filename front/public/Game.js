@@ -356,12 +356,6 @@ const startGame = () => {
     window.innerHeight * 0.75,
     document.getElementById("game")
   );
-  // Crafty.viewport.zoom(
-  //   1,
-  //   window.innerWidth * 0.75 / 2,
-  //   window.innerHeight * 0.75 / 2
-  // );
-  //Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
   //Add audio for Gameplay
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
   //Crafty.audio.play("PokemonSounds", 5, 1);
@@ -396,32 +390,16 @@ const startGame = () => {
   generateWorld();
 };
 
-/*Crafty.extend({
-  mouseWheelDispatch: function(e) {
-    Crafty.trigger("MouseWheel", e);
-  }
-});
-
-Crafty.bind("MouseWheel", function(e) {
-  let delta = (e.wheelDelta ? e.wheelDelta / 120 : e.detail) / 2;
-  Crafty.viewport.zoom(
-    delta > 0 ? delta + 1 : 1 / (-delta + 1),
-    e.clientX,
-    e.clientY,
-    10
-  );
-});*/
-
+// Can zoom or dezoom with Up and Down, and move camera with arrow
 Crafty.bind("KeyDown", function(e) {
-  if (e.key === Crafty.keys.LEFT_ARROW) {
-    Crafty.viewport.x += 50;
-  } else if (e.key === Crafty.keys.RIGHT_ARROW) {
-    Crafty.viewport.x -= 50;
-  } else if (e.key === Crafty.keys.UP_ARROW) {
-    Crafty.viewport.y += 50;
-  } else if (e.key === Crafty.keys.DOWN_ARROW) {
-    Crafty.viewport.y -= 50;
-  }
+  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += 50;
+  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
+  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
+  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
+  else if (e.key === Crafty.keys.PAGE_UP)
+    Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_DOWN)
+    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
 });
 
 window.onresize = function() {
@@ -431,15 +409,6 @@ window.onresize = function() {
     document.getElementById("game")
   );
 };
-/*const zoom = Crafty.e("2D")
-
-zoom.onMouseDown = e => {
-  //For CraftyJS Middle === Left, I don't know why
-  if (e.buttons === Crafty.mouseButtons.MIDDLE)
-    Crafty.viewport.zoom(2, e.clientX, e.clientY, 500);
-  else if (e.buttons === Crafty.mouseButtons.RIGHT)
-    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500);
-};*/
 
 (function() {
   var focus_e = null;
