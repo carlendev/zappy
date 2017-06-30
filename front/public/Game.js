@@ -17,8 +17,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-    min: [2],
-    max: [100]
+  min: [2],
+  max: [100]
   }
 });
 
@@ -336,7 +336,7 @@ const startGame = () => {
   //   window.innerWidth * 0.75 / 2,
   //   window.innerHeight * 0.75 / 2
   // );
-  Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
+  //Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
   //Add audio for Gameplay
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
   //Crafty.audio.play("PokemonSounds", 5, 1);
@@ -371,7 +371,7 @@ const startGame = () => {
   generateWorld();
 };
 
-Crafty.extend({
+/*Crafty.extend({
   mouseWheelDispatch: function(e) {
     Crafty.trigger("MouseWheel", e);
   }
@@ -385,7 +385,19 @@ Crafty.bind("MouseWheel", function(e) {
     e.clientY,
     10
   );
-});
+});*/
+
+Crafty.bind('KeyDown', function(e) {
+    if (e.key === Crafty.keys.LEFT_ARROW) {
+      Crafty.viewport.x += 50;
+    } else if (e.key === Crafty.keys.RIGHT_ARROW) {
+      Crafty.viewport.x-= 50;
+    } else if (e.key === Crafty.keys.UP_ARROW) {
+      Crafty.viewport.y+= 50;
+    } else if (e.key === Crafty.keys.DOWN_ARROW) {
+      Crafty.viewport.y-= 50;
+    }
+  });
 
 window.onresize = function() {
   Crafty.init(
