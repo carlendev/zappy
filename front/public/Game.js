@@ -4,7 +4,7 @@ const wesh = console.log;
 
 const exit = (code = 0) => process.exit(code);
 
-const tileMapSize = 32;
+const tileMapSize = 64;
 
 const hubName = decodeURI(gup("hubname"));
 const mapWidth = parseInt(gup("width"));
@@ -195,6 +195,7 @@ const parseHubData = data => {
       map[i][j].phiras = data.map[i][j].phiras;
       map[i][j].sibur = data.map[i][j].sibur;
       map[i][j].thystame = data.map[i][j].thystame;
+      //TODO Count all item not only food
       if (map[i][j].food > 0 && !map[i][j].entity) {
         map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, item, ClickFocus`)
           .attr({
@@ -265,8 +266,8 @@ const displayItem = (x, y) => {
 const generateWorld = () => {
   for (let i = 0; i < mapHeight; ++i) {
     for (let j = 0; j < mapWidth; ++j) {
-      grassType = Math.floor(Math.random() * 4 + 1);
-      Crafty.e(`2D, Canvas, ClickFocus, grass${grassType}`)
+      let groundType = Math.floor(Math.random() * 9 + 1);
+      Crafty.e(`2D, Canvas, ClickFocus, ground${groundType}`)
         .attr({
           x: i * tileMapSize,
           y: j * tileMapSize
@@ -278,10 +279,35 @@ const generateWorld = () => {
           this.sprite("hover");
         })
         .bind("Blur", function() {
-          grassType = Math.floor(Math.random() * 4 + 1);
-          this.sprite(`grass${grassType}`);
+          groundType = Math.floor(Math.random() * 4 + 1);
+          this.sprite(`ground${groundType}`);
         });
     }
+  }
+  for (let i = -1; i <= mapWidth; i++) {
+    let wallType = "wallX";
+    if (i == -1) wallType = "wall_TL";
+    if (i == mapWidth) wallType = "wall_TR";
+    Crafty.e(`2D, Canvas, ClickFocus, ${wallType}`).attr({
+      x: i * tileMapSize,
+      y: -1 * tileMapSize
+    });
+    if (i == -1) wallType = "wall_BL";
+    if (i == mapWidth) wallType = "wall_BR";
+    Crafty.e(`2D, Canvas, ClickFocus, ${wallType}`).attr({
+      x: i * tileMapSize,
+      y: mapHeight * tileMapSize
+    });
+  }
+  for (let i = 0; i < mapHeight; i++) {
+    Crafty.e(`2D, Canvas, ClickFocus, wallY`).attr({
+      x: -1 * tileMapSize,
+      y: i * tileMapSize
+    });
+    Crafty.e(`2D, Canvas, ClickFocus, wallY`).attr({
+      x: mapWidth * tileMapSize,
+      y: i * tileMapSize
+    });
   }
 };
 
@@ -303,23 +329,31 @@ const startGame = () => {
   //Crafty.audio.play("PokemonSounds", 5, 1);
 
   //turn the sprite map into usable components
-  Crafty.sprite(32, "/images/sprite.png", {
-    grass1: [0, 0],
-    grass2: [1, 0],
-    grass3: [2, 0],
-    grass4: [3, 0],
-    hover: [4, 0]
-  });
-
-  Crafty.sprite(32, "/images/Pl.png", {
+  Crafty.sprite(64, "/images/Player.png", {
     team1: [0, 2],
     team2: [3, 2]
   });
-
-  Crafty.sprite(32, "/images/Object.png", {
+  Crafty.sprite(64, "/images/map.png", {
+    ground1: [0, 0],
+    ground2: [1, 0],
+    ground3: [2, 0],
+    ground4: [3, 0],
+    ground5: [4, 0],
+    ground6: [5, 0],
+    ground7: [6, 0],
+    ground8: [7, 0],
+    ground9: [8, 0],
+    wallY: [0, 1],
+    wallX: [1, 1],
+    wall_TL: [2, 1],
+    wall_TR: [3, 1],
+    wall_BR: [4, 1],
+    wall_BL: [5, 1],
+    hover: [6, 1]
+  });
+  Crafty.sprite(64, "/images/Object.png", {
     item: [6, 20],
     itemHover: [14, 26]
-    //Sprite for Food object.
   });
   generateWorld();
 };

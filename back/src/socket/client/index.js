@@ -76,6 +76,7 @@ const connect = (data, clients, client, io) => {
 }
 
 const disconnect = (data, clients, client) => {
+    if (clients === undefined || clients[ client.id ] === undefined) return
     if (clients[ client.id ].front) {
         delete clients[ client.id ]
         _clients = clients
@@ -221,13 +222,13 @@ const fork = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs
 
 const spawn = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs ]) => {
     const _hub = _hubs.find(e => e.hubName === client.hub)
-    spawnProcess('node', [' ../../../fakeclient.js', `--team="${client.team}"`, `--hub="${_hub.hubName}"`])
+    const process = spawnProcess('node', ['./fakeclient.js', `--team=${client.team}`, `--hub=${_hub.hubName}`])
     setTimeout(() => _io.emit('forkStart'), 500)
 })
 
 const forkstart = (data, clients, client) => {
     logInfoSocket('Fork start ' + client.id)
-}
+}   
 
 const brodcast = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
@@ -262,8 +263,7 @@ const brodcast = (data, clients, client) => findClients(client.id).then(([ __cli
                 case 4: dir = getDir(c.pos, tile, -1, 0, 0, 1); break
             }
             const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
-            if (dir !== -1)
-                _clients[_c].socket.emit('message', { text: data.text, direction: dir + 1 })
+            if (dir !== -1) _clients[_c].socket.emit('message', { text: data.text, direction: dir + 1 })
         })
         client.socket.emit('ok')
     })
@@ -273,7 +273,8 @@ const incantation = (data, clients, client) => findClients(client.id).then(([ __
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         const res = __clients.filter(c => {
             const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
-            return c.hubName === _client.hubName && c.id !== _client.id && _clients[_c].team !== client.team && c.pos.x === _client.pos.x && c.pos.y === _client.pos.y && c.lvl === _client.lvl
+            return c.hubName === _client.hubName && c.id !== _client.id && _clients[_c].team !== client.team &&
+                     c.pos.x === _client.pos.x && c.pos.y === _client.pos.y && c.lvl === _client.lvl
         })
         console.log('res: ', res)
         // setClients(__clients, () => client.socket.emit(res.length ? 'ok' : 'ko'), {})
@@ -306,14 +307,24 @@ const deleteHub = data => {
     logInfoSocket('Hub deleted ' + data.name)
 }
 
-// TODO (carlen): disconnect user on die
 const eat = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
     --_client.inventory.food
     if (_client.inventory.food < 0) {
+        _timeouts.filter(e => e.id === client.id).map(({ t }) => t.clear())
+        _intervals.filter(e => e.id === client.id).map(({ i }) => i.clear())
+        _timeouts = _timeouts.filter(e => e.id !== client.id)
+        _intervals = _intervals.filter(e => e.id !== client.id)
+        const _new = __clients.filter(e => e.id !== client.id)
+        setClients(_new, client => {
+            client.socket.emit('dead')
+            delete _clients[ client.id ]
+            logInfoSocket('Client disconnected ' + client.id)
+        }, client)
         logQInfo(`${client.id} will die of hunger.`)
-    } else
+    } else {
         logQInfo(`${client.id} ate and has ${_client.inventory.food} food left.`)
-    setClients(__clients, () => {}, {})
+        setClients(__clients, () => {}, {})
+    }
 })
 
 const sst = data => findHubs(data.hub).then(([ _hubs, _hub ]) => {
@@ -362,7 +373,10 @@ const userEvents = async (job, done) => {
     const [ _hubs, _hub ] = await findHubs(client.hub)
     if (data.id === 'start' || data.id === 'forkStart') {
         data.id !== 'forkStart' && client.socket.emit('start')
-        _intervals.push({ hub: client.hub, i: new Interval(() => createHubJob(client.hub, {client_id: data.client_id, title: 'eat', fn: 'eat'}, () => logQInfo(`eat hub queued`)), 126, _hub.freq) })
+        _intervals.push({ id: client.id, hub: client.hub,
+            i: new Interval(() => createHubJob(client.hub, { client_id: data.client_id, title: 'eat', fn: 'eat' }, () => logQInfo('eat hub queued')),
+            126,
+            _hub.freq) })
         done()
         return
     }
@@ -371,7 +385,7 @@ const userEvents = async (job, done) => {
         _timeouts.splice(_timeouts.findIndex(e => e.t === t), 1)
         done()
     }, data.time, _hub.freq)
-    _timeouts.push({ hub: client.hub, t })
+    _timeouts.push({ id: client.id, hub: client.hub, t })
 }
 
 module.exports = { connect, disconnect, connectFront, createHub, deleteHub, sst }
