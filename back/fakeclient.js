@@ -70,7 +70,7 @@ io.on('start', () => {
     wesh('Start play')
     if (asStart) return
     asStart = true
-    io.emit('Fork')
+    //io.emit('Fork')
     io.emit('Forward')
     io.emit('Right')
     io.emit('Forward')

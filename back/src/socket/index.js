@@ -1,7 +1,7 @@
 const { logInfoSocket } = require('../utils/logger')
 const { io } = require('../app')
 const { clientPnw, validateJson } = require('../utils/validator')
-const { connect, disconnect, connectFront, createHub, deleteHub, sst } = require('./client/index')
+const { connect, disconnect, connectFront, createHub, deleteHub, sst, begin } = require('./client/index')
 const {
     Forward,
     Right,
@@ -31,6 +31,7 @@ const socket = () => {
 
         //INFO: FRONT events
         client.on('connectFront', data => connectFront(data, clients, client, hubs))
+        client.on('begin', data => begin(data, clients, client, io))
 
         //INFO: HUB events
         client.on('createHub', data => createHub(data, clients, client, hubs))

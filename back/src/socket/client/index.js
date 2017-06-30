@@ -14,6 +14,7 @@ let _intervals = []
 let _io = null
 let asStart = {}
 const ia = './fakeclient.js'
+const serverQ = 'fuckQ'
 
 const emitDead = (client, msg) => {
     logInfoSocket(msg)
@@ -24,35 +25,47 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     clients[ client.id ] = { socket: client, id: client.id, front: false, hub: data.hubName, team: data.team }
     _clients = clients
     _io = io
-    logInfoSocket('Client connected ' + client.id)
-    findClients('').then(([ add ]) => {
-        const id = client.id
-        add.push(Object.assign(data, { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0,
-            inventory: { food: 10, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }))
-        set('clients', JSON.stringify(add)).then(e => {
-            set(client.id, 0).then(() => {
-                createHubQ(id, userEvents)
-                findClients('').then(([ __clients ]) => {
-                    if (asStart[ data.hubName ]) return
-                    const playerInHub = __clients.filter(e => e.hubName === data.hubName)
-                    if (playerInHub.length !== nbPlayerMax * nbTeam) return 
-                    asStart[ data.hubName ] = true
-                    io.emit('play')
-                    const front_id = Object.keys(clients).find(e => clients[e].front === true)
-                    if (_clients[ client.id ].front) return
-                    playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id },
-                                () => logQInfo('Start game')))
-                })
-            })
-        })
-    })
+    const id = client.id
+    const action = 'userconnect'
+    const time = 0
+    const front_id = Object.keys(clients).find(e => clients[e].front === true)
+    createHubJob(serverQ, Object.assign(data, { client_id: client.id, front_id, hub: client.hub, title: action, fn: action, time }, { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0,
+        inventory: { food: 10, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }),
+        () => logQInfo('Connect queued'))
 }
+
+const begin = (data, clients, client, io) => findClients('').then(([ __clients ]) => findHubs(data.hubName).then(([ hubs, hub ]) => {
+    if (asStart[ data.hubName ]) return io.emit('err', { msg: 'Party as already start' })
+    const nbPlayerMax = hub.clientsPerTeam
+    const nbTeam = hub.teams.length
+    const playerInHub = __clients.filter(e => e.hubName === data.hubName)
+    if (playerInHub.length !== nbPlayerMax * nbTeam) return io.emit('err', { msg: 'Not enought players' })
+    asStart[ data.hubName ] = true
+    io.emit('start')
+    const front_id = Object.keys(clients).find(e => clients[e].front === true)
+    if (_clients[ client.id ].front) return
+    playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id },
+                () => logQInfo('Start game')))
+    logInfoSocket('Start hub party')
+}))
+
 
 const connectFront = (_, clients, client) => {
     clients[ client.id ] = { socket: client, id: client.id, front: true }
     _clients = clients
     logInfoSocket('Front connected')
 }
+
+const userconnect = (data, clients, client) => findClients('').then(([ add ]) => {
+    const id = client.id
+    add.push(data)
+    set('clients', JSON.stringify(add)).then(e => {
+        set(client.id, 0).then(() => {
+            createHubQ(id, userEvents)
+            logInfoSocket('Client connected ' + client.id)
+        })
+    })
+})
 
 const connect = (data, clients, client, io) => {
     if (validateJson(clientPnw)(data).errors.length) return emitDead(client, 'Wrong parameters types')
@@ -359,6 +372,8 @@ const fns = {
     forkstart
 }
 
+const fuckfns = { userconnect }
+
 const hubEvents = async (job, done) => {
     const data = job.data
     const client = _clients[ data.client_id ]
@@ -371,6 +386,14 @@ const hubEvents = async (job, done) => {
         decr(client.id)
         fronts.map(e => _clients[e].socket.emit(`update:${client.hub}`, { hubInfo, clients }))
     }
+    done()
+}
+
+const fuckEvents = async (job, done) => {
+    const data = job.data
+    const client = _clients[ data.client_id ]
+    const clients = JSON.parse(await get('clients'))
+    await fuckfns[data.fn](data, clients, client)
     done()
 }
 
@@ -395,4 +418,4 @@ const userEvents = async (job, done) => {
     _timeouts.push({ id: client.id, hub: client.hub, t })
 }
 
-module.exports = { connect, disconnect, connectFront, createHub, deleteHub, sst }
+module.exports = { connect, disconnect, connectFront, createHub, deleteHub, sst, begin, fuckEvents }

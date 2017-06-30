@@ -17,10 +17,12 @@ io.on('connect', () => {
             'ISSOU',
             'BITE'
         ],
-        clientsPerTeam: 10,
+        clientsPerTeam: 2,
         freq: 2
     })
 })
+
+setTimeout(() => io.emit('begin', { hubName: 'hub1' }), 3000)
 
 io.on('dead', () => {
     wesh('I\' dead')
