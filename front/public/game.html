@@ -12,7 +12,7 @@
 
 <body>
   <div class="columns">
-    <div class="column">
+    <div class="column is-8">
       <section class="section">
         <div id="game"></div>
         <div class="columns">
@@ -57,12 +57,13 @@
           <div class="loader"></div>
         </h2>
         <div class="block">
+          <button class="button is-success" id="beginButton">Lancer le jeu</button>
           <a href="/" class="button is-warning">Retourner au menu</a>
         </div>
         <label class="label">Changer la fréquence du jeu</label>
         <div id="slider-step" style="margin-bottom: 20px"></div>
         <h4 class="title is-4">Joueurs :</h4>
-        <div id="playersName">
+        <div id="playersName" style="height: 400px; overflow: auto; border: 2px solid #8B8B8B">
           <!-- nom des joueurs -->
         </div>
       </section>

@@ -56,6 +56,7 @@ const createMap = () => {
   }
   return arr;
 };
+
 const map = createMap();
 
 socket.on("connect", () => {
@@ -79,14 +80,11 @@ socket.on("dead", () => {
 });
 
 socket.on(`update:${hubName}`, data => {
-  wesh("I' m updated");
-  wesh(data);
   parseHubData(data.hubInfo);
   parseClientsData(data.clients);
 
   //TOTO : afficher par équipe
   players.sort(function(a, b) {
-    console.log("aaa", a);
     var x = a.team.toLowerCase();
     var y = b.team.toLowerCase();
     return x < y ? -1 : x > y ? 1 : 0;
@@ -141,7 +139,8 @@ const displayPlayers = () => {
     para.appendChild(beforeStrong);
     para.appendChild(strong);
 
-    para.appendChild(br);
+    const br2 = document.createElement("br");
+    para.appendChild(br2);
     const small = document.createElement("small");
     small.innerHTML = "niveau : " + players[i].lvl;
     para.appendChild(small);
@@ -158,23 +157,40 @@ socket.on("start", () => {
   socket.emit("Right");
 });
 
+socket.on("err", err => {
+  alert(err);
+  console.error(err);
+});
+
+document.getElementById("beginButton").addEventListener("click", () => {
+  socket.emit("begin", {
+    hubName: hubName
+  });
+});
+
 const createPlayer = data => {
-  return Crafty.e("2D, Canvas, team1, Controls, Collision, SpriteAnimation")
+  return Crafty.e("2D, Canvas, team1, Mouse, SpriteAnimation")
     .attr({
       x: data.pos.x * tileMapSize,
       y: data.pos.y * tileMapSize,
-      w: tileMapSize,
-      h: tileMapSize
     })
     .reel("2", 100, [[0, 3], [1, 3], [2, 3]])
     .reel("4", 100, [[0, 1], [1, 1], [2, 1]])
     .reel("3", 100, [[0, 2], [1, 2], [2, 2]])
     .reel("1", 100, [[0, 0], [1, 0], [2, 0]])
-    .bind("Update", function(data) {
-      this.animate(data.orientation.toString());
+    .reel("dead", 1000, [[0, 12], [1, 12], [2, 12], [3, 12],
+        [4, 12], [5, 12], [6, 12], [1, 13]])
+  .bind("Update", function(data) {
+      this.animate(data.orientation.toString(), 1);
       this.x = data.pos.x * tileMapSize;
       this.y = data.pos.y * tileMapSize;
-    });
+    })
+      .bind("Click", function(data) {
+          displayItem(this.x, this.y);
+          isPlayer(this.x / tileMapSize, this.y / tileMapSize);
+          this.animate("dead", 1)
+          this.sprite("tomb")
+      });
 };
 
 const parseClientsData = data => {
@@ -184,7 +200,6 @@ const parseClientsData = data => {
         if (e.id == data[i].id) {
           e.pos = data[i].pos;
           e.orientation = data[i].orientation;
-          wesh(e.pos, e.orientation);
           e.alive = true;
         }
         return e.id == data[i].id;
@@ -210,21 +225,36 @@ const parseHubData = data => {
       map[i][j].thystame = data.map[i][j].thystame;
       //TODO Count all item not only food
       if (map[i][j].food > 0 && !map[i][j].entity) {
-        map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, item, ClickFocus`)
+        map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, item, ClickFocus, SpriteAnimation`)
           .attr({
             x: i * tileMapSize,
             y: j * tileMapSize
           })
           .bind("Click", function(data) {
-            displayItem(this.x, this.y);
+              this.animate("item_break", 1)
+              displayItem(this.x, this.y);
             isPlayer(this.x / tileMapSize, this.y / tileMapSize);
+            if (!isReallyPlayer(this.x / tileMapSize, this.y / tileMapSize)) {
+              const elem = document.getElementById("playerResources");
+              while (elem.firstChild) {
+                elem.removeChild(elem.firstChild);
+              }
+            }
           })
           .bind("Focus", function() {
             this.sprite("itemHover");
           })
           .bind("Blur", function() {
             this.sprite(`item`);
-          });
+          })
+            .reel("item_break", 1000, [
+                [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0],
+                [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0],
+                [16, 0], [17, 0], [18, 0], [19, 0], [20, 0], [21, 0], [22, 0], [23, 0],
+                [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], [30, 0], [31, 0],
+                [32, 0], [33, 0], [34, 0], [35, 0], [36, 0], [37, 0], [38, 0], [39, 0],
+                [40, 0], [41, 0], [42, 0], [43, 0], [44, 0], [45, 0], [46, 0], [47, 0], [48, 0]
+            ]);
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
         map[i][j].entity.destroy();
       }
@@ -240,17 +270,64 @@ const isPlayer = (x, y) => {
   }
 };
 
+const isReallyPlayer = (x, y) => {
+  let player = 0;
+
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].pos.x === x && players[i].pos.y === y) {
+      player++;
+    }
+  }
+  if (player > 0) {
+    return true;
+  }
+  return false;
+};
+
 const displayPlayerResources = player => {
   const elem = document.getElementById("playerResources");
-  const span = document.createElement("span");
+  while (elem.firstChild) {
+    elem.removeChild(elem.firstChild);
+  }
 
-  span.innerHTML = "Team : " + player.team;
-  elem.appendChild(span);
-  span.innerHTML = "Nom : " + player.name;
-  elem.appendChild(span);
-  span.innerHTML = "Niveau : " + player.lvl;
-  elem.appendChild(span);
+  const spanTeam = document.createElement("span");
+  spanTeam.innerHTML = "Team : " + player.team;
+  elem.appendChild(spanTeam);
+
+  const spanName = document.createElement("span");
+  spanName.innerHTML = " Nom : " + player.id;
+  elem.appendChild(spanName);
+
+  const spanLevel = document.createElement("span");
+  spanLevel.innerHTML = " Niveau : " + player.lvl;
+  elem.appendChild(spanLevel);
+
+  elem.appendChild(document.createElement("br"));
+
+  const resourcesDiv = document.createElement("div");
+  resourcesDiv.id = "playerResourcesTag";
+  elem.appendChild(resourcesDiv);
+
+  for (item in player.inventory) {
+    createTagForPlayersResources(item, player.inventory[item]);
+  }
+
   //parcourir l'inventaire du player
+};
+
+const createTagForPlayersResources = (name, value) => {
+  if (value != 0) {
+    const block = document.getElementById("playerResourcesTag");
+    const span = document.createElement("span");
+    span.classList.add("tag");
+    span.classList.add(name);
+    span.innerHTML = name;
+    const button = document.createElement("button");
+    button.classList.add("is-small");
+    button.innerHTML = value;
+    span.appendChild(button);
+    block.appendChild(span);
+  }
 };
 
 const clearEntities = () => {
@@ -352,50 +429,54 @@ const startGame = () => {
 
   //init the game
   Crafty.init(
-    window.innerWidth * 0.75,
+    window.innerWidth * 0.55,
     window.innerHeight * 0.75,
     document.getElementById("game")
   );
+  initSprites();
   //Add audio for Gameplay
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
   //Crafty.audio.play("PokemonSounds", 5, 1);
-
-  //turn the sprite map into usable components
-  Crafty.sprite(64, "/images/Player.png", {
-    team1: [0, 2],
-    team2: [3, 2]
-  });
-  Crafty.sprite(64, "/images/map.png", {
-    ground1: [0, 0],
-    ground2: [1, 0],
-    ground3: [2, 0],
-    ground4: [3, 0],
-    ground5: [4, 0],
-    ground6: [5, 0],
-    ground7: [6, 0],
-    ground8: [7, 0],
-    ground9: [8, 0],
-    wallY: [0, 1],
-    wallX: [1, 1],
-    wall_TL: [2, 1],
-    wall_TR: [3, 1],
-    wall_BR: [4, 1],
-    wall_BL: [5, 1],
-    hover: [6, 1]
-  });
-  Crafty.sprite(64, "/images/Object.png", {
-    item: [6, 20],
-    itemHover: [14, 26]
-  });
-  generateWorld();
+    generateWorld();
 };
 
+const initSprites = () => {
+    //turn the sprite map into usable components
+    Crafty.sprite(64, "/images/Player.png", {
+        team1: [0, 2],
+        team2: [3, 2],
+        blood: [0, 12],
+        tomb: [1, 13]
+    });
+    Crafty.sprite(64, "/images/map.png", {
+        ground1: [0, 0],
+        ground2: [1, 0],
+        ground3: [2, 0],
+        ground4: [3, 0],
+        ground5: [4, 0],
+        ground6: [5, 0],
+        ground7: [6, 0],
+        ground8: [7, 0],
+        ground9: [8, 0],
+        wallY: [0, 1],
+        wallX: [1, 1],
+        wall_TL: [2, 1],
+        wall_TR: [3, 1],
+        wall_BR: [4, 1],
+        wall_BL: [5, 1],
+        hover: [6, 1]
+    });
+    Crafty.sprite(64, "/images/item.png", {
+        item: [0, 0],
+        itemHover: [0, 1]
+    });
+}
 // Can zoom or dezoom with Up and Down, and move camera with arrow
 Crafty.bind("KeyDown", function(e) {
-  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += 50;
-  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
-  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
-  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
+  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += tileMapSize;
+  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= tileMapSize;
+  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += tileMapSize;
+  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= tileMapSize;
   else if (e.key === Crafty.keys.PAGE_UP)
     Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
   else if (e.key === Crafty.keys.PAGE_DOWN)

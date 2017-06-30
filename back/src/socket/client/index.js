@@ -7,6 +7,7 @@ const spawnProcess = require('child_process').spawn
 const bresenham = require('../../utils/bresenham')
 const Interval = require('../../utils/interval')
 const Timer = require('../../utils/timer')
+const { forgeInfoString } = require('../action/index')
 
 let _clients = {}
 let _timeouts = []
@@ -180,7 +181,7 @@ const take = (data, clients, client) => findClients(client.id).then(([ _clients,
             if (key && _hub.map[_client.pos.y][_client.pos.x][key] > 0) {
                 _hub.map[_client.pos.y][_client.pos.x][key]--
                 _client.inventory[key]++
-                client.socket.emit('ok')
+                setHubs(_hubs, () => client.socket.emit('ok'), _hub)
                 return
             }
         }
@@ -195,7 +196,7 @@ const set_ = (data, clients, client) => findClients(client.id).then(([ _clients,
             if (key && _client.inventory[key] > 0) {
                 _hub.map[_client.pos.y][_client.pos.x][key]++
                 _client.inventory[key]--
-                client.socket.emit('ok')
+                setHubs(_hubs, () => client.socket.emit('ok'), _hub)
                 return
             }
         }
@@ -283,15 +284,47 @@ const brodcast = (data, clients, client) => findClients(client.id).then(([ __cli
     })
 })
 
+const requirements = [
+    { players: 1, linemate: 1, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 },
+    { players: 2, linemate: 1, deraumere: 1, sibur: 1, mendiane: 0, phiras: 0, thystame: 0 },
+    { players: 2, linemate: 2, deraumere: 0, sibur: 1, mendiane: 0, phiras: 2, thystame: 0 },
+    { players: 4, linemate: 1, deraumere: 1, sibur: 2, mendiane: 0, phiras: 1, thystame: 0 },
+    { players: 4, linemate: 1, deraumere: 2, sibur: 1, mendiane: 3, phiras: 0, thystame: 0 },
+    { players: 6, linemate: 1, deraumere: 2, sibur: 3, mendiane: 0, phiras: 1, thystame: 0 },
+    { players: 6, linemate: 2, deraumere: 2, sibur: 2, mendiane: 2, phiras: 2, thystame: 1 }
+]
+
+const incantationFilter = (__clients, _client) => __clients.filter(c => c.hubName === _client.hubName && c.id !== _client.id && c.pos.x === _client.pos.x
+                                                && c.pos.y === _client.pos.y && c.lvl === _client.lvl)
+
+const incantationValidator = (res, _client, _hub) => {
+    const requirement = requirements[_client.lvl - 1]
+    return Object.keys(requirement).every(e => (e === 'players') ? res.length >= requirement.players :
+        _hub.map[_client.pos.y][_client.pos.x][e] >= requirement[e])
+}
+
 const incantation = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
+    const res = incantationFilter(__clients, _client)
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
-        const res = __clients.filter(c => {
-            const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
-            return c.hubName === _client.hubName && c.id !== _client.id && _clients[_c].team !== client.team &&
-                     c.pos.x === _client.pos.x && c.pos.y === _client.pos.y && c.lvl === _client.lvl
-        })
-        console.log('res: ', res)
-        // setClients(__clients, () => client.socket.emit(res.length ? 'ok' : 'ko'), {})
+        if (incantationValidator(res, _client, _hub) === true) {
+            res.forEach(c => _clients[ Object.keys(_clients).find(e => _clients[e].id === c.id) ].socket.emit('Elevation underway'))
+            createHubJob(client.id, Object.assign(data, forgeInfoString('Elevation', 15)), () => logQInfo('Elevation queued'))
+            client.socket.emit('Elevation underway')
+        } else client.socket.emit('ko')
+    })
+})
+
+const elevation = (data, clients, client) => findClients(client.id).then(([ __clients, _client ]) => {
+    const res = incantationFilter(__clients, _client)
+    findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
+        if (incantationValidator(res, _client, _hub) === true) {
+            // TODO (carlen): elevation animation event HERE (_client + __clients in res) !!
+            ++_client.lvl
+            res.forEach(c => _clients[ Object.keys(_clients).find(e => _clients[e].id === c.id) ].socket.emit('Current level', { lvl: ++c.lvl }))
+            const requirement = requirements[_client.lvl - 1]
+            Object.keys(requirement).forEach(e => _hub.map[_client.pos.y][_client.pos.x][e] && (_hub.map[_client.pos.y][_client.pos.x][e] -= requirement[e]))
+            setHubs(_hubs, () => {}, _hub).then(() => setClients(__clients, () => client.socket.emit('Current level', { lvl:  _client.lvl }), {}))
+        } else client.socket.emit('ko')
     })
 })
 
@@ -342,6 +375,7 @@ const eat = (data, clients, client) => findClients(client.id).then(([ __clients,
         }, client)
         logQInfo(`${client.id} will die of hunger.`)
     } else {
+        // TODO (carlen): eat animation event HERE !!
         logQInfo(`${client.id} ate and has ${_client.inventory.food} food left.`)
         setClients(__clients, () => {}, {})
     }
@@ -368,6 +402,7 @@ const fns = {
     forward,
     fork,
     incantation,
+    elevation,
     spawn,
     forkstart
 }
