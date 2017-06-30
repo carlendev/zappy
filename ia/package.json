@@ -5,8 +5,10 @@
   "author": "Yann Carlen",
   "license": "MIT",
   "dependencies": {
+    "argv": "^0.0.2",
     "nodemon": "^1.11.0",
-    "ramda": "^0.24.1"
+    "ramda": "^0.24.1",
+    "socket.io": "^2.0.3"
   },
   "scripts": {
     "start": "node src/app.js",
