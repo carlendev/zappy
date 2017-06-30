@@ -48,9 +48,7 @@ export default class PartiesList extends Component {
           ? <h2 className="title is-4">Il n'y a aucune partie en cours</h2>
           : <h2 className="title is-4">Liste des parties en cours</h2>}
         {this.state.hubs.map(hub => {
-          console.log(hub);
           const teamName = hub.teams.join("*");
-          console.log(teamName);
           return (
             <div className="box" key={hub.id}>
               <article className="media">
@@ -82,7 +80,8 @@ export default class PartiesList extends Component {
                             "&team=" +
                             teamName +
                             "&number=" +
-                            hub.clientsPerTeam
+                            hub.clientsPerTeam +
+                            "&join=1"
                           }
                         >
                           Rejoindre
