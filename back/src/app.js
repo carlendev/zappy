@@ -10,6 +10,8 @@ const { initializeRedis } = require("./utils/startup");
 const { jsonSchemaError, jsonSyntaxError } = require("./utils/middleware");
 const cors = require("cors");
 
+require('events').EventEmitter.prototype._maxListeners = 10000
+
 require("dotenv").config();
 
 const app = express();
