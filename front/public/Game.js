@@ -17,9 +17,6 @@ const join = gup("join") || 0;
 
 if (gup("join")) {
   document.getElementById("beginButton").style.display = "none";
-  socket.emit("begin", {
-    hubName: hubName
-  });
 }
 
 noUiSlider.create(stepSlider, {
@@ -167,7 +164,7 @@ socket.on("start", () => {
 });
 
 socket.on("err", err => {
-  alert(err);
+  alert(err.msg);
   console.error(err);
 });
 

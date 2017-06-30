@@ -7228,3 +7228,7 @@ body, html {
     overflow-x: hidden; 
     overflow-y: auto;
 }
+
+.tag {
+  margin-right: 5px;
+}
