@@ -65,6 +65,7 @@ const createMap = () => {
   }
   return arr;
 };
+
 const map = createMap();
 
 socket.on("connect", () => {
@@ -534,10 +535,10 @@ const initSprites = () => {
 };
 // Can zoom or dezoom with Up and Down, and move camera with arrow
 Crafty.bind("KeyDown", function(e) {
-  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += 50;
-  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
-  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
-  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
+  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += tileMapSize;
+  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= tileMapSize;
+  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += tileMapSize;
+  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= tileMapSize;
   else if (e.key === Crafty.keys.PAGE_UP)
     Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
   else if (e.key === Crafty.keys.PAGE_DOWN)
