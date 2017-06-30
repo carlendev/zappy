@@ -7224,6 +7224,7 @@ background-color: #8E44AD;
 background-color: #27AE60
 }
 
-body {
-    overflow-x: hidden;
-} 
+body, html { 
+    overflow-x: hidden; 
+    overflow-y: auto;
+}

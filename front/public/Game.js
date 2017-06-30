@@ -4,7 +4,7 @@ const wesh = console.log;
 
 const exit = (code = 0) => process.exit(code);
 
-const tileMapSize = 32;
+const tileMapSize = 64;
 
 const hubName = decodeURI(gup("hubname"));
 const mapWidth = parseInt(gup("width"));
@@ -17,8 +17,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-    min: [2],
-    max: [100]
+  min: [2],
+  max: [100]
   }
 });
 
@@ -59,9 +59,9 @@ const createMap = () => {
 const map = createMap();
 
 socket.on("connect", () => {
-  socket.emit("connectFront");
-  wesh("I' am connected");
-  socket.emit("createHub", {
+    socket.emit("connectFront");
+    wesh("I' am connected");
+    socket.emit("createHub", {
     hubName: hubName,
     mapWidth: mapWidth,
     mapHeight: mapHeight,
@@ -79,12 +79,21 @@ socket.on("dead", () => {
 });
 
 socket.on(`update:${hubName}`, data => {
-  wesh("I' m updated");
-  wesh(data);
   parseHubData(data.hubInfo);
   parseClientsData(data.clients);
 
-  //score
+  //TOTO : afficher par équipe
+  players.sort(function(a, b) {
+    var x = a.team.toLowerCase();
+    var y = b.team.toLowerCase();
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+
+  displayPlayers();
+  clearEntities();
+});
+
+const displayPlayers = () => {
   const node = document.getElementById("playersName");
   while (node.firstChild) {
     node.removeChild(node.firstChild);
@@ -114,19 +123,27 @@ socket.on(`update:${hubName}`, data => {
 
     const title = document.createElement("strong");
     title.innerHTML = players[i].team;
+    const beforeTitle = document.createElement("span");
+    beforeTitle.innerHTML = "Team : ";
+    para.appendChild(beforeTitle);
     para.appendChild(title);
+
     const br = document.createElement("br");
     para.appendChild(br);
+
     const strong = document.createElement("strong");
     strong.innerHTML = players[i].id + " ";
+    const beforeStrong = document.createElement("span");
+    beforeStrong.innerHTML = "Nom : ";
+    para.appendChild(beforeStrong);
     para.appendChild(strong);
 
+    para.appendChild(br);
     const small = document.createElement("small");
-    small.innerHTML = players[i].lvl;
+    small.innerHTML = "niveau : " + players[i].lvl;
     para.appendChild(small);
   }
-  clearEntities();
-});
+};
 
 socket.on("disconnect", () => {
   wesh("I'm out");
@@ -188,26 +205,81 @@ const parseHubData = data => {
       map[i][j].phiras = data.map[i][j].phiras;
       map[i][j].sibur = data.map[i][j].sibur;
       map[i][j].thystame = data.map[i][j].thystame;
+      //TODO Count all item not only food
       if (map[i][j].food > 0 && !map[i][j].entity) {
-        map[i][j].entity = Crafty.e(
-          `2D, Canvas, Mouse, item, ClickFocus`
-        ).attr({
-          x: i * tileMapSize,
-          y: j * tileMapSize
-        })
-        .bind("Click", function(data) {
+        map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, item, ClickFocus`)
+          .attr({
+            x: i * tileMapSize,
+            y: j * tileMapSize
+          })
+          .bind("Click", function(data) {
             displayItem(this.x, this.y);
-        })
-        .bind("Focus", function() {
+            isPlayer(this.x / tileMapSize, this.y / tileMapSize);
+          })
+          .bind("Focus", function() {
             this.sprite("itemHover");
-        })
-        .bind("Blur", function() {
+          })
+          .bind("Blur", function() {
             this.sprite(`item`);
-        });
+          });
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
         map[i][j].entity.destroy();
       }
     }
+  }
+};
+
+const isPlayer = (x, y) => {
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].pos.x === x && players[i].pos.y === y) {
+      displayPlayerResources(players[i]);
+    }
+  }
+};
+
+const displayPlayerResources = player => {
+  const elem = document.getElementById("playerResources");
+  while (elem.firstChild) {
+    elem.removeChild(elem.firstChild);
+  }
+
+  const spanTeam = document.createElement("span");
+  spanTeam.innerHTML = "Team : " + player.team;
+  elem.appendChild(spanTeam);
+
+  const spanName = document.createElement("span");
+  spanName.innerHTML = " Nom : " + player.id;
+  elem.appendChild(spanName);
+
+  const spanLevel = document.createElement("span");
+  spanLevel.innerHTML = " Niveau : " + player.lvl;
+  elem.appendChild(spanLevel);
+
+  elem.appendChild(document.createElement("br"));
+
+  const resourcesDiv = document.createElement("div");
+  resourcesDiv.id = "playerResourcesTag";
+  elem.appendChild(resourcesDiv);
+
+  for (item in player.inventory) {
+    createTagForPlayersResources(item, player.inventory[item]);
+  }
+
+  //parcourir l'inventaire du player
+};
+
+const createTagForPlayersResources = (name, value) => {
+  if (value != 0) {
+    const block = document.getElementById("playerResourcesTag");
+    const span = document.createElement("span");
+    span.classList.add("tag");
+    span.classList.add(name);
+    span.innerHTML = name;
+    const button = document.createElement("button");
+    button.classList.add("is-small");
+    button.innerHTML = value;
+    span.appendChild(button);
+    block.appendChild(span);
   }
 };
 
@@ -259,8 +331,8 @@ const displayItem = (x, y) => {
 const generateWorld = () => {
   for (let i = 0; i < mapHeight; ++i) {
     for (let j = 0; j < mapWidth; ++j) {
-      grassType = Math.floor(Math.random() * 4 + 1);
-      Crafty.e(`2D, Canvas, ClickFocus, grass${grassType}`)
+      let groundType = Math.floor(Math.random() * 9 + 1);
+      Crafty.e(`2D, Canvas, ClickFocus, ground${groundType}`)
         .attr({
           x: i * tileMapSize,
           y: j * tileMapSize
@@ -272,70 +344,90 @@ const generateWorld = () => {
           this.sprite("hover");
         })
         .bind("Blur", function() {
-          grassType = Math.floor(Math.random() * 4 + 1);
-          this.sprite(`grass${grassType}`);
+          groundType = Math.floor(Math.random() * 4 + 1);
+          this.sprite(`ground${groundType}`);
         });
     }
+  }
+  for (let i = -1; i <= mapWidth; i++) {
+    let wallType = "wallX";
+    if (i == -1) wallType = "wall_TL";
+    if (i == mapWidth) wallType = "wall_TR";
+    Crafty.e(`2D, Canvas, ClickFocus, ${wallType}`).attr({
+      x: i * tileMapSize,
+      y: -1 * tileMapSize
+    });
+    if (i == -1) wallType = "wall_BL";
+    if (i == mapWidth) wallType = "wall_BR";
+    Crafty.e(`2D, Canvas, ClickFocus, ${wallType}`).attr({
+      x: i * tileMapSize,
+      y: mapHeight * tileMapSize
+    });
+  }
+  for (let i = 0; i < mapHeight; i++) {
+    Crafty.e(`2D, Canvas, ClickFocus, wallY`).attr({
+      x: -1 * tileMapSize,
+      y: i * tileMapSize
+    });
+    Crafty.e(`2D, Canvas, ClickFocus, wallY`).attr({
+      x: mapWidth * tileMapSize,
+      y: i * tileMapSize
+    });
   }
 };
 
 const startGame = () => {
-  const WelcomeDiv = (document.getElementById("welcome").innerHTML = hubName);
+  //display the name of the hub
+  document.getElementById("welcome").innerHTML = hubName;
+
+  //init the game
   Crafty.init(
     window.innerWidth * 0.75,
     window.innerHeight * 0.75,
     document.getElementById("game")
   );
-  // Crafty.viewport.zoom(
-  //   1,
-  //   window.innerWidth * 0.75 / 2,
-  //   window.innerHeight * 0.75 / 2
-  // );
-  Crafty.addEvent(this, "mousewheel", Crafty.mouseWheelDispatch);
   //Add audio for Gameplay
   //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
   //Crafty.audio.play("PokemonSounds", 5, 1);
 
   //turn the sprite map into usable components
-  Crafty.sprite(32, "/images/sprite.png", {
-    grass1: [0, 0],
-    grass2: [1, 0],
-    grass3: [2, 0],
-    grass4: [3, 0],
-    hover: [4, 0],
-  });
-
-  Crafty.sprite(32, "/images/Pl.png", {
+  Crafty.sprite(64, "/images/Player.png", {
     team1: [0, 2],
     team2: [3, 2]
   });
-
-  Crafty.sprite(
-    32,
-    "/images/Object.png",
-    {
-        item: [6, 20],
-        itemHover: [14, 26]
-      //Sprite for Food object.
-    }
-  );
+  Crafty.sprite(64, "/images/map.png", {
+    ground1: [0, 0],
+    ground2: [1, 0],
+    ground3: [2, 0],
+    ground4: [3, 0],
+    ground5: [4, 0],
+    ground6: [5, 0],
+    ground7: [6, 0],
+    ground8: [7, 0],
+    ground9: [8, 0],
+    wallY: [0, 1],
+    wallX: [1, 1],
+    wall_TL: [2, 1],
+    wall_TR: [3, 1],
+    wall_BR: [4, 1],
+    wall_BL: [5, 1],
+    hover: [6, 1]
+  });
+  Crafty.sprite(64, "/images/Object.png", {
+    item: [6, 20],
+    itemHover: [14, 26]
+  });
   generateWorld();
 };
 
-Crafty.extend({
-  mouseWheelDispatch: function(e) {
-    Crafty.trigger("MouseWheel", e);
-  }
-});
-
-Crafty.bind("MouseWheel", function(e) {
-  let delta = (e.wheelDelta ? e.wheelDelta / 120 : e.detail) / 2;
-  Crafty.viewport.zoom(
-    delta > 0 ? delta + 1 : 1 / (-delta + 1),
-    e.clientX,
-    e.clientY,
-    10
-  );
+// Can zoom or dezoom with Up and Down, and move camera with arrow
+Crafty.bind("KeyDown", function(e) {
+  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += 50;
+  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
+  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
+  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
+  else if (e.key === Crafty.keys.PAGE_UP) Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_DOWN) Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
 });
 
 window.onresize = function() {
@@ -345,15 +437,6 @@ window.onresize = function() {
     document.getElementById("game")
   );
 };
-/*const zoom = Crafty.e("2D")
-
-zoom.onMouseDown = e => {
-  //For CraftyJS Middle === Left, I don't know why
-  if (e.buttons === Crafty.mouseButtons.MIDDLE)
-    Crafty.viewport.zoom(2, e.clientX, e.clientY, 500);
-  else if (e.buttons === Crafty.mouseButtons.RIGHT)
-    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 500);
-};*/
 
 (function() {
   var focus_e = null;
