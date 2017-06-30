@@ -84,7 +84,19 @@ socket.on(`update:${hubName}`, data => {
   parseHubData(data.hubInfo);
   parseClientsData(data.clients);
 
-  //score
+  //TOTO : afficher par équipe
+  players.sort(function(a, b) {
+    console.log("aaa", a);
+    var x = a.team.toLowerCase();
+    var y = b.team.toLowerCase();
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+
+  displayPlayers();
+  clearEntities();
+});
+
+const displayPlayers = () => {
   const node = document.getElementById("playersName");
   while (node.firstChild) {
     node.removeChild(node.firstChild);
@@ -114,19 +126,27 @@ socket.on(`update:${hubName}`, data => {
 
     const title = document.createElement("strong");
     title.innerHTML = players[i].team;
+    const beforeTitle = document.createElement("span");
+    beforeTitle.innerHTML = "Team : ";
+    para.appendChild(beforeTitle);
     para.appendChild(title);
+
     const br = document.createElement("br");
     para.appendChild(br);
+
     const strong = document.createElement("strong");
     strong.innerHTML = players[i].id + " ";
+    const beforeStrong = document.createElement("span");
+    beforeStrong.innerHTML = "Nom : ";
+    para.appendChild(beforeStrong);
     para.appendChild(strong);
 
+    para.appendChild(br);
     const small = document.createElement("small");
-    small.innerHTML = players[i].lvl;
+    small.innerHTML = "niveau : " + players[i].lvl;
     para.appendChild(small);
   }
-  clearEntities();
-});
+};
 
 socket.on("disconnect", () => {
   wesh("I'm out");
@@ -190,21 +210,20 @@ const parseHubData = data => {
       map[i][j].thystame = data.map[i][j].thystame;
       //TODO Count all item not only food
       if (map[i][j].food > 0 && !map[i][j].entity) {
-        map[i][j].entity = Crafty.e(
-          `2D, Canvas, Mouse, item, ClickFocus`
-        ).attr({
-          x: i * tileMapSize,
-          y: j * tileMapSize
-        })
-        .bind("Click", function(data) {
+        map[i][j].entity = Crafty.e(`2D, Canvas, Mouse, item, ClickFocus`)
+          .attr({
+            x: i * tileMapSize,
+            y: j * tileMapSize
+          })
+          .bind("Click", function(data) {
             displayItem(this.x, this.y);
-        })
-        .bind("Focus", function() {
+          })
+          .bind("Focus", function() {
             this.sprite("itemHover");
-        })
-        .bind("Blur", function() {
+          })
+          .bind("Blur", function() {
             this.sprite(`item`);
-        });
+          });
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
         map[i][j].entity.destroy();
       }
@@ -279,38 +298,30 @@ const generateWorld = () => {
     }
   }
   for (let i = -1; i <= mapWidth; i++) {
-      let wallType = "wallX"
-      if (i == -1)
-          wallType = "wall_TL"
-      if (i == mapWidth)
-          wallType = "wall_TR"
-      Crafty.e(`2D, Canvas, ClickFocus, ${wallType}`)
-          .attr({
-              x: i * tileMapSize,
-              y: -1 * tileMapSize
-          })
-      if (i == -1)
-          wallType = "wall_BL"
-      if (i == mapWidth)
-          wallType = "wall_BR"
-      Crafty.e(`2D, Canvas, ClickFocus, ${wallType}`)
-          .attr({
-              x: i * tileMapSize,
-              y: mapHeight * tileMapSize
-          })
+    let wallType = "wallX";
+    if (i == -1) wallType = "wall_TL";
+    if (i == mapWidth) wallType = "wall_TR";
+    Crafty.e(`2D, Canvas, ClickFocus, ${wallType}`).attr({
+      x: i * tileMapSize,
+      y: -1 * tileMapSize
+    });
+    if (i == -1) wallType = "wall_BL";
+    if (i == mapWidth) wallType = "wall_BR";
+    Crafty.e(`2D, Canvas, ClickFocus, ${wallType}`).attr({
+      x: i * tileMapSize,
+      y: mapHeight * tileMapSize
+    });
   }
-    for (let i = 0; i < mapHeight; i++) {
-        Crafty.e(`2D, Canvas, ClickFocus, wallY`)
-            .attr({
-                x: -1 * tileMapSize,
-                y: i * tileMapSize
-            })
-        Crafty.e(`2D, Canvas, ClickFocus, wallY`)
-            .attr({
-                x: mapWidth * tileMapSize,
-                y: i * tileMapSize
-            })
-    }
+  for (let i = 0; i < mapHeight; i++) {
+    Crafty.e(`2D, Canvas, ClickFocus, wallY`).attr({
+      x: -1 * tileMapSize,
+      y: i * tileMapSize
+    });
+    Crafty.e(`2D, Canvas, ClickFocus, wallY`).attr({
+      x: mapWidth * tileMapSize,
+      y: i * tileMapSize
+    });
+  }
 };
 
 const startGame = () => {
@@ -335,7 +346,7 @@ const startGame = () => {
     team1: [0, 2],
     team2: [3, 2]
   });
-Crafty.sprite(64, "/images/map.png", {
+  Crafty.sprite(64, "/images/map.png", {
     ground1: [0, 0],
     ground2: [1, 0],
     ground3: [2, 0],
@@ -352,12 +363,11 @@ Crafty.sprite(64, "/images/map.png", {
     wall_BR: [4, 1],
     wall_BL: [5, 1],
     hover: [6, 1]
-});
+  });
   Crafty.sprite(64, "/images/Object.png", {
-        item: [6, 20],
-        itemHover: [14, 26]
-    }
-  );
+    item: [6, 20],
+    itemHover: [14, 26]
+  });
   generateWorld();
 };
 

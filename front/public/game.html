@@ -12,40 +12,47 @@
 
 <body>
   <div class="columns">
-    <div class="column is-three-quarters">
-      <div class="centered">
-        <h2 id="welcome" class="title is-2">
-          <div class="loader"></div>
-        </h2>
+    <div class="column">
+      <section class="section">
         <div id="game"></div>
-      </div>
+        <label class="label">Ressources disponible sur la case</label>
+        <div class="box">
+          <article class="media">
+            <div class="media-content">
+              <div class="content">
+                <div class="block" id="foodBlock">
+                  <!-- display resources -->
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+
+
     </div>
     <div class="column">
       <section class="section">
+        <h2 id="welcome" class="title is-2">
+          <div class="loader"></div>
+        </h2>
         <div class="block">
           <a href="/" class="button is-warning">Retourner au menu</a>
         </div>
         <label class="label">Changer la fréquence du jeu</label>
-        <div id="slider-step"></div>
-      </section>
-      <section class="section">
+        <div id="slider-step" style="margin-bottom: 20px"></div>
+        <h4 class="title is-4">Joueurs :</h4>
         <div id="playersName">
           <!-- nom des joueurs -->
         </div>
       </section>
+
+
     </div>
+
   </div>
-  <div class="box">
-    <article class="media">
-      <div class="media-content">
-        <div class="content">
-          <div class="block" id="foodBlock">
-            <!-- display resources -->
-          </div>
-        </div>
-      </div>
-    </article>
-  </div>
+
 </body>
 <script src="./io.js"></script>
 <script type="text/javascript" src="https://rawgithub.com/craftyjs/Crafty/release/dist/crafty-min.js"></script>
