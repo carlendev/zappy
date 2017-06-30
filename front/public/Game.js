@@ -92,6 +92,11 @@ socket.on(`update:${hubName}`, data => {
     return x < y ? -1 : x > y ? 1 : 0;
   });
 
+  displayPlayers();
+  clearEntities();
+});
+
+const displayPlayers = () => {
   const node = document.getElementById("playersName");
   while (node.firstChild) {
     node.removeChild(node.firstChild);
@@ -121,19 +126,27 @@ socket.on(`update:${hubName}`, data => {
 
     const title = document.createElement("strong");
     title.innerHTML = players[i].team;
+    const beforeTitle = document.createElement("span");
+    beforeTitle.innerHTML = "Team : ";
+    para.appendChild(beforeTitle);
     para.appendChild(title);
+
     const br = document.createElement("br");
     para.appendChild(br);
+
     const strong = document.createElement("strong");
     strong.innerHTML = players[i].id + " ";
+    const beforeStrong = document.createElement("span");
+    beforeStrong.innerHTML = "Nom : ";
+    para.appendChild(beforeStrong);
     para.appendChild(strong);
 
+    para.appendChild(br);
     const small = document.createElement("small");
-    small.innerHTML = players[i].lvl;
+    small.innerHTML = "niveau : " + players[i].lvl;
     para.appendChild(small);
   }
-  clearEntities();
-});
+};
 
 socket.on("disconnect", () => {
   wesh("I'm out");
