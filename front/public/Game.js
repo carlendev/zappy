@@ -79,14 +79,11 @@ socket.on("dead", () => {
 });
 
 socket.on(`update:${hubName}`, data => {
-  wesh("I' m updated");
-  wesh(data);
   parseHubData(data.hubInfo);
   parseClientsData(data.clients);
 
   //TOTO : afficher par équipe
   players.sort(function(a, b) {
-    console.log("aaa", a);
     var x = a.team.toLowerCase();
     var y = b.team.toLowerCase();
     return x < y ? -1 : x > y ? 1 : 0;
@@ -242,15 +239,48 @@ const isPlayer = (x, y) => {
 
 const displayPlayerResources = player => {
   const elem = document.getElementById("playerResources");
-  const span = document.createElement("span");
+  while (elem.firstChild) {
+    elem.removeChild(elem.firstChild);
+  }
 
-  span.innerHTML = "Team : " + player.team;
-  elem.appendChild(span);
-  span.innerHTML = "Nom : " + player.name;
-  elem.appendChild(span);
-  span.innerHTML = "Niveau : " + player.lvl;
-  elem.appendChild(span);
+  const spanTeam = document.createElement("span");
+  spanTeam.innerHTML = "Team : " + player.team;
+  elem.appendChild(spanTeam);
+
+  const spanName = document.createElement("span");
+  spanName.innerHTML = " Nom : " + player.id;
+  elem.appendChild(spanName);
+
+  const spanLevel = document.createElement("span");
+  spanLevel.innerHTML = " Niveau : " + player.lvl;
+  elem.appendChild(spanLevel);
+
+  elem.appendChild(document.createElement("br"));
+
+  const resourcesDiv = document.createElement("div");
+  resourcesDiv.id = "playerResourcesTag";
+  elem.appendChild(resourcesDiv);
+
+  for (item in player.inventory) {
+    createTagForPlayersResources(item, player.inventory[item]);
+  }
+
   //parcourir l'inventaire du player
+};
+
+const createTagForPlayersResources = (name, value) => {
+  if (value != 0) {
+    const block = document.getElementById("playerResourcesTag");
+    const span = document.createElement("span");
+    span.classList.add("tag");
+    span.classList.add(name);
+    span.innerHTML = name;
+    const button = document.createElement("button");
+    button.classList.add("is-small");
+    button.innerHTML = value;
+    span.appendChild(button);
+    block.appendChild(span);
+  }
 };
 
 const clearEntities = () => {
