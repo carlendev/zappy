@@ -471,6 +471,9 @@ const initSprites = () => {
         itemHover: [0, 1]
     });
 }
+
+let realX = Crafty.viewport._width / 2, realY = Crafty.viewport._height / 2
+
 // Can zoom or dezoom with Up and Down, and move camera with arrow
 Crafty.bind("KeyDown", function(e) {
   if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += tileMapSize;
@@ -478,9 +481,9 @@ Crafty.bind("KeyDown", function(e) {
   else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += tileMapSize;
   else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= tileMapSize;
   else if (e.key === Crafty.keys.PAGE_UP)
-    Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
+    Crafty.viewport.zoom(2, realX, realY, 250);
   else if (e.key === Crafty.keys.PAGE_DOWN)
-    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
+    Crafty.viewport.zoom(0.5, realX, realY, 250);
 });
 
 window.onresize = function() {
@@ -510,6 +513,10 @@ window.onresize = function() {
 
       if (init_first_entity) {
         init_first_entity = false;
+        Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
+          realX = e.realX
+          realY = e.realY
+        });
         Crafty.addEvent(this, Crafty.stage.elem, "click", function() {
           if (!entity_clicked) {
             if (focus_e) {
