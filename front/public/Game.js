@@ -17,8 +17,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-  min: [2],
-  max: [100]
+    min: [2],
+    max: [100]
   }
 });
 
@@ -217,7 +217,6 @@ const parseHubData = data => {
           })
           .bind("Click", function(data) {
             displayItem(this.x, this.y);
-
             isPlayer(this.x / tileMapSize, this.y / tileMapSize);
           })
           .bind("Focus", function() {
@@ -235,13 +234,22 @@ const parseHubData = data => {
 
 const isPlayer = (x, y) => {
   for (let i = 0; i < players.length; i++) {
-    console.log(players[i]);
-    //if player[i].x == x && player[i].y == y
-    //displayPlayerResources(player[i])
+    if (players[i].pos.x === x && players[i].pos.y === y) {
+      displayPlayerResources(players[i]);
+    }
   }
 };
 
 const displayPlayerResources = player => {
+  const elem = document.getElementById("playerResources");
+  const span = document.createElement("span");
+
+  span.innerHTML = "Team : " + player.team;
+  elem.appendChild(span);
+  span.innerHTML = "Nom : " + player.name;
+  elem.appendChild(span);
+  span.innerHTML = "Niveau : " + player.lvl;
+  elem.appendChild(span);
   //parcourir l'inventaire du player
 };
 
@@ -404,17 +412,17 @@ Crafty.bind("MouseWheel", function(e) {
   );
 });*/
 
-Crafty.bind('KeyDown', function(e) {
-    if (e.key === Crafty.keys.LEFT_ARROW) {
-      Crafty.viewport.x += 50;
-    } else if (e.key === Crafty.keys.RIGHT_ARROW) {
-      Crafty.viewport.x-= 50;
-    } else if (e.key === Crafty.keys.UP_ARROW) {
-      Crafty.viewport.y+= 50;
-    } else if (e.key === Crafty.keys.DOWN_ARROW) {
-      Crafty.viewport.y-= 50;
-    }
-  });
+Crafty.bind("KeyDown", function(e) {
+  if (e.key === Crafty.keys.LEFT_ARROW) {
+    Crafty.viewport.x += 50;
+  } else if (e.key === Crafty.keys.RIGHT_ARROW) {
+    Crafty.viewport.x -= 50;
+  } else if (e.key === Crafty.keys.UP_ARROW) {
+    Crafty.viewport.y += 50;
+  } else if (e.key === Crafty.keys.DOWN_ARROW) {
+    Crafty.viewport.y -= 50;
+  }
+});
 
 window.onresize = function() {
   Crafty.init(
