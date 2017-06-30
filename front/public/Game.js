@@ -17,8 +17,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-  min: [2],
-  max: [100]
+    min: [2],
+    max: [100]
   }
 });
 
@@ -59,9 +59,9 @@ const createMap = () => {
 const map = createMap();
 
 socket.on("connect", () => {
-    socket.emit("connectFront");
-    wesh("I' am connected");
-    socket.emit("createHub", {
+  socket.emit("connectFront");
+  wesh("I' am connected");
+  socket.emit("createHub", {
     hubName: hubName,
     mapWidth: mapWidth,
     mapHeight: mapHeight,
@@ -193,7 +193,6 @@ const parseClientsData = data => {
         if (e.id == data[i].id) {
           e.pos = data[i].pos;
           e.orientation = data[i].orientation;
-          wesh(e.pos, e.orientation);
           e.alive = true;
         }
         return e.id == data[i].id;
@@ -227,6 +226,12 @@ const parseHubData = data => {
           .bind("Click", function(data) {
             displayItem(this.x, this.y);
             isPlayer(this.x / tileMapSize, this.y / tileMapSize);
+            if (!isReallyPlayer(this.x / tileMapSize, this.y / tileMapSize)) {
+              const elem = document.getElementById("playerResources");
+              while (elem.firstChild) {
+                elem.removeChild(elem.firstChild);
+              }
+            }
           })
           .bind("Focus", function() {
             this.sprite("itemHover");
@@ -247,6 +252,20 @@ const isPlayer = (x, y) => {
       displayPlayerResources(players[i]);
     }
   }
+};
+
+const isReallyPlayer = (x, y) => {
+  let player = 0;
+
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].pos.x === x && players[i].pos.y === y) {
+      player++;
+    }
+  }
+  if (player > 0) {
+    return true;
+  }
+  return false;
 };
 
 const displayPlayerResources = player => {
@@ -438,8 +457,10 @@ Crafty.bind("KeyDown", function(e) {
   else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
   else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
   else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
-  else if (e.key === Crafty.keys.PAGE_UP) Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
-  else if (e.key === Crafty.keys.PAGE_DOWN) Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_UP)
+    Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_DOWN)
+    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
 });
 
 window.onresize = function() {
