@@ -217,6 +217,8 @@ const parseHubData = data => {
           })
           .bind("Click", function(data) {
             displayItem(this.x, this.y);
+
+            isPlayer(this.x / tileMapSize, this.y / tileMapSize);
           })
           .bind("Focus", function() {
             this.sprite("itemHover");
@@ -229,6 +231,18 @@ const parseHubData = data => {
       }
     }
   }
+};
+
+const isPlayer = (x, y) => {
+  for (let i = 0; i < players.length; i++) {
+    console.log(players[i]);
+    //if player[i].x == x && player[i].y == y
+    //displayPlayerResources(player[i])
+  }
+};
+
+const displayPlayerResources = player => {
+  //parcourir l'inventaire du player
 };
 
 const clearEntities = () => {
@@ -325,7 +339,10 @@ const generateWorld = () => {
 };
 
 const startGame = () => {
-  const WelcomeDiv = (document.getElementById("welcome").innerHTML = hubName);
+  //display the name of the hub
+  document.getElementById("welcome").innerHTML = hubName;
+
+  //init the game
   Crafty.init(
     window.innerWidth * 0.75,
     window.innerHeight * 0.75,
