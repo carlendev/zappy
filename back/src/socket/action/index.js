@@ -45,4 +45,4 @@ const Brodcast = (...args) => registerAction(...args)('Brodcast', 1)
 const Incantation = (...args) => registerAction(...args)('Incantation', 30)
 const ForkStart = (...args) => registerAction(...args)('ForkStart', 1)
 
-module.exports = { Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr, Brodcast, Fork, Incantation, ForkStart }
+module.exports = { forgeInfoString, Forward, Right, Left, Look, Inventory, Take, Set_, Eject, ConnectNbr, Brodcast, Fork, Incantation, ForkStart }
