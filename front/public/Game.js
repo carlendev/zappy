@@ -17,8 +17,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-  min: [2],
-  max: [100]
+    min: [2],
+    max: [100]
   }
 });
 
@@ -79,14 +79,11 @@ socket.on("dead", () => {
 });
 
 socket.on(`update:${hubName}`, data => {
-  wesh("I' m updated");
-  wesh(data);
   parseHubData(data.hubInfo);
   parseClientsData(data.clients);
 
   //TOTO : afficher par équipe
   players.sort(function(a, b) {
-    console.log("aaa", a);
     var x = a.team.toLowerCase();
     var y = b.team.toLowerCase();
     return x < y ? -1 : x > y ? 1 : 0;
@@ -141,7 +138,8 @@ const displayPlayers = () => {
     para.appendChild(beforeStrong);
     para.appendChild(strong);
 
-    para.appendChild(br);
+    const br2 = document.createElement("br");
+    para.appendChild(br2);
     const small = document.createElement("small");
     small.innerHTML = "niveau : " + players[i].lvl;
     para.appendChild(small);
@@ -156,6 +154,17 @@ socket.on("disconnect", () => {
 socket.on("start", () => {
   wesh("Start play ");
   socket.emit("Right");
+});
+
+socket.on("err", err => {
+  alert(err);
+  console.error(err);
+});
+
+document.getElementById("beginButton").addEventListener("click", () => {
+  socket.emit("begin", {
+    hubName: hubName
+  });
 });
 
 const createPlayer = data => {
@@ -177,6 +186,7 @@ const createPlayer = data => {
     })
       .bind("Click", function(data) {
           displayItem(this.x, this.y);
+          isPlayer(this.x / tileMapSize, this.y / tileMapSize);
           this.animate("dead", 1)
           this.sprite("tomb")
       });
@@ -189,7 +199,6 @@ const parseClientsData = data => {
         if (e.id == data[i].id) {
           e.pos = data[i].pos;
           e.orientation = data[i].orientation;
-          wesh(e.pos, e.orientation);
           e.alive = true;
         }
         return e.id == data[i].id;
@@ -223,6 +232,13 @@ const parseHubData = data => {
           .bind("Click", function(data) {
               this.animate("item_break", 1)
               displayItem(this.x, this.y);
+            isPlayer(this.x / tileMapSize, this.y / tileMapSize);
+            if (!isReallyPlayer(this.x / tileMapSize, this.y / tileMapSize)) {
+              const elem = document.getElementById("playerResources");
+              while (elem.firstChild) {
+                elem.removeChild(elem.firstChild);
+              }
+            }
           })
           .bind("Focus", function() {
             this.sprite("itemHover");
@@ -242,6 +258,74 @@ const parseHubData = data => {
         map[i][j].entity.destroy();
       }
     }
+  }
+};
+
+const isPlayer = (x, y) => {
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].pos.x === x && players[i].pos.y === y) {
+      displayPlayerResources(players[i]);
+    }
+  }
+};
+
+const isReallyPlayer = (x, y) => {
+  let player = 0;
+
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].pos.x === x && players[i].pos.y === y) {
+      player++;
+    }
+  }
+  if (player > 0) {
+    return true;
+  }
+  return false;
+};
+
+const displayPlayerResources = player => {
+  const elem = document.getElementById("playerResources");
+  while (elem.firstChild) {
+    elem.removeChild(elem.firstChild);
+  }
+
+  const spanTeam = document.createElement("span");
+  spanTeam.innerHTML = "Team : " + player.team;
+  elem.appendChild(spanTeam);
+
+  const spanName = document.createElement("span");
+  spanName.innerHTML = " Nom : " + player.id;
+  elem.appendChild(spanName);
+
+  const spanLevel = document.createElement("span");
+  spanLevel.innerHTML = " Niveau : " + player.lvl;
+  elem.appendChild(spanLevel);
+
+  elem.appendChild(document.createElement("br"));
+
+  const resourcesDiv = document.createElement("div");
+  resourcesDiv.id = "playerResourcesTag";
+  elem.appendChild(resourcesDiv);
+
+  for (item in player.inventory) {
+    createTagForPlayersResources(item, player.inventory[item]);
+  }
+
+  //parcourir l'inventaire du player
+};
+
+const createTagForPlayersResources = (name, value) => {
+  if (value != 0) {
+    const block = document.getElementById("playerResourcesTag");
+    const span = document.createElement("span");
+    span.classList.add("tag");
+    span.classList.add(name);
+    span.innerHTML = name;
+    const button = document.createElement("button");
+    button.classList.add("is-small");
+    button.innerHTML = value;
+    span.appendChild(button);
+    block.appendChild(span);
   }
 };
 
@@ -339,9 +423,12 @@ const generateWorld = () => {
 };
 
 const startGame = () => {
-  const WelcomeDiv = (document.getElementById("welcome").innerHTML = hubName);
+  //display the name of the hub
+  document.getElementById("welcome").innerHTML = hubName;
+
+  //init the game
   Crafty.init(
-    window.innerWidth * 0.75,
+    window.innerWidth * 0.55,
     window.innerHeight * 0.75,
     document.getElementById("game")
   );
@@ -384,20 +471,16 @@ const initSprites = () => {
     });
 }
 // Can zoom or dezoom with Up and Down, and move camera with arrow
-Crafty.bind('KeyDown', function(e) {
-    if (e.key === Crafty.keys.LEFT_ARROW) 
-      Crafty.viewport.x += 50;
-    else if (e.key === Crafty.keys.RIGHT_ARROW) 
-      Crafty.viewport.x-= 50;
-    else if (e.key === Crafty.keys.UP_ARROW) 
-      Crafty.viewport.y+= 50;
-    else if (e.key === Crafty.keys.DOWN_ARROW) 
-      Crafty.viewport.y-= 50;
-    else if (e.key === Crafty.keys.PAGE_UP)
-      Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
-    else if (e.key === Crafty.keys.PAGE_DOWN)
-      Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
-  });
+Crafty.bind("KeyDown", function(e) {
+  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += 50;
+  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
+  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
+  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
+  else if (e.key === Crafty.keys.PAGE_UP)
+    Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_DOWN)
+    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
+});
 
 window.onresize = function() {
   Crafty.init(

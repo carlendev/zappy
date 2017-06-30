@@ -62,6 +62,14 @@ io.on('Connect_nbr', data => {
     wesh(data)
 })
 
+io.on('Elevation underway', () => {
+    wesh('Elevation underway')
+})
+
+io.on('Current level', data => {
+    wesh('Current level: ' + data.lvl)
+})
+
 io.on('message', data => {
     wesh('received "' + data.text + '" from ' + data.direction)
 })
