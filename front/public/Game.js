@@ -56,6 +56,7 @@ const createMap = () => {
   }
   return arr;
 };
+
 const map = createMap();
 
 socket.on("connect", () => {
