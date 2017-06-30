@@ -138,7 +138,8 @@ const displayPlayers = () => {
     para.appendChild(beforeStrong);
     para.appendChild(strong);
 
-    para.appendChild(br);
+    const br2 = document.createElement("br");
+    para.appendChild(br2);
     const small = document.createElement("small");
     small.innerHTML = "niveau : " + players[i].lvl;
     para.appendChild(small);
@@ -153,6 +154,17 @@ socket.on("disconnect", () => {
 socket.on("start", () => {
   wesh("Start play ");
   socket.emit("Right");
+});
+
+socket.on("err", err => {
+  alert(err);
+  console.error(err);
+});
+
+document.getElementById("beginButton").addEventListener("click", () => {
+  socket.emit("begin", {
+    hubName: hubName
+  });
 });
 
 const createPlayer = data => {
@@ -382,7 +394,7 @@ const startGame = () => {
 
   //init the game
   Crafty.init(
-    window.innerWidth * 0.75,
+    window.innerWidth * 0.55,
     window.innerHeight * 0.75,
     document.getElementById("game")
   );
