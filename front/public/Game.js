@@ -17,8 +17,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-  min: [2],
-  max: [100]
+    min: [2],
+    max: [100]
   }
 });
 
@@ -217,6 +217,7 @@ const parseHubData = data => {
           })
           .bind("Click", function(data) {
             displayItem(this.x, this.y);
+            isPlayer(this.x / tileMapSize, this.y / tileMapSize);
           })
           .bind("Focus", function() {
             this.sprite("itemHover");
@@ -229,6 +230,27 @@ const parseHubData = data => {
       }
     }
   }
+};
+
+const isPlayer = (x, y) => {
+  for (let i = 0; i < players.length; i++) {
+    if (players[i].pos.x === x && players[i].pos.y === y) {
+      displayPlayerResources(players[i]);
+    }
+  }
+};
+
+const displayPlayerResources = player => {
+  const elem = document.getElementById("playerResources");
+  const span = document.createElement("span");
+
+  span.innerHTML = "Team : " + player.team;
+  elem.appendChild(span);
+  span.innerHTML = "Nom : " + player.name;
+  elem.appendChild(span);
+  span.innerHTML = "Niveau : " + player.lvl;
+  elem.appendChild(span);
+  //parcourir l'inventaire du player
 };
 
 const clearEntities = () => {
@@ -325,7 +347,10 @@ const generateWorld = () => {
 };
 
 const startGame = () => {
-  const WelcomeDiv = (document.getElementById("welcome").innerHTML = hubName);
+  //display the name of the hub
+  document.getElementById("welcome").innerHTML = hubName;
+
+  //init the game
   Crafty.init(
     window.innerWidth * 0.75,
     window.innerHeight * 0.75,
@@ -366,20 +391,16 @@ const startGame = () => {
 };
 
 // Can zoom or dezoom with Up and Down, and move camera with arrow
-Crafty.bind('KeyDown', function(e) {
-    if (e.key === Crafty.keys.LEFT_ARROW) 
-      Crafty.viewport.x += 50;
-    else if (e.key === Crafty.keys.RIGHT_ARROW) 
-      Crafty.viewport.x-= 50;
-    else if (e.key === Crafty.keys.UP_ARROW) 
-      Crafty.viewport.y+= 50;
-    else if (e.key === Crafty.keys.DOWN_ARROW) 
-      Crafty.viewport.y-= 50;
-    else if (e.key === Crafty.keys.PAGE_UP)
-      Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
-    else if (e.key === Crafty.keys.PAGE_DOWN)
-      Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
-  });
+Crafty.bind("KeyDown", function(e) {
+  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += 50;
+  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
+  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
+  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
+  else if (e.key === Crafty.keys.PAGE_UP)
+    Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_DOWN)
+    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
+});
 
 window.onresize = function() {
   Crafty.init(
