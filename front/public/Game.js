@@ -56,6 +56,7 @@ const createMap = () => {
   }
   return arr;
 };
+
 const map = createMap();
 
 socket.on("connect", () => {
@@ -422,12 +423,18 @@ const startGame = () => {
 
 // Can zoom or dezoom with Up and Down, and move camera with arrow
 Crafty.bind("KeyDown", function(e) {
-  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += 50;
-  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
-  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
-  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
-  else if (e.key === Crafty.keys.PAGE_UP) Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
-  else if (e.key === Crafty.keys.PAGE_DOWN) Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
+  if (e.key === Crafty.keys.LEFT_ARROW)
+    Crafty.viewport.x += 50;
+  else if (e.key === Crafty.keys.RIGHT_ARROW) 
+    Crafty.viewport.x -= 50;
+  else if (e.key === Crafty.keys.UP_ARROW) 
+    Crafty.viewport.y += 50;
+  else if (e.key === Crafty.keys.DOWN_ARROW) 
+    Crafty.viewport.y -= 50;
+  else if (e.key === Crafty.keys.PAGE_UP) 
+    Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_DOWN) 
+    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
 });
 
 window.onresize = function() {
