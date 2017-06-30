@@ -17,8 +17,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-    min: [2],
-    max: [100]
+  min: [2],
+  max: [100]
   }
 });
 
@@ -59,9 +59,9 @@ const createMap = () => {
 const map = createMap();
 
 socket.on("connect", () => {
-  socket.emit("connectFront");
-  wesh("I' am connected");
-  socket.emit("createHub", {
+    socket.emit("connectFront");
+    wesh("I' am connected");
+    socket.emit("createHub", {
     hubName: hubName,
     mapWidth: mapWidth,
     mapHeight: mapHeight,
@@ -438,10 +438,8 @@ Crafty.bind("KeyDown", function(e) {
   else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= 50;
   else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += 50;
   else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= 50;
-  else if (e.key === Crafty.keys.PAGE_UP)
-    Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
-  else if (e.key === Crafty.keys.PAGE_DOWN)
-    Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_UP) Crafty.viewport.zoom(2, e.clientX, e.clientY, 10);
+  else if (e.key === Crafty.keys.PAGE_DOWN) Crafty.viewport.zoom(0.5, e.clientX, e.clientY, 10);
 });
 
 window.onresize = function() {
