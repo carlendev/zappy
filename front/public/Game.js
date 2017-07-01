@@ -86,6 +86,7 @@ socket.on("dead", () => {
 });
 
 socket.on(`update:${hubName}`, data => {
+    wesh("Update", data)
   parseHubData(data.hubInfo);
   parseClientsData(data.clients);
 
@@ -185,27 +186,24 @@ const createPlayer = data => {
     .reel("4", 100, [[0, 1], [1, 1], [2, 1]])
     .reel("3", 100, [[0, 2], [1, 2], [2, 2]])
     .reel("1", 100, [[0, 0], [1, 0], [2, 0]])
-    .reel("dead", 1000, [
-      [0, 12],
-      [1, 12],
-      [2, 12],
-      [3, 12],
-      [4, 12],
-      [5, 12],
-      [6, 12],
-      [1, 13]
-    ])
+    .reel("dead", 1000, [[0, 12], [1, 12], [2, 12], [3, 12],
+        [4, 12], [5, 12], [6, 12], [1, 13]])
+      .reel("lvlUp", 1000, [[0, 14], [1, 14], [2, 14], [3, 14],
+          [4, 14], [5, 14], [6, 14], [7, 14], [8, 14]])
+      .reel("eat", 800, [[0, 15], [1, 15], [2, 15], [3, 15],
+          [4, 15]])
+      .reel("fork", 1000, [[0, 16], [1, 16], [2, 16], [3, 16],
+          [4, 16], [5, 16], [6, 16], [7, 16], [8, 16], [9, 16]])
     .bind("Update", function(data) {
       this.animate(data.orientation.toString(), 1);
       this.x = data.pos.x * tileMapSize;
       this.y = data.pos.y * tileMapSize;
     })
-    .bind("Click", function(data) {
-      displayItem(this.x, this.y);
-      isPlayer(this.x / tileMapSize, this.y / tileMapSize);
-      this.animate("dead", 1);
-      this.sprite("tomb");
-    });
+      .bind("Click", function(data) {
+          displayItem(this.x, this.y);
+          isPlayer(this.x / tileMapSize, this.y / tileMapSize);
+          this.animate("fork", 10)
+      });
 };
 
 const parseClientsData = data => {
