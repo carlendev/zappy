@@ -277,7 +277,7 @@ const brodcast = (data, clients, client) => findClients(client.id).then(([ __cli
                 case 3: dir = getDir(c.pos, tile, 0, 1, 1, 0); break
                 case 4: dir = getDir(c.pos, tile, -1, 0, 0, 1); break
             }
-            const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
+            const _c = Object.keys(_clients).find(e => _clients[e].id === c.id && _client[e].hub === c.hubName)
             if (dir !== -1) _clients[_c].socket.emit('message', { text: data.text, direction: dir + 1 })
         })
         client.socket.emit('ok')
