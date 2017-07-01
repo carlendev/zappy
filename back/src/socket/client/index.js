@@ -318,7 +318,6 @@ const elevation = (data, clients, client) => findClients(client.id).then(([ __cl
     const res = incantationFilter(__clients, _client)
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         if (incantationValidator(res, _client, _hub) === true) {
-            //TODO: (carlen): elevation animation event HERE (_client + __clients in res) !!
             ++_client.lvl
             res.forEach(c => _clients[ Object.keys(_clients).find(e => _clients[e].id === c.id) ].socket.emit('Current level', { lvl: ++c.lvl }))
             const requirement = requirements[_client.lvl - 1]
@@ -375,7 +374,6 @@ const eat = (data, clients, client) => findClients(client.id).then(([ __clients,
         }, client)
         logQInfo(`${client.id} will die of hunger.`)
     } else {
-        //TODO: (carlen): eat animation event HERE !!
         logQInfo(`${client.id} ate and has ${_client.inventory.food} food left.`)
         setClients(__clients, () => {}, {})
     }
@@ -409,7 +407,6 @@ const fns = {
 
 const fuckfns = { userconnect }
 
-//TODO: (carlendev) check eat or set ask hitier
 const setValue = (client, key) => {
     if (key === 'eat') client[key] = true
     else client['eat'] = false
@@ -417,6 +414,8 @@ const setValue = (client, key) => {
     else client['fork'] = false
     if (key === 'incantation') client[key] = true
     else client['incantation'] = false
+    if (key === 'take') client[key] = true
+    else client['take'] = false
 }
 
 const hubEvents = async (job, done) => {
@@ -428,6 +427,7 @@ const hubEvents = async (job, done) => {
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
     switch (data.fn) {
+    case 'take': setValue(_client, 'take'); break
     case 'eat': setValue(_client, 'eat'); break
     case 'fork': setValue(_client, 'fork'); break
     case 'incantation': setValue(_client, 'incantation'); break
