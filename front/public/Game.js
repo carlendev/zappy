@@ -215,7 +215,6 @@ const parseClientsData = data => {
             }
             if (!e.eat && data[i].eat === true) {
                 e.entity.animate("eat", 2)
-                wesh("ANIMATE")
             }
             if (!e.fork && data[i].fork === true) {
                 e.entity.animate("fork", 42 / freq)
@@ -243,18 +242,24 @@ const parseClientsData = data => {
 const parseHubData = data => {
   for (let i = 0; i < data.map.length; i++) {
     for (let j = 0; j < data.map[i].length; j++) {
-      map[i][j].food = data.map[i][j].food;
-      map[i][j].deraumere = data.map[i][j].deraumere;
-      map[i][j].linemate = data.map[i][j].linemate;
-      map[i][j].mendiane = data.map[i][j].mendiane;
-      map[i][j].phiras = data.map[i][j].phiras;
-      map[i][j].sibur = data.map[i][j].sibur;
-      map[i][j].thystame = data.map[i][j].thystame;
-      let item = map[i][j].food  + map[i][j].deraumere +
-        map[i][j].linemate + map[i][j].mendiane +
+      let itemBefore = map[i][j].food  + map[i][j].deraumere +
+          map[i][j].linemate + map[i][j].mendiane +
           map[i][j].phiras + map[i][j].sibur + map[i][j].thystame;
-      //TODO Count all item not only food
-      if (item > 0 && !map[i][j].entity) {
+      let item = data.map[i][j].food  + data.map[i][j].deraumere +
+          data.map[i][j].linemate + data.map[i][j].mendiane +
+          data.map[i][j].phiras + data.map[i][j].sibur + data.map[i][j].thystame;
+        map[i][j].food = data.map[i][j].food;
+        map[i][j].deraumere = data.map[i][j].deraumere;
+        map[i][j].linemate = data.map[i][j].linemate;
+        map[i][j].mendiane = data.map[i][j].mendiane;
+        map[i][j].phiras = data.map[i][j].phiras;
+        map[i][j].sibur = data.map[i][j].sibur;
+        map[i][j].thystame = data.map[i][j].thystame;
+        if (item == 0 && itemBefore > 0) {
+            if (map[i][j].entity && !map[i][j].entity.isPlaying("item_break"))
+                map[i][j].entity.animate("item_break")
+        }
+        if (item > 0 && !map[i][j].entity) {
         map[i][j].entity = Crafty.e(
           `2D, Canvas, Mouse, item, ClickFocus, SpriteAnimation`
         )
@@ -330,7 +335,6 @@ const parseHubData = data => {
             [48, 0]
           ]);
       } else if (item <= 0 && map[i][j].entity) {
-          map[i][j].entity.animate("item_break")
           if (!map[i][j].entity.isPlaying("item_break"))
             map[i][j].entity.destroy();
       }
