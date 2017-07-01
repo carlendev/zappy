@@ -209,7 +209,6 @@ const parseClientsData = data => {
   for (let i = 0; i < data.length; i++) {
     if (players.some(function(e) {
         if (e.id == data[i].id) {
-            data[i].fork = true
             if (e.pos !== data[i].pos && e.orientation != data[i].pos) {
              if (!(e.entity.isPlaying('eat') || e.entity.isPlaying('fork') || e.entity.isPlaying('lvlUp')))
                 e.entity.trigger("Update", e)
@@ -251,8 +250,11 @@ const parseHubData = data => {
       map[i][j].phiras = data.map[i][j].phiras;
       map[i][j].sibur = data.map[i][j].sibur;
       map[i][j].thystame = data.map[i][j].thystame;
+      let item = map[i][j].food  + map[i][j].deraumere +
+        map[i][j].linemate + map[i][j].mendiane +
+          map[i][j].phiras + map[i][j].sibur + map[i][j].thystame;
       //TODO Count all item not only food
-      if (map[i][j].food > 0 && !map[i][j].entity) {
+      if (item > 0 && !map[i][j].entity) {
         map[i][j].entity = Crafty.e(
           `2D, Canvas, Mouse, item, ClickFocus, SpriteAnimation`
         )
@@ -327,7 +329,7 @@ const parseHubData = data => {
             [47, 0],
             [48, 0]
           ]);
-      } else if (map[i][j].food <= 0 && map[i][j].entity) {
+      } else if (item <= 0 && map[i][j].entity) {
           map[i][j].entity.animate("item_break")
           if (!map[i][j].entity.isPlaying("item_break"))
             map[i][j].entity.destroy();
