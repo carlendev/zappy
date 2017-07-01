@@ -24,7 +24,7 @@
     "fakeclient": "nodemon fakeclient.js --exec 'node fakeclient.js'",
     "start": "nodemon --watch src --exec 'node src/app.js'",
     "front": "node fakefront.js",
-    "test": "concurrently \"node fakeclient.js --hub='hub1' --team='ISSOU'\" \"node fakeclient.js --hub='hub1' --team='BITE'\""
+    "test": "concurrently \"node fakeclient.js --hub='hub1' --name='ISSOU'\" \"node fakeclient.js --hub='hub1' --name='BITE'\""
   },
   "devDependencies": {
     "argv": "^0.0.2",
