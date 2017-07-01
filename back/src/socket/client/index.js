@@ -330,7 +330,12 @@ const elevation = (data, clients, client) => findClients(client.id).then(([ __cl
 const generateIA = ({ hubName, teams, clientsPerTeam }) => teams.map(e => [ ...Array(clientsPerTeam) ].reduce((acc, cur) => {
         acc.push({ team: e, hub: hubName })
         return acc
-    }, [])).map(e => e.map(f => spawnProcess('node', [ ia, `--name=${f.team}`, `--hub=${f.hub}` ])))
+    }, [])).map(e => e.map(f => {
+        const p = spawnProcess('node', [ ia, `--name=${f.team}`, `--hub=${f.hub}` ])
+        p.stdout.on('data', data => console.log(`stdout: ${data}`))
+        p.stderr.on('data', data => console.log(`stderr: ${data}`))
+        p.on('close', code => console.log(`child process exited with code ${code}`))
+    }))
 
 //INFO: HUB
 const createHub = (data, clients, client, hubs) => {
