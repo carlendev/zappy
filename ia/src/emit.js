@@ -31,7 +31,7 @@ function receive(name, data) {
         const responseKey = Object.keys(responses).find(e => e === queued.name)
         if (!responseKey === undefined)
             return console.error(`${queued.name} is not a response`)
-        if (name !== responses[ responseKey ] && name !== 'ok')
+        if (name !== responses[ responseKey ] && name !== 'ko')
             return console.error(`${name} is not a valid response to ${queued.name}`)
         queued.callback && queued.callback(data)
         emitQ.shift()
