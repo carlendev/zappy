@@ -225,8 +225,7 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
 const fork = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs ]) => {
     const _hub = _hubs.find(e => e.hubName === client.hub)
     ++_hub.clientsPerTeam
-    //TODO: set this to subject post time
-    data.time = 1
+    data.time = 300
     data.id = 'forkSpawn'
     data.title = 'Spawn'
     data.fn  = 'spawn'
