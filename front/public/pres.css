@@ -1,0 +1,17 @@
+#landing {
+  color: #fff;
+}
+.is-dark {
+  background-color: #f62459;
+  background-image: linear-gradient(
+      rgba(25, 181, 254, 0.6),
+      rgba(246, 36, 89, 0.6)
+    ),
+    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    url('https://images.unsplash.com/photo-1440439307159-c3afc8a8e4ff?dpr=1&auto=format&crop=entropy&fit=crop&w=2000&h=1000&q=40');
+}
+
+.promo-img {
+  border-radius: 10px;
+  border: 10px solid #fff;
+}
