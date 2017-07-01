@@ -156,12 +156,12 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
             nb += 2
         }
         findClientsInHub(_client.hubName).then(_clients => 
-            client.socket.emit('look', res.map(p =>
+            client.socket.emit('Look', res.map(p =>
                 Object.assign({}, { players: _clients.filter(e => p.y === e.pos.y && p.x === e.pos.x).length }, _hub.map[p.y][p.x]))))
     })
 })
 
-const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('inventory', _client.inventory) })
+const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('Inventory', _client.inventory) })
 
 const connectnbr = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => findHubs(_client.hubName).then(([ hubs, hub ]) => {
     const playerInHubs = _clients.filter(e => e.hubName === hub.hubName)
@@ -277,7 +277,7 @@ const brodcast = (data, clients, client) => findClients(client.id).then(([ __cli
                 case 3: dir = getDir(c.pos, tile, 0, 1, 1, 0); break
                 case 4: dir = getDir(c.pos, tile, -1, 0, 0, 1); break
             }
-            const _c = Object.keys(_clients).find(e => _clients[e].id === c.id)
+            const _c = Object.keys(_clients).find(e => _clients[e].id === c.id && _client[e].hub === c.hubName)
             if (dir !== -1) _clients[_c].socket.emit('message', { text: data.text, direction: dir + 1 })
         })
         client.socket.emit('ok')
