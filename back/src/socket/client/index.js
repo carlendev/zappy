@@ -409,7 +409,6 @@ const fns = {
 
 const fuckfns = { userconnect }
 
-//TODO: (carlendev) check eat or set ask hitier
 const setValue = (client, key) => {
     if (key === 'eat') client[key] = true
     else client['eat'] = false
@@ -417,6 +416,8 @@ const setValue = (client, key) => {
     else client['fork'] = false
     if (key === 'incantation') client[key] = true
     else client['incantation'] = false
+    if (key === 'take') client[key] = true
+    else client['take'] = false
 }
 
 const hubEvents = async (job, done) => {
@@ -428,6 +429,7 @@ const hubEvents = async (job, done) => {
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
     switch (data.fn) {
+    case 'take': setValue(_client, 'take'); break
     case 'eat': setValue(_client, 'eat'); break
     case 'fork': setValue(_client, 'fork'); break
     case 'incantation': setValue(_client, 'incantation'); break
