@@ -14,7 +14,7 @@ let _timeouts = []
 let _intervals = []
 let _io = null
 let asStart = {}
-const ia = './fakeclient.js'
+const ia = './../ia/src/app.js'
 const serverQ = 'fuckQ'
 
 const emitDead = (client, msg) => {
@@ -237,7 +237,7 @@ const fork = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs
 
 const spawn = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs ]) => {
     const _hub = _hubs.find(e => e.hubName === client.hub)
-    const process = spawnProcess('node', ['./fakeclient.js', `--team=${client.team}`, `--hub=${_hub.hubName}`])
+    const process = spawnProcess('node', [ ia, `--name=${client.team}`, `--hub=${_hub.hubName}` ])
     setTimeout(() => _io.emit('forkStart'), 500)
 })
 
@@ -330,7 +330,12 @@ const elevation = (data, clients, client) => findClients(client.id).then(([ __cl
 const generateIA = ({ hubName, teams, clientsPerTeam }) => teams.map(e => [ ...Array(clientsPerTeam) ].reduce((acc, cur) => {
         acc.push({ team: e, hub: hubName })
         return acc
-    }, [])).map(e => e.map(f => spawnProcess('node', [ ia, `--team=${f.team}`, `--hub=${f.hub}` ])))
+    }, [])).map(e => e.map(f => {
+        const p = spawnProcess('node', [ ia, `--name=${f.team}`, `--hub=${f.hub}` ])
+        p.stdout.on('data', data => console.log(`stdout: ${data}`))
+        p.stderr.on('data', data => console.log(`stderr: ${data}`))
+        p.on('close', code => console.log(`child process exited with code ${code}`))
+    }))
 
 //INFO: HUB
 const createHub = (data, clients, client, hubs) => {

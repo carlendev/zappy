@@ -23,8 +23,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-    min: [2],
-    max: [100]
+  min: [2],
+  max: [100]
   }
 });
 
@@ -109,6 +109,7 @@ const displayPlayers = () => {
   for (let i = 0; i < players.length; i++) {
     const div = document.createElement("div");
     div.classList.add("box");
+    console.log(players[i].alive);
     if (!players[i].alive) {
       div.classList.add("is-dark");
     }
@@ -505,45 +506,46 @@ const startGame = () => {
 };
 
 const initSprites = () => {
-    //turn the sprite map into usable components
-    Crafty.sprite(64, "/images/Player.png", {
-        team1: [0, 2],
-        team2: [3, 2],
-        blood: [0, 12],
-        tomb: [1, 13]
-    });
-    Crafty.sprite(64, "/images/map.png", {
-        ground1: [0, 0],
-        ground2: [1, 0],
-        ground3: [2, 0],
-        ground4: [3, 0],
-        ground5: [4, 0],
-        ground6: [5, 0],
-        ground7: [6, 0],
-        ground8: [7, 0],
-        ground9: [8, 0],
-        wallY: [0, 1],
-        wallX: [1, 1],
-        wall_TL: [2, 1],
-        wall_TR: [3, 1],
-        wall_BR: [4, 1],
-        wall_BL: [5, 1],
-        hover: [6, 1]
-    });
-    Crafty.sprite(64, "/images/item.png", {
-        item: [0, 0],
-        itemHover: [0, 1]
-    });
-}
+  //turn the sprite map into usable components
+  Crafty.sprite(64, "/images/Player.png", {
+    team1: [0, 2],
+    team2: [3, 2],
+    blood: [0, 12],
+    tomb: [1, 13]
+  });
+  Crafty.sprite(64, "/images/map.png", {
+    ground1: [0, 0],
+    ground2: [1, 0],
+    ground3: [2, 0],
+    ground4: [3, 0],
+    ground5: [4, 0],
+    ground6: [5, 0],
+    ground7: [6, 0],
+    ground8: [7, 0],
+    ground9: [8, 0],
+    wallY: [0, 1],
+    wallX: [1, 1],
+    wall_TL: [2, 1],
+    wall_TR: [3, 1],
+    wall_BR: [4, 1],
+    wall_BL: [5, 1],
+    hover: [6, 1]
+  });
+  Crafty.sprite(64, "/images/item.png", {
+    item: [0, 0],
+    itemHover: [0, 1]
+  });
+};
 
-let realX = Crafty.viewport._width / 2, realY = Crafty.viewport._height / 2
+let realX = Crafty.viewport._width / 2,
+  realY = Crafty.viewport._height / 2;
 
 // Can zoom or dezoom with Up and Down, and move camera with arrow
 Crafty.bind("KeyDown", function(e) {
-  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += tileMapSize;
-  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= tileMapSize;
-  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += tileMapSize;
-  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= tileMapSize;
+  if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x += tileMapSize;
+  else if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x -= tileMapSize;
+  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y += tileMapSize;
+  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y -= tileMapSize;
   else if (e.key === Crafty.keys.PAGE_UP)
     Crafty.viewport.zoom(2, realX, realY, 250);
   else if (e.key === Crafty.keys.PAGE_DOWN)
@@ -578,8 +580,8 @@ window.onresize = function() {
       if (init_first_entity) {
         init_first_entity = false;
         Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
-          realX = e.realX
-          realY = e.realY
+          realX = e.realX;
+          realY = e.realY;
         });
         Crafty.addEvent(this, Crafty.stage.elem, "click", function() {
           if (!entity_clicked) {
