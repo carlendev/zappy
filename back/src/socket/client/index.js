@@ -14,7 +14,7 @@ let _timeouts = []
 let _intervals = []
 let _io = null
 let asStart = {}
-const ia = '../ia/app.js'
+const ia = './../ia/src/app.js'
 const serverQ = 'fuckQ'
 
 const emitDead = (client, msg) => {
