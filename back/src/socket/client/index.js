@@ -44,7 +44,6 @@ const begin = (data, clients, client, io) => findClients('').then(([ __clients ]
     asStart[ data.hubName ] = true
     io.emit('start')
     const front_id = Object.keys(clients).find(e => clients[e].front === true)
-    if (_clients[ client.id ].front) return
     playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id },
                 () => logQInfo('Start game')))
     logInfoSocket('Start hub party')
@@ -79,7 +78,7 @@ const connect = (data, clients, client, io) => {
         const nbPlayerMax = +currentHub.clientsPerTeam
         const _clients = JSON.parse(await get('clients'))
         const playerInHub = _clients.filter(e => e.hubName === data.hubName)
-        const playerPos = randTile(currentHub.mapWidth, currentHub.mapHeight)
+        const playerPos = { x: 0, y: 0 }//randTile(currentHub.mapWidth, currentHub.mapHeight)
         if (!playerInHub.length) return registerClient(clients, client, data, nbTeam, nbPlayerMax, playerPos, io)
         const nbPlayer = playerInHub.length
         if (nbPlayer === nbPlayerMax * nbTeam) return emitDead(client, `Connection rejected, ${data.hubName} to much player in this hub`)
@@ -181,7 +180,7 @@ const take = (data, clients, client) => findClients(client.id).then(([ _clients,
             if (key && _hub.map[_client.pos.y][_client.pos.x][key] > 0) {
                 _hub.map[_client.pos.y][_client.pos.x][key]--
                 _client.inventory[key]++
-                setHubs(_hubs, (_clients, client) => setClients(_clients, client => client.socket.emit('ok'), client), _clients)
+                setHubs(_hubs, _clients => setClients(_clients, () => client.socket.emit('ok')), _clients)
                 return
             }
         }
@@ -196,7 +195,7 @@ const set_ = (data, clients, client) => findClients(client.id).then(([ _clients,
             if (key && _client.inventory[key] > 0) {
                 _hub.map[_client.pos.y][_client.pos.x][key]++
                 _client.inventory[key]--
-                setHubs(_hubs, (_clients, client) => setClients(_clients, client => client.socket.emit('ok'), client), _clients)
+                setHubs(_hubs, _clients => setClients(_clients, () => client.socket.emit('ok')), _clients)
                 return
             }
         }

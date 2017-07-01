@@ -31,7 +31,8 @@
     "delete": "pm2 delete api",
     "monit": "pm2 monit api",
     "status": "pm2 show api",
-    "app": "pm2 list"
+    "app": "pm2 list",
+    "delete": "pm2 delete api"
   },
   "devDependencies": {
     "argv": "^0.0.2",
