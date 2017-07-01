@@ -201,18 +201,27 @@ const createPlayer = data => {
       .bind("Click", function(data) {
           displayItem(this.x, this.y);
           isPlayer(this.x / tileMapSize, this.y / tileMapSize);
-          this.animate("fork", 10)
       });
 };
 
 const parseClientsData = data => {
   for (let i = 0; i < data.length; i++) {
-    if (
-      players.some(function(e) {
+    if (players.some(function(e) {
         if (e.id == data[i].id) {
-          e.pos = data[i].pos;
-          e.orientation = data[i].orientation;
-          e.alive = true;
+            e.pos = data[i].pos;
+            e.orientation = data[i].orientation;
+            if (e.pos !== data[i].pos || e.orientation != data[i].pos) {
+             if (!e.entity.isPlaying('fork'))
+                e.entity.trigger("Update", e)
+            }
+            if (e.eat === false && data[i].eat === true)
+                e.entity.animate("eat", 1)
+            if (!e.fork && data[i].fork === true) {
+                e.entity.animate("fork", 42 / freq)
+            }
+            if (e.lvl < data[i].lvl)
+                e.entity.animate("lvlUp", 1)
+            e.alive = true;
         }
         return e.id == data[i].id;
       })
@@ -390,11 +399,9 @@ const createTagForPlayersResources = (name, value) => {
 const clearEntities = () => {
   for (let i = 0; i < players.length; i++) {
     if (players[i].alive) {
-      players[i].entity.trigger("Update", players[i]);
       players[i].alive = false;
     } else {
       players[i].entity.destroy();
-      players.slice(i, 1);
     }
   }
 };
