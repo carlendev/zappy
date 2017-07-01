@@ -146,7 +146,7 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
         }
 
         let nb = 1
-        for (let forward = 0; forward < _client.lvl; ++forward) {
+        for (let forward = 0; forward <= _client.lvl; ++forward) {
             switch (_client.orientation) {
                 case 1: getRow(_client.pos, forward, nb, 0, -1, -1, 0); break
                 case 2: getRow(_client.pos, forward, nb, 1, 0, 0, -1); break
