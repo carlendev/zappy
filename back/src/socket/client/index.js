@@ -237,7 +237,7 @@ const fork = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs
 
 const spawn = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs ]) => {
     const _hub = _hubs.find(e => e.hubName === client.hub)
-    const process = spawnProcess('node', ['./fakeclient.js', `--team=${client.team}`, `--hub=${_hub.hubName}`])
+    const process = spawnProcess('node', [ './fakeclient.js', `--name=${client.team}`, `--hub=${_hub.hubName}` ])
     setTimeout(() => _io.emit('forkStart'), 500)
 })
 
