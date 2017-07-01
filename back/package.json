@@ -30,7 +30,8 @@
     "restart": "pm2 restart api",
     "delete": "pm2 delete api",
     "monit": "pm2 monit api",
-    "status": "pm2 show api"
+    "status": "pm2 show api",
+    "app": "pm2 list"
   },
   "devDependencies": {
     "argv": "^0.0.2",

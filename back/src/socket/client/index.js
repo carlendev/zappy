@@ -181,7 +181,7 @@ const take = (data, clients, client) => findClients(client.id).then(([ _clients,
             if (key && _hub.map[_client.pos.y][_client.pos.x][key] > 0) {
                 _hub.map[_client.pos.y][_client.pos.x][key]--
                 _client.inventory[key]++
-                setHubs(_hubs, () => client.socket.emit('ok'), _hub)
+                setHubs(_hubs, () => setClients(_clients, () => client.socket.emit('ok')), _hub)
                 return
             }
         }
@@ -196,7 +196,7 @@ const set_ = (data, clients, client) => findClients(client.id).then(([ _clients,
             if (key && _client.inventory[key] > 0) {
                 _hub.map[_client.pos.y][_client.pos.x][key]++
                 _client.inventory[key]--
-                setHubs(_hubs, () => client.socket.emit('ok'), _hub)
+                setHubs(_hubs, () => setClients(_clients, () => client.socket.emit('ok')), _hub)
                 return
             }
         }
