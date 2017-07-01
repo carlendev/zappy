@@ -209,20 +209,26 @@ const parseClientsData = data => {
   for (let i = 0; i < data.length; i++) {
     if (players.some(function(e) {
         if (e.id == data[i].id) {
-            e.pos = data[i].pos;
-            e.orientation = data[i].orientation;
-            if (e.pos !== data[i].pos || e.orientation != data[i].pos) {
-             if (!e.entity.isPlaying('fork'))
+            data[i].fork = true
+            if (e.pos !== data[i].pos && e.orientation != data[i].pos) {
+             if (!(e.entity.isPlaying('eat') || e.entity.isPlaying('fork') || e.entity.isPlaying('lvlUp')))
                 e.entity.trigger("Update", e)
             }
-            if (e.eat === false && data[i].eat === true)
-                e.entity.animate("eat", 1)
+            if (!e.eat && data[i].eat === true) {
+                e.entity.animate("eat", 2)
+                wesh("ANIMATE")
+            }
             if (!e.fork && data[i].fork === true) {
                 e.entity.animate("fork", 42 / freq)
             }
             if (e.lvl < data[i].lvl)
                 e.entity.animate("lvlUp", 1)
             e.alive = true;
+            e.lvl = data[i].lvl
+            e.eat = data[i].eat
+            e.pos = data[i].pos
+            e.fork = data[i].fork
+            e.orientation = data[i].orientation;
         }
         return e.id == data[i].id;
       })
@@ -255,7 +261,6 @@ const parseHubData = data => {
             y: j * tileMapSize
           })
           .bind("Click", function(data) {
-            this.animate("item_break", 1);
             displayItem(this.x, this.y);
             isPlayer(this.x / tileMapSize, this.y / tileMapSize);
             if (!isReallyPlayer(this.x / tileMapSize, this.y / tileMapSize)) {
@@ -323,7 +328,9 @@ const parseHubData = data => {
             [48, 0]
           ]);
       } else if (map[i][j].food <= 0 && map[i][j].entity) {
-        map[i][j].entity.destroy();
+          map[i][j].entity.animate("item_break")
+          if (!map[i][j].entity.isPlaying("item_break"))
+            map[i][j].entity.destroy();
       }
     }
   }
