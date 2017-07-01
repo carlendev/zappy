@@ -78,7 +78,7 @@ const connect = (data, clients, client, io) => {
         const nbPlayerMax = +currentHub.clientsPerTeam
         const _clients = JSON.parse(await get('clients'))
         const playerInHub = _clients.filter(e => e.hubName === data.hubName)
-        const playerPos = { x: 0, y: 0 }//randTile(currentHub.mapWidth, currentHub.mapHeight)
+        const playerPos = randTile(currentHub.mapWidth, currentHub.mapHeight)
         if (!playerInHub.length) return registerClient(clients, client, data, nbTeam, nbPlayerMax, playerPos, io)
         const nbPlayer = playerInHub.length
         if (nbPlayer === nbPlayerMax * nbTeam) return emitDead(client, `Connection rejected, ${data.hubName} to much player in this hub`)
