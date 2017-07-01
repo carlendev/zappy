@@ -265,7 +265,7 @@ export default class AddData extends Component {
           : ""}
         {this.state.errorNumberTeam
           ? <div className="notification is-danger">
-              Vous devez rentrer entre 2 et 7 teams.
+              Vous devez rentrer entre 1 et 7 teams.
             </div>
           : ""}
       </form>

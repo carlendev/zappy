@@ -322,7 +322,7 @@ const elevation = (data, clients, client) => findClients(client.id).then(([ __cl
             res.forEach(c => _clients[ Object.keys(_clients).find(e => _clients[e].id === c.id) ].socket.emit('Current level', { lvl: ++c.lvl }))
             const requirement = requirements[_client.lvl - 1]
             Object.keys(requirement).forEach(e => _hub.map[_client.pos.y][_client.pos.x][e] && (_hub.map[_client.pos.y][_client.pos.x][e] -= requirement[e]))
-            setHubs(_hubs, () => {}, _hub).then(() => setClients(__clients, () => client.socket.emit('Current level', { lvl:  _client.lvl }), {}))
+            setHubs(_hubs, () => {}, _hub).then(() => setClients(__clients, () => client.socket.emit('Current level', _client.lvl), {}))
         } else client.socket.emit('ko')
     })
 })
