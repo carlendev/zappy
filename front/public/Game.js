@@ -202,18 +202,31 @@ const createPlayer = data => {
       .bind("Click", function(data) {
           displayItem(this.x, this.y);
           isPlayer(this.x / tileMapSize, this.y / tileMapSize);
-          this.animate("fork", 10)
       });
 };
 
 const parseClientsData = data => {
   for (let i = 0; i < data.length; i++) {
-    if (
-      players.some(function(e) {
+    if (players.some(function(e) {
         if (e.id == data[i].id) {
-          e.pos = data[i].pos;
-          e.orientation = data[i].orientation;
-          e.alive = true;
+            if (e.pos !== data[i].pos && e.orientation != data[i].pos) {
+             if (!(e.entity.isPlaying('eat') || e.entity.isPlaying('fork') || e.entity.isPlaying('lvlUp')))
+                e.entity.trigger("Update", e)
+            }
+            if (!e.eat && data[i].eat === true) {
+                e.entity.animate("eat", 2)
+            }
+            if (!e.fork && data[i].fork === true) {
+                e.entity.animate("fork", 42 / freq)
+            }
+            if (e.lvl < data[i].lvl)
+                e.entity.animate("lvlUp", 1)
+            e.alive = true;
+            e.lvl = data[i].lvl
+            e.eat = data[i].eat
+            e.pos = data[i].pos
+            e.fork = data[i].fork
+            e.orientation = data[i].orientation;
         }
         return e.id == data[i].id;
       })
@@ -229,15 +242,24 @@ const parseClientsData = data => {
 const parseHubData = data => {
   for (let i = 0; i < data.map.length; i++) {
     for (let j = 0; j < data.map[i].length; j++) {
-      map[i][j].food = data.map[i][j].food;
-      map[i][j].deraumere = data.map[i][j].deraumere;
-      map[i][j].linemate = data.map[i][j].linemate;
-      map[i][j].mendiane = data.map[i][j].mendiane;
-      map[i][j].phiras = data.map[i][j].phiras;
-      map[i][j].sibur = data.map[i][j].sibur;
-      map[i][j].thystame = data.map[i][j].thystame;
-      //TODO Count all item not only food
-      if (map[i][j].food > 0 && !map[i][j].entity) {
+      let itemBefore = map[i][j].food  + map[i][j].deraumere +
+          map[i][j].linemate + map[i][j].mendiane +
+          map[i][j].phiras + map[i][j].sibur + map[i][j].thystame;
+      let item = data.map[i][j].food  + data.map[i][j].deraumere +
+          data.map[i][j].linemate + data.map[i][j].mendiane +
+          data.map[i][j].phiras + data.map[i][j].sibur + data.map[i][j].thystame;
+        map[i][j].food = data.map[i][j].food;
+        map[i][j].deraumere = data.map[i][j].deraumere;
+        map[i][j].linemate = data.map[i][j].linemate;
+        map[i][j].mendiane = data.map[i][j].mendiane;
+        map[i][j].phiras = data.map[i][j].phiras;
+        map[i][j].sibur = data.map[i][j].sibur;
+        map[i][j].thystame = data.map[i][j].thystame;
+        if (item == 0 && itemBefore > 0) {
+            if (map[i][j].entity && !map[i][j].entity.isPlaying("item_break"))
+                map[i][j].entity.animate("item_break")
+        }
+        if (item > 0 && !map[i][j].entity) {
         map[i][j].entity = Crafty.e(
           `2D, Canvas, Mouse, item, ClickFocus, SpriteAnimation`
         )
@@ -246,7 +268,6 @@ const parseHubData = data => {
             y: j * tileMapSize
           })
           .bind("Click", function(data) {
-            this.animate("item_break", 1);
             displayItem(this.x, this.y);
             isPlayer(this.x / tileMapSize, this.y / tileMapSize);
             if (!isReallyPlayer(this.x / tileMapSize, this.y / tileMapSize)) {
@@ -313,8 +334,9 @@ const parseHubData = data => {
             [47, 0],
             [48, 0]
           ]);
-      } else if (map[i][j].food <= 0 && map[i][j].entity) {
-        map[i][j].entity.destroy();
+      } else if (item <= 0 && map[i][j].entity) {
+          if (!map[i][j].entity.isPlaying("item_break"))
+            map[i][j].entity.destroy();
       }
     }
   }
@@ -391,11 +413,9 @@ const createTagForPlayersResources = (name, value) => {
 const clearEntities = () => {
   for (let i = 0; i < players.length; i++) {
     if (players[i].alive) {
-      players[i].entity.trigger("Update", players[i]);
       players[i].alive = false;
     } else {
       players[i].entity.destroy();
-      players.slice(i, 1);
     }
   }
 };

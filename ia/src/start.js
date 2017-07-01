@@ -5,14 +5,15 @@ const { forward } = require('./actions/forward')
 const actionQ = []
 const objectiveQ = []
 
-const actions = {
-    look,
-    forward
+function nextAction() {
+    const action = actionQ.shift()
+    action && action()
 }
 
 function start() {
     console.log('starting to play')
-    actionQ.push(look)
+    actionQ.push(forward)
+    nextAction()
 }
 
 module.exports = { start }
