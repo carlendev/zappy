@@ -205,22 +205,44 @@ const createPlayer = data => {
       });
 };
 
+const createAnimation = data => {
+    return Crafty.e("2D, Canvas, nothing, SpriteAnimation")
+        .attr({
+            x: data.pos.x * tileMapSize,
+            y: data.pos.y * tileMapSize
+        })
+        .bind("Update", function(data) {
+            this.x = data.pos.x * tileMapSize;
+            this.y = data.pos.y * tileMapSize;
+        })
+        .reel("lvlUp", 1000, [[0, 14], [1, 14], [2, 14], [3, 14],
+            [4, 14], [5, 14], [6, 14], [7, 14], [8, 14]])
+        .reel("eat", 800, [[0, 15], [1, 15], [2, 15], [3, 15],
+            [4, 15]])
+        .reel("fork", 1000, [[0, 16], [1, 16], [2, 16], [3, 16],
+            [4, 16], [5, 16], [6, 16], [7, 16], [8, 16], [9, 16]])
+        .bind("Click", function(data) {
+            displayItem(this.x, this.y);
+            isPlayer(this.x / tileMapSize, this.y / tileMapSize);
+        });
+};
+
 const parseClientsData = data => {
   for (let i = 0; i < data.length; i++) {
     if (players.some(function(e) {
         if (e.id == data[i].id) {
             if (e.pos !== data[i].pos && e.orientation != data[i].pos) {
-             if (!(e.entity.isPlaying('eat') || e.entity.isPlaying('fork') || e.entity.isPlaying('lvlUp')))
                 e.entity.trigger("Update", e)
+                e.animation.trigger("Update", e)
             }
             if (!e.eat && data[i].eat === true) {
-                e.entity.animate("eat", 2)
+                e.animation.animate("eat", 2)
             }
             if (!e.fork && data[i].fork === true) {
-                e.entity.animate("fork", 42 / freq)
+                e.animation.animate("fork", 42 / freq)
             }
             if (e.lvl < data[i].lvl)
-                e.entity.animate("lvlUp", 1)
+                e.animation.animate("lvlUp", 2)
             e.alive = true;
             e.lvl = data[i].lvl
             e.eat = data[i].eat
@@ -233,6 +255,7 @@ const parseClientsData = data => {
     ) {
     } else {
       data[i].entity = createPlayer(data[i]);
+      data[i].animation = createAnimation(data[i])
       data[i].alive = true;
       players.push(data[i]);
     }
@@ -255,8 +278,8 @@ const parseHubData = data => {
         map[i][j].phiras = data.map[i][j].phiras;
         map[i][j].sibur = data.map[i][j].sibur;
         map[i][j].thystame = data.map[i][j].thystame;
-        if (item == 0 && itemBefore > 0) {
-            if (map[i][j].entity && !map[i][j].entity.isPlaying("item_break"))
+        if (map[i][j].entity && !map[i][j].entity.isPlaying("item_break")) {
+            if (item == 0 && itemBefore > 0)
                 map[i][j].entity.animate("item_break")
         }
         if (item > 0 && !map[i][j].entity) {
@@ -334,9 +357,8 @@ const parseHubData = data => {
             [47, 0],
             [48, 0]
           ]);
-      } else if (item <= 0 && map[i][j].entity) {
-          if (!map[i][j].entity.isPlaying("item_break"))
-            map[i][j].entity.destroy();
+      } else if (item <= 0 && itemBefore == 0 && map[i][j].entity) {
+              map[i][j].entity.destroy();
       }
     }
   }
@@ -524,7 +546,8 @@ const initSprites = () => {
     team1: [0, 2],
     team2: [3, 2],
     blood: [0, 12],
-    tomb: [1, 13]
+    tomb: [1, 13],
+  nothing: [18, 18]
   });
   Crafty.sprite(64, "/images/map.png", {
     ground1: [0, 0],
