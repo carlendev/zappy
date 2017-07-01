@@ -23,8 +23,8 @@ noUiSlider.create(stepSlider, {
   start: [freq],
   step: 8,
   range: {
-    min: [2],
-    max: [100]
+  min: [2],
+  max: [100]
   }
 });
 
@@ -535,10 +535,10 @@ let realX = Crafty.viewport._width / 2,
 
 // Can zoom or dezoom with Up and Down, and move camera with arrow
 Crafty.bind("KeyDown", function(e) {
-  if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x += tileMapSize;
-  else if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x -= tileMapSize;
-  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y += tileMapSize;
-  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y -= tileMapSize;
+  if (e.key === Crafty.keys.RIGHT_ARROW) Crafty.viewport.x += tileMapSize;
+  else if (e.key === Crafty.keys.LEFT_ARROW) Crafty.viewport.x -= tileMapSize;
+  else if (e.key === Crafty.keys.DOWN_ARROW) Crafty.viewport.y += tileMapSize;
+  else if (e.key === Crafty.keys.UP_ARROW) Crafty.viewport.y -= tileMapSize;
   else if (e.key === Crafty.keys.PAGE_UP)
     Crafty.viewport.zoom(2, realX, realY, 250);
   else if (e.key === Crafty.keys.PAGE_DOWN)
