@@ -71,7 +71,7 @@ export default class AddData extends Component {
         errorTeam: true
       });
       return;
-    } else if (this.state.teams.length < 2 || this.state.teams.length > 8) {
+    } else if (this.state.teams.length < 1 || this.state.teams.length > 8) {
       this.setState({
         errorNumberTeam: true,
         errorTeam: false
