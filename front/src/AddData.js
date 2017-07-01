@@ -167,7 +167,7 @@ export default class AddData extends Component {
               className="input"
               type="text"
               value={this.state.team}
-              placeholder="Minimum 2 teams"
+              placeholder="Minimum 1 teams"
               onChange={e => {
                 this.setState({ team: e.target.value });
               }}
