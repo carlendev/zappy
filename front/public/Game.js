@@ -109,7 +109,6 @@ const displayPlayers = () => {
   for (let i = 0; i < players.length; i++) {
     const div = document.createElement("div");
     div.classList.add("box");
-    console.log(players[i].alive);
     if (!players[i].alive) {
       div.classList.add("is-dark");
     }
@@ -177,36 +176,34 @@ document.getElementById("beginButton").addEventListener("click", () => {
 });
 
 const createPlayer = data => {
-  return Crafty.e("2D, Canvas, team1, Mouse, SpriteAnimation")
-    .attr({
-      x: data.pos.x * tileMapSize,
-      y: data.pos.y * tileMapSize
-    })
-    .reel("2", 100, [[0, 3], [1, 3], [2, 3]])
-    .reel("4", 100, [[0, 1], [1, 1], [2, 1]])
-    .reel("3", 100, [[0, 2], [1, 2], [2, 2]])
-    .reel("1", 100, [[0, 0], [1, 0], [2, 0]])
-    .reel("dead", 1000, [[0, 12], [1, 12], [2, 12], [3, 12],
-        [4, 12], [5, 12], [6, 12], [1, 13]])
-      .reel("lvlUp", 1000, [[0, 14], [1, 14], [2, 14], [3, 14],
-          [4, 14], [5, 14], [6, 14], [7, 14], [8, 14]])
-      .reel("eat", 800, [[0, 15], [1, 15], [2, 15], [3, 15],
-          [4, 15]])
-      .reel("fork", 1000, [[0, 16], [1, 16], [2, 16], [3, 16],
-          [4, 16], [5, 16], [6, 16], [7, 16], [8, 16], [9, 16]])
-    .bind("Update", function(data) {
-      this.animate(data.orientation.toString(), 1);
-      this.x = data.pos.x * tileMapSize;
-      this.y = data.pos.y * tileMapSize;
-    })
-      .bind("Click", function(data) {
-          displayItem(this.x, this.y);
-          isPlayer(this.x / tileMapSize, this.y / tileMapSize);
-      });
+    return Crafty.e("2D, Canvas, team1, Mouse, SpriteAnimation")
+        .attr({
+            x: data.pos.x * tileMapSize,
+            y: data.pos.y * tileMapSize
+        }).bind("Click", function (data) {
+            displayItem(this.x, this.y);
+            isPlayer(this.x / tileMapSize, this.y / tileMapSize);
+        }).bind("Update", function (data) {
+            this.animate(data.orientation.toString(), 1);
+            this.x = data.pos.x * tileMapSize;
+            this.y = data.pos.y * tileMapSize;
+        })
+        .reel("2", 100, [[0, 3], [1, 3], [2, 3]])
+        .reel("4", 100, [[0, 1], [1, 1], [2, 1]])
+        .reel("3", 100, [[0, 2], [1, 2], [2, 2]])
+        .reel("1", 100, [[0, 0], [1, 0], [2, 0]])
+        .reel("dead", 1000, [[0, 12], [1, 12], [2, 12], [3, 12],
+            [4, 12], [5, 12], [6, 12], [1, 13]])
+        .reel("lvlUp", 1000, [[0, 14], [1, 14], [2, 14], [3, 14],
+            [4, 14], [5, 14], [6, 14], [7, 14], [8, 14]])
+        .reel("eat", 800, [[0, 15], [1, 15], [2, 15], [3, 15],
+            [4, 15]])
+        .reel("fork", 1000, [[0, 16], [1, 16], [2, 16], [3, 16],
+            [4, 16], [5, 16], [6, 16], [7, 16], [8, 16], [9, 16]])
 };
 
 const createAnimation = data => {
-    return Crafty.e("2D, Canvas, nothing, SpriteAnimation")
+    return Crafty.e("2D, Canvas, Mouse, nothing, SpriteAnimation")
         .attr({
             x: data.pos.x * tileMapSize,
             y: data.pos.y * tileMapSize
@@ -231,7 +228,9 @@ const parseClientsData = data => {
   for (let i = 0; i < data.length; i++) {
     if (players.some(function(e) {
         if (e.id == data[i].id) {
-            if (e.pos !== data[i].pos && e.orientation != data[i].pos) {
+            if (e.pos !== data[i].pos || e.orientation != data[i].pos) {
+                e.pos = data[i].pos
+                e.orientation = data[i].orientation;
                 e.entity.trigger("Update", e)
                 e.animation.trigger("Update", e)
             }
@@ -246,16 +245,14 @@ const parseClientsData = data => {
             e.alive = true;
             e.lvl = data[i].lvl
             e.eat = data[i].eat
-            e.pos = data[i].pos
             e.fork = data[i].fork
-            e.orientation = data[i].orientation;
         }
         return e.id == data[i].id;
       })
     ) {
     } else {
-      data[i].entity = createPlayer(data[i]);
-      data[i].animation = createAnimation(data[i])
+        data[i].animation = createAnimation(data[i])
+        data[i].entity = createPlayer(data[i]);
       data[i].alive = true;
       players.push(data[i]);
     }
@@ -265,12 +262,12 @@ const parseClientsData = data => {
 const parseHubData = data => {
   for (let i = 0; i < data.map.length; i++) {
     for (let j = 0; j < data.map[i].length; j++) {
-      let itemBefore = map[i][j].food  + map[i][j].deraumere +
-          map[i][j].linemate + map[i][j].mendiane +
-          map[i][j].phiras + map[i][j].sibur + map[i][j].thystame;
       let item = data.map[i][j].food  + data.map[i][j].deraumere +
           data.map[i][j].linemate + data.map[i][j].mendiane +
           data.map[i][j].phiras + data.map[i][j].sibur + data.map[i][j].thystame;
+        let itemBefore = map[i][j].food  + map[i][j].deraumere +
+            map[i][j].linemate + map[i][j].mendiane +
+            map[i][j].phiras + map[i][j].sibur + map[i][j].thystame;
         map[i][j].food = data.map[i][j].food;
         map[i][j].deraumere = data.map[i][j].deraumere;
         map[i][j].linemate = data.map[i][j].linemate;
@@ -287,8 +284,8 @@ const parseHubData = data => {
           `2D, Canvas, Mouse, item, ClickFocus, SpriteAnimation`
         )
           .attr({
-            x: i * tileMapSize,
-            y: j * tileMapSize
+            x: j * tileMapSize,
+            y: i * tileMapSize
           })
           .bind("Click", function(data) {
             displayItem(this.x, this.y);
@@ -366,6 +363,7 @@ const parseHubData = data => {
 
 const isPlayer = (x, y) => {
   for (let i = 0; i < players.length; i++) {
+
     if (players[i].pos.x === x && players[i].pos.y === y) {
       displayPlayerResources(players[i]);
     }
@@ -464,7 +462,7 @@ const displayItem = (x, y) => {
   while (node.firstChild) {
     node.removeChild(node.firstChild);
   }
-  const item = map[x / tileMapSize][y / tileMapSize];
+  const item = map[y / tileMapSize][x / tileMapSize];
   createTag("food", item.food);
   createTag("linemate", item.linemate);
   createTag("deraumere", item.deraumere);
@@ -476,8 +474,8 @@ const displayItem = (x, y) => {
 
 //randomy generate map
 const generateWorld = () => {
-  for (let i = 0; i < mapHeight; ++i) {
-    for (let j = 0; j < mapWidth; ++j) {
+  for (let i = 0; i < mapWidth; ++i) {
+    for (let j = 0; j < mapHeight; ++j) {
       let groundType = Math.floor(Math.random() * 9 + 1);
       Crafty.e(`2D, Canvas, ClickFocus, ground${groundType}`)
         .attr({
