@@ -30,7 +30,7 @@ $ yarn start
 ## npm scripts
 
 At any time you can review the complete list of `npm scripts` available by viewing
-package.json or by running the following command:
+`package.json` or by running the following command:
 
 ```
 $ npm run
