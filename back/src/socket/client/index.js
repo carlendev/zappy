@@ -156,12 +156,12 @@ const look = (data, clients, client) => findClients(client.id).then(([ _clients,
             nb += 2
         }
         findClientsInHub(_client.hubName).then(_clients => 
-            client.socket.emit('look', res.map(p =>
+            client.socket.emit('Look', res.map(p =>
                 Object.assign({}, { players: _clients.filter(e => p.y === e.pos.y && p.x === e.pos.x).length }, _hub.map[p.y][p.x]))))
     })
 })
 
-const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('inventory', _client.inventory) })
+const inventory = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => { client.socket.emit('Inventory', _client.inventory) })
 
 const connectnbr = (data, clients, client) => findClients(client.id).then(([ _clients, _client ]) => findHubs(_client.hubName).then(([ hubs, hub ]) => {
     const playerInHubs = _clients.filter(e => e.hubName === hub.hubName)
