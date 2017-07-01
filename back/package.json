@@ -15,6 +15,7 @@
     "jsonschema": "^1.1.1",
     "kue": "^0.11.6",
     "nodemon": "^1.11.0",
+    "pm2": "^2.5.0",
     "ramda": "^0.24.0",
     "redis": "^2.7.1",
     "socket.io": "^2.0.2",
@@ -24,7 +25,12 @@
     "fakeclient": "nodemon fakeclient.js --exec 'node fakeclient.js'",
     "start": "nodemon --watch src --exec 'node src/app.js'",
     "front": "node fakefront.js",
-    "test": "concurrently \"node fakeclient.js --hub='hub1' --name='ISSOU'\" \"node fakeclient.js --hub='hub1' --name='BITE'\""
+    "test": "concurrently \"node fakeclient.js --hub='hub1' --name='ISSOU'\" \"node fakeclient.js --hub='hub1' --name='BITE'\"",
+    "serve": "pm2 start src/app.js --name=\"api\"",
+    "restart": "pm2 restart api",
+    "delete": "pm2 delete api",
+    "monit": "pm2 monit api",
+    "status": "pm2 show api"
   },
   "devDependencies": {
     "argv": "^0.0.2",
