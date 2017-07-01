@@ -8,21 +8,20 @@ const exit = (code=0) => process.exit(code)
 
 io.on('connect', () => {
     io.emit('connectFront')
-    wesh('I\' am connected')
+    wesh('Front connected')
     io.emit('createHub', {
       hubName: 'hub1',
         mapWidth: 8,
         mapHeight: 8,
         teams: [
             'ISSOU',
-            'BITE'
         ],
-        clientsPerTeam: 2,
+        clientsPerTeam: 1,
         freq: 2
     })
 })
 
-setTimeout(() => io.emit('begin', { hubName: 'hub1' }), 3000)
+setTimeout(() => io.emit('begin', { hubName: 'hub1' }), 1000)
 
 io.on('dead', () => {
     wesh('I\' dead')

@@ -11,5 +11,8 @@ const actions = {
 }
 
 function start() {
+    console.log('starting to play')
     actionQ.push(look)
 }
+
+module.exports = { start }

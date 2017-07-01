@@ -1,6 +1,6 @@
 const socket = require('socket.io-client')
 const argv = require('argv')
-const start = require('./start')
+const { start } = require('./start')
 
 argv.version('v0.1');
 argv.info('Artificial Intelligence for the Zappy project');
@@ -45,7 +45,8 @@ if (!args.options.hub || !args.options.hub.length || !args.options.name || !args
 const io = socket.connect(`http://${host}:${port}`)
 
 io.on('connect', () => {
-    io.emit('join', { hubName: args.options.hub, team: args.options.team })
+    console.log(`connected to http://${host}:${port}`)
+    io.emit('join', { hubName: args.options.hub, team: args.options.name })
 })
 
 let hasStarted = false
