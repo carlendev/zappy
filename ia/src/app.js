@@ -53,6 +53,7 @@ let hasStarted = false
 
 io.on('start', () => {
   hasStarted = true
+  io.emit('Forward')
   start()
 })
 
