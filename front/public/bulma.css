@@ -5046,6 +5046,7 @@ label.panel-block:hover {
 }
 
 .column {
+  background-color: #2a2a2a;
   display: block;
   -ms-flex-preferred-size: 0;
       flex-basis: 0;
@@ -5054,7 +5055,6 @@ label.panel-block:hover {
           flex-grow: 1;
   -ms-flex-negative: 1;
       flex-shrink: 1;
-  padding: 0.75rem;
 }
 
 .columns.is-mobile > .column.is-narrow {
@@ -5926,9 +5926,10 @@ label.panel-block:hover {
 }
 
 .columns {
-  margin-left: -0.75rem;
-  margin-right: -0.75rem;
-  margin-top: -0.75rem;
+  background-color: #2a2a2a;
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  margin-top: -3rem;
 }
 
 .columns:last-child {
@@ -7169,7 +7170,7 @@ label.panel-block:hover {
 }
 
 .section {
-  background-color: white;
+  background-color: #2a2a2a;
   padding: 3rem 1.5rem;
 }
 

@@ -553,8 +553,8 @@ const startGame = () => {
 
   //init the game
   Crafty.init(
-    window.innerWidth * 0.55,
-    window.innerHeight * 0.75,
+    window.innerWidth * 0.75,
+    window.innerHeight * 0.85,
     document.getElementById("game")
   );
   initSprites();

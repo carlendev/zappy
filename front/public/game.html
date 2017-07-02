@@ -10,14 +10,14 @@
   <title>Zappy</title>
 </head>
 
-<body>
+<body style="background-color: #2a2a2a;">
   <div class="columns">
-    <div class="column is-8">
+    <div class="column" >
       <section class="section">
         <div id="game"></div>
-        <div class="columns">
+        <div class="columns" style="margin-top: 1rem; margin-left: 1rem;">
           <div class="column">
-            <label class="label">Ressources disponible sur la case</label>
+            <label class="label" style="color:white">Ressources disponible sur la case</label>
             <div class="box">
               <article class="media">
                 <div class="media-content">
@@ -31,7 +31,7 @@
             </div>
           </div>
           <div class="column">
-            <label class="label">Joueur</label>
+            <label class="label" style="color:white">Joueur</label>
             <div class="box" id="playerColor">
               <article class="media">
                 <div class="media-content">
@@ -45,25 +45,21 @@
             </div>
           </div>
         </div>
-
       </section>
-
-
-
     </div>
-    <div class="column">
-      <section class="section">
-        <h2 id="welcome" class="title is-2">
+    <div class="column" style="padding-right:1rem;">
+      <section class="section" style="color:white">
+        <h2 id="welcome" class="centered title is-2" style="color:white">
           <div class="loader"></div>
         </h2>
         <div class="block">
           <button class="button is-success" id="beginButton">Lancer le jeu</button>
           <a href="/" class="button is-warning">Retourner au menu</a>
         </div>
-        <label class="label">Changer la fréquence du jeu</label>
+        <label class="label" style="color:white">Changer la fréquence du jeu</label>
         <div id="slider-step" style="margin-bottom: 20px"></div>
-        <h4 class="title is-4">Joueurs :</h4>
-        <div id="playersName" style="height: 400px; overflow: auto; border: 2px solid #8B8B8B">
+        <h4 class="title is-4" style="color:white">Joueurs :</h4>
+        <div id="playersName" style="height: 500px; overflow: auto; color:white">
           <!-- nom des joueurs -->
         </div>
       </section>
