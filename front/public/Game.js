@@ -429,8 +429,8 @@ const clearEntities = () => {
   for (let i = 0; i < players.length; i++) {
     if (players[i].alive) {
       players[i].alive = false;
-    } else {
-      players[i].entity.destroy();
+    } else if (!players[i].entity.isPlaying("dead")) {
+      players[i].entity.animate("dead", 0);
     }
   }
 };
