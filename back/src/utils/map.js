@@ -30,4 +30,4 @@ const generateMap = async (width, height) => {
   return map
 }
 
-module.exports = { generateMap, randTile, circularPos }
+module.exports = { generateMap, randTile, randBetween, circularPos }
