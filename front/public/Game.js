@@ -109,18 +109,24 @@ const displayPlayers = () => {
   for (let i = 0; i < players.length; i++) {
     const div = document.createElement("div");
     div.classList.add("box");
-    for (let j = 0; j < teams.length; j++) {
-        if (players[i].team === teams[j]){
-            let tmp = j % 4
-            if (tmp == 0) div.classList.add("is-danger");
-            if (tmp == 1) div.classList.add("is-primary");
-            if (tmp == 2) div.classList.add("is-success");
-            if (tmp == 3) div.classList.add("is-warning");
-        }
-    }
-    if (!players[i].alive) {
-      div.classList.add("is-dark");
-    }
+      div.classList.remove("is-danger");
+      div.classList.remove("is-primary");
+      div.classList.remove("is-success");
+      div.classList.remove("is-warning");
+      div.classList.remove("is-dark");
+      if (players[i].dead) {
+          div.classList.add("is-dark");
+      } else {
+          for (let j = 0; j < teams.length; j++) {
+              if (players[i].team === teams[j]) {
+                  let tmp = j % 4
+                  if (tmp == 0) div.classList.add("is-danger");
+                  if (tmp == 1) div.classList.add("is-primary");
+                  if (tmp == 2) div.classList.add("is-success");
+                  if (tmp == 3) div.classList.add("is-warning");
+              }
+          }
+      }
     node.appendChild(div);
 
     const article = document.createElement("article");
@@ -200,14 +206,14 @@ const createPlayer = data => {
             displayItem(this.x, this.y);
             isPlayer(this.x / tileMapSize, this.y / tileMapSize);
         }).bind("Update", function (data) {
-            this.animate(data.orientation.toString(), 1);
+            this.animate(data.orientation.toString(), -1);
             this.x = data.pos.x * tileMapSize;
             this.y = data.pos.y * tileMapSize;
         })
-        .reel("2", 100, [[offset, 3], [offset+1, 3], [offset+2, 3]])
-        .reel("4", 100, [[offset, 1], [offset+1, 1], [offset+2, 1]])
-        .reel("3", 100, [[offset, 2], [offset+1, 2], [offset+2, 2]])
-        .reel("1", 100, [[offset, 0], [offset+1, 0], [offset+2, 0]])
+        .reel("2", 1000, [[offset, 3], [offset+1, 3], [offset+2, 3]])
+        .reel("4", 1000, [[offset, 1], [offset+1, 1], [offset+2, 1]])
+        .reel("3", 1000, [[offset, 2], [offset+1, 2], [offset+2, 2]])
+        .reel("1", 1000, [[offset, 0], [offset+1, 0], [offset+2, 0]])
         .reel("dead", 1000, [[0, 12], [1, 12], [2, 12], [3, 12],
             [4, 12], [5, 12], [6, 12], [1, 13]]);
 };
@@ -245,7 +251,7 @@ const parseClientsData = data => {
                 e.entity.trigger("Update", e)
                 e.animation.trigger("Update", e)
             }
-            if (!e.eat && data[i].eat === true) {
+            if ((!e.eat && data[i].eat === true) || (!e.take && data[i].take === true)) {
                 e.animation.animate("eat", 2)
             }
             if (!e.fork && data[i].fork === true) {
@@ -256,6 +262,7 @@ const parseClientsData = data => {
             e.alive = true;
             e.lvl = data[i].lvl
             e.eat = data[i].eat
+            e.take = data[i].take
             e.fork = data[i].fork
         }
         return e.id == data[i].id;
@@ -402,13 +409,18 @@ const displayPlayerResources = player => {
     div.classList.remove("is-primary");
     div.classList.remove("is-success");
     div.classList.remove("is-warning");
-    for (let j = 0; j < teams.length; j++) {
-        if (player.team === teams[j]){
-            let tmp = j % 4
-            if (tmp == 0) div.classList.add("is-danger");
-            if (tmp == 1) div.classList.add("is-primary");
-            if (tmp == 2) div.classList.add("is-success");
-            if (tmp == 3) div.classList.add("is-warning");
+    div.classList.remove("is-dark");
+    if (player.dead) {
+        div.classList.add("is-dark");
+    } else {
+        for (let j = 0; j < teams.length; j++) {
+            if (player.team === teams[j]) {
+                let tmp = j % 4
+                if (tmp == 0) div.classList.add("is-danger");
+                if (tmp == 1) div.classList.add("is-primary");
+                if (tmp == 2) div.classList.add("is-success");
+                if (tmp == 3) div.classList.add("is-warning");
+            }
         }
     }
   while (elem.firstChild) {
@@ -459,8 +471,10 @@ const clearEntities = () => {
   for (let i = 0; i < players.length; i++) {
     if (players[i].alive) {
       players[i].alive = false;
-    } else if (!players[i].entity.isPlaying("dead")) {
+    } else if (!players[i].entity.isPlaying("dead") && !players[i].dead) {
+        wesh("Dead", players[i])
       players[i].entity.animate("dead", 0);
+      players[i].dead = true;
     }
   }
 };
@@ -554,7 +568,7 @@ const startGame = () => {
   //init the game
   Crafty.init(
     window.innerWidth * 0.75,
-    window.innerHeight * 0.85,
+    window.innerHeight * 0.84,
     document.getElementById("game")
   );
   initSprites();
@@ -612,11 +626,11 @@ Crafty.bind("KeyDown", function(e) {
 });
 
 window.onresize = function() {
-  Crafty.init(
-    window.innerWidth * 0.75,
-    window.innerHeight * 0.75,
-    document.getElementById("game")
-  );
+    Crafty.init(
+        window.innerWidth * 0.75,
+        window.innerHeight * 0.84,
+        document.getElementById("game")
+    );
 };
 
 (function() {
