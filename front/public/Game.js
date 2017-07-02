@@ -586,7 +586,7 @@ const startGame = () => {
 const endMessage = (data) => {
     Crafty.e("2D, DOM, Text").attr({ x: (mapWidth - 5) * tileMapSize / 2, y: (mapHeight - 1) * tileMapSize / 2 })
         .text(data)
-        .textFont({ size:`${mapWidth * 10}px`, weight: 'bold'})
+        .textFont({ size:`${150}px`, weight: 'bold'})
         .textColor('red');
 }
 
