@@ -30,8 +30,9 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     const action = 'userconnect'
     const time = 0
     const front_id = Object.keys(clients).find(e => clients[e].front === true)
-    createHubJob(serverQ, Object.assign(data, { client_id: client.id, front_id, hub: client.hub, title: action, fn: action, time }, { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0,
-        inventory: { food: 10, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }),
+    createHubJob(serverQ, Object.assign(data, { client_id: client.id, front_id, hub: client.hub, title: action, fn: action, time },
+                    { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0,
+                    inventory: { food: 10, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }),
         () => logQInfo('Connect queued'))
 }
 
@@ -47,6 +48,13 @@ const begin = (data, clients, client, io) => findClients('').then(([ __clients ]
     playerInHub.map(e => createHubJob(e.id, { hub: e.hub, id: 'start', title: 'Start game', client_id: e.id, front_id },
                 () => logQInfo('Start game')))
     logInfoSocket('Start hub party')
+    setInterval(async () => {
+        const fronts = Object.keys(_clients).filter(e => _clients[e].front === true)
+        const _hubs = JSON.parse(await get('hubs'))
+        const clients = JSON.parse(await get('clients'))
+        const hubInfo = _hubs.find(e => e.hubName === data.hubName)
+        fronts.map(e => _clients[e].socket.emit(`update:${data.hubName}`, { hubInfo, clients: clients || [] }))
+    }, 1000)
 }))
 
 
@@ -417,8 +425,6 @@ const setValue = (client, key) => {
     else client['fork'] = false
     if (key === 'incantation') client[key] = true
     else client['incantation'] = false
-    if (key === 'take') client[key] = true
-    else client['take'] = false
 }
 
 const hubEvents = async (job, done) => {
@@ -430,8 +436,7 @@ const hubEvents = async (job, done) => {
     const hubs = JSON.parse(await get('hubs'))
     const hubInfo = hubs.find(e => e.name === client.hubName)
     switch (data.fn) {
-    case 'take': setValue(_client, 'take'); break
-    case 'eat': setValue(_client, 'eat'); break
+    case 'take': setValue(_client, 'eat'); break
     case 'fork': setValue(_client, 'fork'); break
     case 'incantation': setValue(_client, 'incantation'); break
     }
