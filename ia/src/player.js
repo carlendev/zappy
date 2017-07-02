@@ -1,3 +1,13 @@
+let lvl = 7
+
+function getLvl() {
+    return lvl
+}
+
+function setLvl(value) {
+    lvl = value
+}
+
 const inventory = {
     food: 10,
     linemate: 0,
@@ -17,4 +27,4 @@ function setInventory(key, value) {
     inventory[key] = value
 }
 
-module.exports = { getInventory, setInventory }
+module.exports = { getLvl, setLvl, getInventory, setInventory }

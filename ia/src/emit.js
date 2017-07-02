@@ -29,11 +29,9 @@ function receive(name, data) {
     if (emitQ && emitQ.length > 0) {
         const queued = emitQ[0]
         const responseKey = Object.keys(responses).find(e => e === queued.name)
-        if (!responseKey === undefined)
-            return console.error(`${queued.name} is not a response`)
-        if (name !== responses[ responseKey ] && name !== 'ko')
-            return console.error(`${name} is not a valid response to ${queued.name}`)
-        queued.callback && queued.callback(data)
+        if (!responseKey === undefined) return console.error(`${queued.name} is not a response`)
+        if (name !== responses[ responseKey ] && name !== 'ko') return console.error(`${name} is not a valid response to ${queued.name}`)
+        queued.callback && queued.callback(name, data)
         emitQ.shift()
         nextEmit()
     } else console.warn(`Received ${name} but no emit was queued`)

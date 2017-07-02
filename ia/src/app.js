@@ -56,11 +56,11 @@ io.on('connect', () => {
 let hasStarted = false
 
 io.on('start', () => {
-  hasStarted = true
-  start()
+    !hasStarted && start()
+     hasStarted = true
 })
 
 io.on('forkStart', () => {
-  hasStarted = true
-  start()
+    !hasStarted && start()
+    hasStarted = true
 })
