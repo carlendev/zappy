@@ -468,7 +468,10 @@ const createTagForPlayersResources = (name, value) => {
 };
 
 const clearEntities = () => {
-  for (let i = 0; i < players.length; i++) {
+    var end = true;
+    for (let i = 0; i < players.length; i++) {
+      if (!players[i].dead)
+          end = false
     if (players[i].alive) {
       players[i].alive = false;
     } else if (!players[i].entity.isPlaying("dead") && !players[i].dead) {
@@ -477,6 +480,8 @@ const clearEntities = () => {
       players[i].dead = true;
     }
   }
+  if (end)
+      endMessage("Défaite")
 };
 
 //creer tag pour ressources
@@ -579,10 +584,10 @@ const startGame = () => {
 };
 
 const endMessage = (data) => {
-    Crafty.e("2D, DOM, Text").attr({ x: (mapWidth - 5) * tileMapSize / 2, y: (mapHeight - 1)* tileMapSize / 2 })
-        .text("Victoire")
-        .textFont({ size: '100px', weight: 'bold'})
-        .textColor('white');
+    Crafty.e("2D, DOM, Text").attr({ x: (mapWidth - 5) * tileMapSize / 2, y: (mapHeight - 1) * tileMapSize / 2 })
+        .text(data)
+        .textFont({ size:`${mapWidth * 10}px`, weight: 'bold'})
+        .textColor('red');
 }
 
 const initSprites = () => {
