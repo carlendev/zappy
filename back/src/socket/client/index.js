@@ -305,7 +305,7 @@ const incantationFilter = (__clients, _client) => __clients.filter(c => c.hubNam
 
 const incantationValidator = (res, _client, _hub) => {
     const requirement = requirements[_client.lvl - 1]
-    return Object.keys(requirement).every(e => (e === 'players') ? res.length >= requirement.players :
+    return Object.keys(requirement).every(e => (e === 'players') ? res.length >= requirement.players - 1:
         _hub.map[_client.pos.y][_client.pos.x][e] >= requirement[e])
 }
 
