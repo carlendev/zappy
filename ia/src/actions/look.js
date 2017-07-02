@@ -1,7 +1,7 @@
 const { io } = require('../app')
 const { emit } = require('../emit')
 const { action, nextAction } = require('../action')
-const { getLvl, setLvl, getInventory, setInventory } = require('../player')
+const { getLvl, setLvl, getInventory, setInventory, setInventoryKey } = require('../player')
 
 const requirements = [
     { linemate: 1, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 },
@@ -42,20 +42,28 @@ const tileWithMostStones = (data, inventory, requirement) => data.indexOf([ ...d
 
 function look() {
     console.log('Look')
+    emit('Inventory', (name, data) => setInventory(data))
     emit('Look', (name, data) => {
         if (name === 'ko') return
         const inventory = getInventory()
+        console.log('food: ', inventory.food)
         const requirement = requirements[ getLvl() - 1 ]
         console.log('Tile with the most food: ', tileWithMostFood(data))
-        if (inventory.food <= 3) return move(tileRelative(tileWithMostFood(data)))
-        console.log('Tile with the most stones: ', tileWithMostStones(data, inventory, requirement))
-        const teub = tileWithMostStones(data, inventory, requirement)
-        move(tileRelative(teub))
-        Object.keys(requirement).forEach(e => {
-            for (let i = inventory[ e ]; data[teub][ e ] > i && requirement[ e ] - i > 0; ++i) {
-                emit('Take', name => { console.log('Take returned ', name) }, { object: e })
-            }
-        })
+        if (inventory.food <= 5) {
+            move(tileRelative(tileWithMostFood(data)))
+            emit('Take', name => { console.log('Take returned ', name) }, { object: 'food' })
+        } else {
+            console.log('Tile with the most stones: ', tileWithMostStones(data, inventory, requirement))
+            const teub = tileWithMostStones(data, inventory, requirement)
+            if (teub !== 0) {
+                move(tileRelative(teub))
+                Object.keys(requirement).forEach(e => {
+                    for (let i = inventory[ e ]; data[teub][ e ] > i && requirement[ e ] - i > 0; ++i) {
+                        emit('Take', name => { console.log('Take returned ', name) }, { object: e })
+                    }
+                })
+            } else emit('Forward')
+        }
         action(look)
         nextAction()
     })
