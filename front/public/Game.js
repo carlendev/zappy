@@ -586,8 +586,8 @@ const startGame = () => {
   );
   initSprites();
   //Add audio for Gameplay
-  //Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
-  //Crafty.audio.play("PokemonSounds", 5, 1);
+  Crafty.audio.add("PokemonSounds", "/sounds/Bourvil.mp3");
+  Crafty.audio.play("PokemonSounds", 5, 1);
   generateWorld();
 };
 
