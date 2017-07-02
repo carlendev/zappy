@@ -678,6 +678,26 @@ a.has-text-danger:hover, a.has-text-danger:focus {
   border-color: transparent;
 }
 
+.box.is-danger {
+  background-color: #ff3860;
+  border-color: transparent;
+}
+
+.box.is-primary {
+  background-color: #00d1b2;
+  border-color: transparent;
+}
+
+.box.is-success {
+  background-color: #23d160;
+  border-color: transparent;
+}
+
+.box.is-warning {
+  background-color: #ffdd57;
+  border-color: transparent;
+}
+
 .box:not(:last-child) {
   margin-bottom: 1.5rem;
 }
