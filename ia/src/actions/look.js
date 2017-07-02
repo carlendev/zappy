@@ -1,6 +1,6 @@
 const { io } = require('../app')
 const { emit } = require('../emit')
-const { action } = require('../action')
+const { action, nextAction } = require('../action')
 const { getLvl, setLvl, getInventory, setInventory } = require('../player')
 
 const requirements = [
@@ -56,6 +56,8 @@ function look() {
                 emit('Take', name => { console.log('Take returned ', name) }, { object: e })
             }
         })
+        action(look)
+        nextAction()
     })
 }
 
