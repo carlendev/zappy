@@ -176,6 +176,15 @@ document.getElementById("beginButton").addEventListener("click", () => {
 });
 
 const createPlayer = data => {
+    let offset;
+    for (let i = 0; i < teams.length; i++) {
+        if (teams[i] === data.team) {
+            offset = i * 3
+            if (i > 9)
+                offset = 0
+        }
+    }
+
     return Crafty.e("2D, Canvas, team1, Mouse, SpriteAnimation")
         .attr({
             x: data.pos.x * tileMapSize,
@@ -188,10 +197,10 @@ const createPlayer = data => {
             this.x = data.pos.x * tileMapSize;
             this.y = data.pos.y * tileMapSize;
         })
-        .reel("2", 100, [[0, 3], [1, 3], [2, 3]])
-        .reel("4", 100, [[0, 1], [1, 1], [2, 1]])
-        .reel("3", 100, [[0, 2], [1, 2], [2, 2]])
-        .reel("1", 100, [[0, 0], [1, 0], [2, 0]])
+        .reel("2", 100, [[offset, 3], [offset+1, 3], [offset+2, 3]])
+        .reel("4", 100, [[offset, 1], [offset+1, 1], [offset+2, 1]])
+        .reel("3", 100, [[offset, 2], [offset+1, 2], [offset+2, 2]])
+        .reel("1", 100, [[offset, 0], [offset+1, 0], [offset+2, 0]])
         .reel("dead", 1000, [[0, 12], [1, 12], [2, 12], [3, 12],
             [4, 12], [5, 12], [6, 12], [1, 13]]);
 };
