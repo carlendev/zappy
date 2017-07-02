@@ -109,6 +109,15 @@ const displayPlayers = () => {
   for (let i = 0; i < players.length; i++) {
     const div = document.createElement("div");
     div.classList.add("box");
+    for (let j = 0; j < teams.length; j++) {
+        if (players[i].team === teams[j]){
+            let tmp = j % 4
+            if (tmp == 0) div.classList.add("is-danger");
+            if (tmp == 1) div.classList.add("is-primary");
+            if (tmp == 2) div.classList.add("is-success");
+            if (tmp == 3) div.classList.add("is-warning");
+        }
+    }
     if (!players[i].alive) {
       div.classList.add("is-dark");
     }
@@ -179,12 +188,10 @@ const createPlayer = data => {
     let offset;
     for (let i = 0; i < teams.length; i++) {
         if (teams[i] === data.team) {
-            offset = i * 3
-            if (i > 9)
-                offset = 0
+            let tmp = i % 4
+            offset = tmp * 3
         }
     }
-
     return Crafty.e("2D, Canvas, team1, Mouse, SpriteAnimation")
         .attr({
             x: data.pos.x * tileMapSize,
@@ -390,6 +397,20 @@ const isReallyPlayer = (x, y) => {
 
 const displayPlayerResources = player => {
   const elem = document.getElementById("playerResources");
+  const div = document.getElementById("playerColor");
+    div.classList.remove("is-danger");
+    div.classList.remove("is-primary");
+    div.classList.remove("is-success");
+    div.classList.remove("is-warning");
+    for (let j = 0; j < teams.length; j++) {
+        if (player.team === teams[j]){
+            let tmp = j % 4
+            if (tmp == 0) div.classList.add("is-danger");
+            if (tmp == 1) div.classList.add("is-primary");
+            if (tmp == 2) div.classList.add("is-success");
+            if (tmp == 3) div.classList.add("is-warning");
+        }
+    }
   while (elem.firstChild) {
     elem.removeChild(elem.firstChild);
   }
@@ -488,6 +509,7 @@ const generateWorld = () => {
         })
         .bind("Click", function(data) {
           displayItem(this.x, this.y);
+          isPlayer(this.x / tileMapSize, this.y / tileMapSize);
         })
         .bind("Focus", function() {
           this.sprite("hover");
@@ -546,7 +568,6 @@ const initSprites = () => {
   //turn the sprite map into usable components
   Crafty.sprite(64, "/images/Player.png", {
     team1: [0, 2],
-    team2: [3, 2],
     blood: [0, 12],
     tomb: [1, 13],
   nothing: [18, 18]
