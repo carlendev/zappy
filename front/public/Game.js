@@ -43,6 +43,7 @@ stepSlider.addEventListener("mouseup", function(res) {
 
 //Players and map infos
 const players = [];
+let ok = []
 const createMap = () => {
   let arr = new Array(mapHeight);
   for (let i = 0; i < mapHeight; i++) {
@@ -242,6 +243,7 @@ const createAnimation = data => {
 };
 
 const parseClientsData = data => {
+  ok = data
   for (let i = 0; i < data.length; i++) {
     if (players.some(function(e) {
         if (e.id == data[i].id) {
@@ -389,7 +391,7 @@ const isPlayer = (x, y) => {
   for (let i = 0; i < players.length; i++) {
 
     if (players[i].pos.x === x && players[i].pos.y === y) {
-      displayPlayerResources(players[i]);
+      displayPlayerResources(ok[i]);
     }
   }
 };
