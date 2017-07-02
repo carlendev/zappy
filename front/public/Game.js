@@ -235,7 +235,7 @@ const createAnimation = data => {
         .reel("lvlUp", 1000, [[0, 14], [1, 14], [2, 14], [3, 14],
             [4, 14], [5, 14], [6, 14], [7, 14], [8, 14], [9, 14]])
         .reel("eat", 800, [[0, 15], [1, 15], [2, 15], [3, 15],
-            [4, 15], [5, 16]])
+            [4, 15], [5, 15]])
         .reel("fork", 1000, [[0, 16], [1, 16], [2, 16], [3, 16],
             [4, 16], [5, 16], [6, 16], [7, 16], [8, 16], [9, 16], [10, 16]]);
 
@@ -251,14 +251,20 @@ const parseClientsData = data => {
                 e.entity.trigger("Update", e)
                 e.animation.trigger("Update", e)
             }
-            if ((!e.eat && data[i].eat === true) || (!e.take && data[i].take === true)) {
-                e.animation.animate("eat", 2)
+            if (!e.animation.isPlaying()) {
+                if ((!e.eat && data[i].eat === true) || (!e.take && data[i].take === true)) {
+                    wesh("EAT")
+                    e.animation.animate("eat", 2)
+                }
+                if (!e.fork && data[i].fork === true) {
+                    e.animation.animate("fork", 42 / freq)
+                    wesh("FORK")
+                }
+                if (e.lvl < data[i].lvl) {
+                    wesh("UP")
+                    e.animation.animate("lvlUp", 2)
+                }
             }
-            if (!e.fork && data[i].fork === true) {
-                e.animation.animate("fork", 42 / freq)
-            }
-            if (e.lvl < data[i].lvl)
-                e.animation.animate("lvlUp", 2)
             e.alive = true;
             e.lvl = data[i].lvl
             e.eat = data[i].eat
@@ -269,9 +275,9 @@ const parseClientsData = data => {
       })
     ) {
     } else {
-        data[i].animation = createAnimation(data[i])
         data[i].entity = createPlayer(data[i]);
-      data[i].alive = true;
+        data[i].animation = createAnimation(data[i])
+        data[i].alive = true;
       players.push(data[i]);
     }
   }
