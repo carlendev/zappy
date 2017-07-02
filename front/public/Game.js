@@ -578,6 +578,13 @@ const startGame = () => {
   generateWorld();
 };
 
+const endMessage = (data) => {
+    Crafty.e("2D, DOM, Text").attr({ x: (mapWidth - 5) * tileMapSize / 2, y: (mapHeight - 1)* tileMapSize / 2 })
+        .text("Victoire")
+        .textFont({ size: '100px', weight: 'bold'})
+        .textColor('white');
+}
+
 const initSprites = () => {
   //turn the sprite map into usable components
   Crafty.sprite(64, "/images/Player.png", {
