@@ -2,7 +2,7 @@ const { logInfoSocket, logQInfo, logQError, logInfo } = require('../../utils/log
 const { clientPnw, validateJson, createHubP, deleteHubP } = require('../../utils/validator')
 const { set, get, decr, findClients, findClientsInHub, findHubs, findInfos, setClients, setHubs } = require('../../utils/redisfn')
 const { createHubQ, createHubJob } = require('../../queue/index')
-const { randTile, circularPos, generateMap } = require('../../utils/map')
+const { randTile, randBetween, circularPos, generateMap } = require('../../utils/map')
 const spawnProcess = require('child_process').spawn
 const bresenham = require('../../utils/bresenham')
 const Interval = require('../../utils/interval')
@@ -31,7 +31,7 @@ const registerClient = (clients, client, data, nbTeam, nbPlayerMax, playerPos, i
     const time = 0
     const front_id = Object.keys(clients).find(e => clients[e].front === true)
     createHubJob(serverQ, Object.assign(data, { client_id: client.id, front_id, hub: client.hub, title: action, fn: action, time },
-                    { id, pos: playerPos, orientation: 1, lvl: 2, nbActions: 0,
+                    { id, pos: playerPos, orientation: randBetween(1, 4), lvl: 1, nbActions: 0,
                     inventory: { food: 10, linemate: 0, deraumere: 0, sibur: 0, mendiane: 0, phiras: 0, thystame: 0 } }),
         () => logQInfo('Connect queued'))
 }
@@ -232,7 +232,7 @@ const eject = (data, clients, client) => findClients(client.id).then(([ __client
 const fork = (data, clients, client) => findHubs(client.hub).then(async ([ _hubs ]) => {
     const _hub = _hubs.find(e => e.hubName === client.hub)
     ++_hub.clientsPerTeam
-    data.time = 300
+    data.time = 600
     data.id = 'forkSpawn'
     data.title = 'Spawn'
     data.fn  = 'spawn'
@@ -314,7 +314,7 @@ const incantation = (data, clients, client) => findClients(client.id).then(([ __
     findHubs(_client.hubName).then(([ _hubs, _hub ]) => {
         if (incantationValidator(res, _client, _hub) === true) {
             res.forEach(c => _clients[ Object.keys(_clients).find(e => _clients[e].id === c.id) ].socket.emit('Elevation underway'))
-            createHubJob(client.id, Object.assign(data, forgeInfoString('Elevation', 15)), () => logQInfo('Elevation queued'))
+            createHubJob(client.id, Object.assign(data, forgeInfoString('Elevation', 300)), () => logQInfo('Elevation queued'))
             client.socket.emit('Elevation underway')
         } else client.socket.emit('ko')
     })
